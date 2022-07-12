@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.brave.braveandroidplaylist">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:usesCleartextTraffic="true">
+        <activity
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
+            android:name=".activity.PlaylistPlayerActivity"
+            android:exported="false" />
+        <activity
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
+            android:name=".activity.AddNewPlaylistActivity"
+            android:exported="false" />
+        <activity
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
+            android:name="com.brave.braveandroidplaylist.activity.PlaylistActivity"
+            android:exported="false" />
+        <activity
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
+            android:name="com.brave.braveandroidplaylist.activity.AllPlaylistActivity"
+            android:exported="false"
+            android:launchMode="singleTask" />
+        <activity
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
+            android:name=".activity.PlaylistOnboardingActivity"
+            android:exported="false"
+            android:launchMode="singleTask" />
+    </application>
+
+</manifest>
