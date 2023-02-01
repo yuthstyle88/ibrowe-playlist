@@ -31,10 +31,10 @@ class PlaylistItemGestureHelper<VH : AbstractRecyclerViewAdapter.AbstractViewHol
     ), RecyclerView.OnItemTouchListener {
 
     private val deleteIcon: Drawable?
-    private val uploadIcon: Drawable?
+    private val shareIcon: Drawable?
     private val removeOfflineIcon: Drawable?
     private val deleteIconBg: Drawable
-    private val uploadIconBg: Drawable
+    private val shareIconBg: Drawable
     private val removeOfflineIconBg: Drawable
     private val buttonPositions: MutableMap<Int, List<OptionButton>> = mutableMapOf()
     private val gestureDetector: GestureDetector
@@ -54,12 +54,12 @@ class PlaylistItemGestureHelper<VH : AbstractRecyclerViewAdapter.AbstractViewHol
 
     init {
         deleteIcon = AppCompatResources.getDrawable(context, R.drawable.ic_playlist_delete)
-        uploadIcon =
-            AppCompatResources.getDrawable(context, R.drawable.ic_upload_media)
+        shareIcon =
+            AppCompatResources.getDrawable(context, R.drawable.ic_share)
         removeOfflineIcon =
             AppCompatResources.getDrawable(context, R.drawable.ic_remove_offline_data_playlist)
         deleteIconBg = ColorDrawable(context.getColor(R.color.swipe_delete))
-        uploadIconBg = ColorDrawable(context.getColor(R.color.upload_option_bg))
+        shareIconBg = ColorDrawable(context.getColor(R.color.upload_option_bg))
         removeOfflineIconBg = ColorDrawable(context.getColor(R.color.remove_offline_option_bg))
         gestureDetector = GestureDetector(context, gestureListener)
         recyclerView.addOnItemTouchListener(this)
@@ -83,8 +83,8 @@ class PlaylistItemGestureHelper<VH : AbstractRecyclerViewAdapter.AbstractViewHol
             if (viewHolder.adapterPosition == swipePosition)
                 swipePosition = -1
             buttonPositions.remove(viewHolder.adapterPosition)
-            adapter.removeAt(viewHolder.adapterPosition)
             itemInteractionListener.onItemDelete(viewHolder.layoutPosition)
+//            adapter.removeAt(viewHolder.adapterPosition)
         } else if (direction == END)
             oldSwipePosition = swipePosition
     }
@@ -114,7 +114,7 @@ class PlaylistItemGestureHelper<VH : AbstractRecyclerViewAdapter.AbstractViewHol
 
     private fun resetButtons(c: Canvas) {
         resetDrawableBounds(deleteIconBg, c)
-        resetDrawableBounds(uploadIconBg, c)
+        resetDrawableBounds(shareIconBg, c)
         resetDrawableBounds(removeOfflineIconBg, c)
     }
 
@@ -124,7 +124,7 @@ class PlaylistItemGestureHelper<VH : AbstractRecyclerViewAdapter.AbstractViewHol
     }
 
     private fun onSwipeRight(viewHolder: RecyclerView.ViewHolder, dX: Float, c: Canvas): Float {
-        if (uploadIcon == null || removeOfflineIcon == null)
+        if (shareIcon == null || removeOfflineIcon == null)
             return 0f
 
         val itemView = viewHolder.itemView
@@ -165,32 +165,32 @@ class PlaylistItemGestureHelper<VH : AbstractRecyclerViewAdapter.AbstractViewHol
         removeOfflineIconBg.draw(c)
         removeOfflineIcon.draw(c)
 
-        val uploadIconMargin = (itemView.height - uploadIcon.intrinsicHeight) / 2
-        val uploadIconTop = itemView.top + (itemView.height - uploadIcon.intrinsicHeight) / 2
-        val uploadIconBottom = uploadIconTop + uploadIcon.intrinsicHeight
-        val uploadIconLeft = offlineIconRight + offlineIconMargin + uploadIconMargin
-        val uploadIconRight = uploadIconLeft + uploadIcon.intrinsicWidth
+        val shareIconMargin = (itemView.height - shareIcon.intrinsicHeight) / 2
+        val shareIconTop = itemView.top + (itemView.height - shareIcon.intrinsicHeight) / 2
+        val shareIconBottom = shareIconTop + shareIcon.intrinsicHeight
+        val shareIconLeft = offlineIconRight + offlineIconMargin + shareIconMargin
+        val shareIconRight = shareIconLeft + shareIcon.intrinsicWidth
 
-        if (rightBound >= uploadIconRight)
-            uploadIcon.setBounds(uploadIconLeft, uploadIconTop, uploadIconRight, uploadIconBottom)
+        if (rightBound >= shareIconRight)
+            shareIcon.setBounds(shareIconLeft, shareIconTop, shareIconRight, shareIconBottom)
         else
-            uploadIcon.setBounds(0, 0, 0, 0)
+            shareIcon.setBounds(0, 0, 0, 0)
 
         if (rightBound >= offlineIconRight + offlineIconMargin) {
             buttonPositions[viewHolder.adapterPosition]!![1].viewRect = Rect(
                 offlineIconRight + offlineIconMargin,
                 itemView.top,
-                min(rightBound, uploadIconRight + uploadIconMargin),
+                min(rightBound, shareIconRight + shareIconMargin),
                 itemView.bottom
             )
-            uploadIconBg.bounds = buttonPositions[viewHolder.adapterPosition]!![1].viewRect!!
+            shareIconBg.bounds = buttonPositions[viewHolder.adapterPosition]!![1].viewRect!!
         } else
-            uploadIconBg.setBounds(0, 0, 0, 0)
+            shareIconBg.setBounds(0, 0, 0, 0)
 
-        uploadIconBg.draw(c)
-        uploadIcon.draw(c)
+        shareIconBg.draw(c)
+        shareIcon.draw(c)
 
-        return (uploadIconRight + uploadIconMargin).toFloat()
+        return (shareIconRight + shareIconMargin).toFloat()
     }
 
     private fun onSwipeLeft(viewHolder: RecyclerView.ViewHolder, dX: Float, c: Canvas) {
@@ -242,7 +242,7 @@ class PlaylistItemGestureHelper<VH : AbstractRecyclerViewAdapter.AbstractViewHol
     private fun instantiateOptions(position: Int): List<OptionButton> =
         listOf(
             OptionButton(position, itemInteractionListener::onRemoveFromOffline),
-            OptionButton(position, itemInteractionListener::onUpload)
+            OptionButton(position, itemInteractionListener::onShare)
         )
 
     inner class OptionButton(

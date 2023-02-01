@@ -11,7 +11,7 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 
 
-class PlaylistOnboardingActivity : AppCompatActivity(R.layout.playlist_onboarding_activity) {
+class PlaylistMenuOnboardingActivity : AppCompatActivity(R.layout.playlist_onboarding_activity) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -39,7 +39,7 @@ class PlaylistOnboardingActivity : AppCompatActivity(R.layout.playlist_onboardin
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 if (position == 2) {
-                    nextButton.text = getString(R.string.browse_for_media)
+                    nextButton.text = getString(R.string.playlist_browse_for_media)
                 } else {
                     nextButton.text = getString(R.string.playlist_next)
                 }

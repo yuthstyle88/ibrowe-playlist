@@ -4,6 +4,7 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.Intent
 import android.graphics.*
 import android.net.Uri
 import android.os.Build
@@ -26,7 +27,7 @@ object PlaylistUtils {
         }
     }
 
-    fun getRoundedCornerBitmap(bitmap: Bitmap): Bitmap? {
+    fun getRoundedCornerBitmap(bitmap: Bitmap, width: Int, height: Int): Bitmap? {
         val output = Bitmap.createBitmap(
             bitmap.width,
             bitmap.height, Bitmap.Config.ARGB_8888
@@ -34,7 +35,7 @@ object PlaylistUtils {
         val canvas = Canvas(output)
         val color = -0xbdbdbe
         val paint = Paint()
-        val rect = Rect(0, 0, bitmap.width, bitmap.height)
+        val rect = Rect(0, 0, bitmap.width, bitmap.width)
         val rectF = RectF(rect)
         val roundPx = 8f
         paint.isAntiAlias = true
@@ -51,5 +52,22 @@ object PlaylistUtils {
             Uri.parse(mediaSrc)
         val expireMillis : Long? = uri.getQueryParameter("expire")?.toLong()?.times(1000L)
         return Date() > expireMillis?.let { Date(it) }
+    }
+
+    fun getStatusBarHeight(context: Context): Int {
+        var result = 0
+        val resourceId: Int = context.resources.getIdentifier("status_bar_height", "dimen", "android")
+        if (resourceId > 0) {
+            result = context.resources.getDimensionPixelSize(resourceId)
+        }
+        return result
+    }
+
+    fun showSharingDialog(context: Context, text: String) {
+        val intent = Intent()
+        intent.action = Intent.ACTION_SEND
+        intent.type = "text/plain"
+        intent.putExtra(Intent.EXTRA_TEXT, text)
+        context.startActivity(Intent.createChooser(intent, "Share with:"))
     }
 }
