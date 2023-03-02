@@ -19,6 +19,7 @@ import com.brave.playlist.listener.PlaylistOptionsListener
 import com.brave.playlist.model.PlaylistItemModel
 import com.brave.playlist.model.PlaylistModel
 import com.brave.playlist.model.PlaylistOptionsModel
+import com.brave.playlist.util.ConstantUtils
 import com.brave.playlist.util.ConstantUtils.DEFAULT_PLAYLIST
 import com.brave.playlist.util.MenuUtils
 import com.brave.playlist.util.PlaylistPreferenceUtils
@@ -71,7 +72,7 @@ class AllPlaylistFragment : Fragment(R.layout.fragment_all_playlist), PlaylistOp
 
     override fun onResume() {
         super.onResume()
-        playlistViewModel.fetchPlaylistData("all")
+        playlistViewModel.fetchPlaylistData(ConstantUtils.ALL_PLAYLIST)
 
         playlistViewModel.allPlaylistData.observe(viewLifecycleOwner) { allPlaylistData ->
             val allPlaylistList = mutableListOf<PlaylistModel>()
@@ -86,10 +87,10 @@ class AllPlaylistFragment : Fragment(R.layout.fragment_all_playlist), PlaylistOp
                     recentPlaylistJson,
                     TypeToken.getParameterized(LinkedList::class.java, String::class.java).type
                 )
-                Log.e("recent_playlist", "All playlist : recentPlaylistJson : "+recentPlaylistIds)
+                Log.e("recent_playlist", "All playlist : recentPlaylistJson : " + recentPlaylistIds)
             }
 
-            var defaultPlaylistModel:PlaylistModel? = null
+            var defaultPlaylistModel: PlaylistModel? = null
             for (i in 0 until allPlaylistJsonArray.length()) {
                 val playlistList = mutableListOf<PlaylistItemModel>()
                 val playlistJsonObject = allPlaylistJsonArray.getJSONObject(i)
@@ -118,7 +119,7 @@ class AllPlaylistFragment : Fragment(R.layout.fragment_all_playlist), PlaylistOp
                     playlistList
                 )
 
-                if (playlistModel.id==DEFAULT_PLAYLIST) {
+                if (playlistModel.id == DEFAULT_PLAYLIST) {
                     defaultPlaylistModel = playlistModel
                 } else {
                     allPlaylistList.add(
@@ -129,7 +130,7 @@ class AllPlaylistFragment : Fragment(R.layout.fragment_all_playlist), PlaylistOp
             defaultPlaylistModel?.let { allPlaylistList.add(0, it) }
 
             if (recentPlaylistIds.size > 0) {
-                recentPlaylistIds.forEach ids@ {
+                recentPlaylistIds.forEach ids@{
                     allPlaylistList.forEach models@{ model ->
                         if (model.id == it && model.items.isNotEmpty()) {
                             recentPlaylist.add(model)
@@ -139,8 +140,8 @@ class AllPlaylistFragment : Fragment(R.layout.fragment_all_playlist), PlaylistOp
                 }
             }
 
-            recentPlaylist.forEach{
-                Log.e("recent_playlist", "\nafter All playlist : recentPlaylistJson : "+it.id)
+            recentPlaylist.forEach {
+                Log.e("recent_playlist", "\nafter All playlist : recentPlaylistJson : " + it.id)
             }
 
             playlistToolbar.setOptionsButtonClickListener {
@@ -155,9 +156,12 @@ class AllPlaylistFragment : Fragment(R.layout.fragment_all_playlist), PlaylistOp
             rvRecentlyPlayed.layoutManager =
                 LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
             rvRecentlyPlayed.adapter = RecentlyPlayedPlaylistAdapter(recentPlaylist, this)
-            rvRecentlyPlayed.visibility = if (recentPlaylist.isNotEmpty()) View.VISIBLE else View.GONE
-            tvRecentlyPlayed.visibility = if (recentPlaylist.isNotEmpty()) View.VISIBLE else View.GONE
-            tvPlaylistHeader.visibility = if (recentPlaylist.isNotEmpty()) View.VISIBLE else View.GONE
+            rvRecentlyPlayed.visibility =
+                if (recentPlaylist.isNotEmpty()) View.VISIBLE else View.GONE
+            tvRecentlyPlayed.visibility =
+                if (recentPlaylist.isNotEmpty()) View.VISIBLE else View.GONE
+            tvPlaylistHeader.visibility =
+                if (recentPlaylist.isNotEmpty()) View.VISIBLE else View.GONE
 
             rvPlaylist.layoutManager = LinearLayoutManager(requireContext())
             rvPlaylist.adapter = PlaylistAdapter(allPlaylistList, this)

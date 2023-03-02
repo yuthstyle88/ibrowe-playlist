@@ -9,7 +9,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.appcompat.widget.LinearLayoutCompat
@@ -37,11 +36,11 @@ import com.brave.playlist.util.ConnectionUtils
 import com.brave.playlist.util.ConstantUtils.DEFAULT_PLAYLIST
 import com.brave.playlist.util.MenuUtils
 import com.brave.playlist.util.PlaylistItemGestureHelper
-import com.brave.playlist.util.PlaylistUtils
 import com.brave.playlist.util.PlaylistPreferenceUtils
 import com.brave.playlist.util.PlaylistPreferenceUtils.RECENTLY_PLAYED_PLAYLIST
 import com.brave.playlist.util.PlaylistPreferenceUtils.get
 import com.brave.playlist.util.PlaylistPreferenceUtils.set
+import com.brave.playlist.util.PlaylistUtils
 import com.brave.playlist.view.PlaylistToolbar
 import com.bumptech.glide.Glide
 import com.google.gson.Gson
@@ -51,7 +50,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.util.LinkedList
 
-class PlaylistFragment : Fragment(R.layout.playlist_view), ItemInteractionListener,
+class PlaylistFragment : Fragment(R.layout.fragment_playlist), ItemInteractionListener,
     View.OnClickListener, StartDragListener, PlaylistOptionsListener, PlaylistItemOptionsListener,
     PlaylistItemClickListener {
 
@@ -398,7 +397,11 @@ class PlaylistFragment : Fragment(R.layout.playlist_view), ItemInteractionListen
 //        webView?.webViewClient = webViewClientImpl
 //        webView?.loadUrl(selectedPlaylistItemModel.mediaSrc)
         if (!selectedPlaylistItemModel.isCached && !ConnectionUtils.isDeviceOnline(requireContext())) {
-            Toast.makeText(requireContext(), getString(R.string.playlist_offline_message), Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.playlist_offline_message),
+                Toast.LENGTH_SHORT
+            ).show()
             return
         }
 
@@ -442,7 +445,11 @@ class PlaylistFragment : Fragment(R.layout.playlist_view), ItemInteractionListen
                     .commit()
             }
         } else {
-            Toast.makeText(requireContext(), getString(R.string.playlist_item_expired_message), Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.playlist_item_expired_message),
+                Toast.LENGTH_SHORT
+            ).show()
             val playlistItemOptionModel = PlaylistItemOptionModel(
                 requireContext().resources.getString(R.string.playlist_open_in_private_tab),
                 R.drawable.ic_private_tab,

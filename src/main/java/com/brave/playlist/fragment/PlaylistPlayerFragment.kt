@@ -13,7 +13,6 @@ import android.util.Rational
 import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
-import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ProgressBar
 import android.widget.SeekBar
@@ -363,7 +362,7 @@ class PlaylistPlayerFragment : Fragment(R.layout.fragment_playlist_player), Play
 
     override fun onDestroyView() {
         releasePlayer()
-        activity?.unregisterReceiver(broadcastReceiver);
+        activity?.unregisterReceiver(broadcastReceiver)
         super.onDestroyView()
     }
 
@@ -459,7 +458,8 @@ class PlaylistPlayerFragment : Fragment(R.layout.fragment_playlist_player), Play
         playlistVideoService?.getCurrentPlayer()?.let {
             it.addListener(this)
             it.shuffleModeEnabled = isShuffleOn
-            it.seekTo(currentMediaIndex,
+            it.seekTo(
+                currentMediaIndex,
                 playlistItems[it.currentMediaItemIndex].lastPlayedPosition.toLong()
             )
             it.repeatMode = repeatMode
@@ -501,8 +501,19 @@ class PlaylistPlayerFragment : Fragment(R.layout.fragment_playlist_player), Play
         ivNextVideo.setOnClickListener {
             playlistVideoService?.getCurrentPlayer()?.let {
                 if (it.hasNextMediaItem()) {
-                    it.seekToNextMediaItem()
-                    disableNextPreviousControls()
+                    if (!playlistItems[it.nextMediaItemIndex].isCached && !ConnectionUtils.isDeviceOnline(
+                            requireContext()
+                        )
+                    ) {
+                        Toast.makeText(
+                            requireContext(),
+                            getString(R.string.playlist_offline_message),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        it.seekToNextMediaItem()
+                        disableNextPreviousControls()
+                    }
                 }
             }
         }
@@ -512,8 +523,19 @@ class PlaylistPlayerFragment : Fragment(R.layout.fragment_playlist_player), Play
         ivPrevVideo.setOnClickListener {
             playlistVideoService?.getCurrentPlayer()?.let {
                 if (it.hasPreviousMediaItem()) {
-                    it.seekToPreviousMediaItem()
-                    disableNextPreviousControls()
+                    if (!playlistItems[it.previousMediaItemIndex].isCached && !ConnectionUtils.isDeviceOnline(
+                            requireContext()
+                        )
+                    ) {
+                        Toast.makeText(
+                            requireContext(),
+                            getString(R.string.playlist_offline_message),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        it.seekToPreviousMediaItem()
+                        disableNextPreviousControls()
+                    }
                 }
             }
         }
@@ -632,7 +654,11 @@ class PlaylistPlayerFragment : Fragment(R.layout.fragment_playlist_player), Play
 //        exoPlayer?.playWhenReady = true
 
         if (!playlistItems[count].isCached && !ConnectionUtils.isDeviceOnline(requireContext())) {
-            Toast.makeText(requireContext(), getString(R.string.playlist_offline_message), Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.playlist_offline_message),
+                Toast.LENGTH_SHORT
+            ).show()
             return
         }
         playlistVideoService?.setCurrentItem(count)
@@ -683,7 +709,8 @@ class PlaylistPlayerFragment : Fragment(R.layout.fragment_playlist_player), Play
             } else if (playlistItemOptionModel.optionType == PlaylistOptions.MOVE_PLAYLIST_ITEM || playlistItemOptionModel.optionType == PlaylistOptions.COPY_PLAYLIST_ITEM) {
                 val moveOrCopyItems = ArrayList<PlaylistItemModel>()
                 playlistItemOptionModel.playlistItemModel?.let { moveOrCopyItems.add(it) }
-                PlaylistUtils.moveOrCopyModel = MoveOrCopyModel(playlistItemOptionModel.optionType, "", moveOrCopyItems)
+                PlaylistUtils.moveOrCopyModel =
+                    MoveOrCopyModel(playlistItemOptionModel.optionType, "", moveOrCopyItems)
             }
             playlistViewModel.setPlaylistItemOption(playlistItemOptionModel)
         }

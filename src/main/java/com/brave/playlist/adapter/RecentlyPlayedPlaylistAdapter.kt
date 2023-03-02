@@ -1,7 +1,5 @@
 package com.brave.playlist.adapter
 
-import android.graphics.Bitmap
-import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,12 +9,12 @@ import com.brave.playlist.R
 import com.brave.playlist.listener.PlaylistClickListener
 import com.brave.playlist.model.PlaylistModel
 import com.brave.playlist.util.ConstantUtils
-import com.brave.playlist.util.PlaylistUtils
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.target.CustomTarget
-import com.bumptech.glide.request.transition.Transition
 
-class RecentlyPlayedPlaylistAdapter(playlists: MutableList<PlaylistModel>,private val  playlistClickListener : PlaylistClickListener?) :
+class RecentlyPlayedPlaylistAdapter(
+    playlists: MutableList<PlaylistModel>,
+    private val playlistClickListener: PlaylistClickListener?
+) :
     AbstractRecyclerViewAdapter<RecentlyPlayedPlaylistAdapter.RecentlyPlayedPlaylistViewHolder, PlaylistModel>(
         playlists
     ) {
@@ -35,6 +33,7 @@ class RecentlyPlayedPlaylistAdapter(playlists: MutableList<PlaylistModel>,privat
             tvPlaylistName = view.findViewById(R.id.tvPlaylistName)
             tvPlaylistItemCount = view.findViewById(R.id.tvPlaylistItemCount)
         }
+
         override fun onBind(position: Int, model: PlaylistModel) {
 //            ivPlaylistCover.setImageResource(model)
             if (!model.items.isNullOrEmpty() && !model.items[0].thumbnailPath.isNullOrEmpty()) {
@@ -47,8 +46,12 @@ class RecentlyPlayedPlaylistAdapter(playlists: MutableList<PlaylistModel>,privat
             } else {
                 ivPlaylistCover.setImageResource(R.drawable.ic_playlist_item_placeholder)
             }
-            tvPlaylistName.text = if (model.id == ConstantUtils.DEFAULT_PLAYLIST) itemView.context.resources.getString(R.string.playlist_play_later) else model.name
-            tvPlaylistItemCount.text = itemView.context.getString(R.string.playlist_number_items, model.items.size)
+            tvPlaylistName.text =
+                if (model.id == ConstantUtils.DEFAULT_PLAYLIST) itemView.context.resources.getString(
+                    R.string.playlist_play_later
+                ) else model.name
+            tvPlaylistItemCount.text =
+                itemView.context.getString(R.string.playlist_number_items, model.items.size)
             itemView.setOnClickListener {
                 playlistClickListener?.onPlaylistClick(model)
             }
