@@ -8,6 +8,7 @@ import androidx.appcompat.widget.AppCompatTextView
 import com.brave.playlist.R
 import com.brave.playlist.listener.PlaylistClickListener
 import com.brave.playlist.model.PlaylistModel
+import com.brave.playlist.util.ConstantUtils
 import com.brave.playlist.util.ConstantUtils.DEFAULT_PLAYLIST
 import com.bumptech.glide.Glide
 
@@ -32,12 +33,12 @@ class PlaylistAdapter(
         }
 
         override fun onBind(position: Int, model: PlaylistModel) {
-            if (model.id == "new_playlist") {
+            if (model.id == ConstantUtils.NEW_PLAYLIST) {
                 tvPlaylistItemCount.visibility = View.GONE
                 ivNewPlaylistThumbnail.visibility = View.VISIBLE
                 ivPlaylistThumbnail.visibility = View.GONE
             } else {
-                if (!model.items.isNullOrEmpty() && !model.items[0].thumbnailPath.isNullOrEmpty()) {
+                if (model.items.isNotEmpty() && model.items[0].thumbnailPath.isNotEmpty()) {
                     Glide.with(itemView.context)
                         .asBitmap()
                         .placeholder(R.drawable.ic_playlist_item_placeholder)
