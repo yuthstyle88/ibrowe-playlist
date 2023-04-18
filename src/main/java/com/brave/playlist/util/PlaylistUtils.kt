@@ -1,9 +1,11 @@
 package com.brave.playlist.util
 
+import android.app.ActivityManager
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.Context.ACTIVITY_SERVICE
 import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
@@ -11,6 +13,7 @@ import android.os.Build
 import com.brave.playlist.PlaylistVideoService
 import com.brave.playlist.activity.PlaylistMenuOnboardingActivity
 import com.brave.playlist.model.MoveOrCopyModel
+import com.brave.playlist.model.PlaylistItemModel
 import java.util.Date
 
 
@@ -48,6 +51,29 @@ object PlaylistUtils {
         intent.type = "text/plain"
         intent.putExtra(Intent.EXTRA_TEXT, text)
         context.startActivity(Intent.createChooser(intent, "Share with:"))
+    }
+
+    fun isPlaylistServiceRunning(context: Context, serviceClass: Class<*>): Boolean {
+        val manager = context.getSystemService(ACTIVITY_SERVICE) as ActivityManager
+        for (service in manager.getRunningServices(Int.MAX_VALUE)) {
+            if (serviceClass.name == service.service.className) {
+                return true
+            }
+        }
+        return false
+    }
+
+    fun playlistNotificationIntent(context: Context, playlistItemModel: PlaylistItemModel): Intent? {
+        val packageManager = context.packageManager
+        val intent = packageManager.getLaunchIntentForPackage(context.packageName)
+        intent?.action = "playlist"
+        intent?.putExtra("playlist_item_id", playlistItemModel.id)
+        intent?.putExtra("playlist_id", playlistItemModel.playlistId)
+        intent?.putExtra("name", playlistItemModel.name)
+        intent?.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        intent?.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        val componentName = intent?.component
+        return Intent.makeRestartActivityTask(componentName)
     }
 
     @JvmStatic

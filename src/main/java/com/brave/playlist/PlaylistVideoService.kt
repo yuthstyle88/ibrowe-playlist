@@ -1,8 +1,11 @@
 package com.brave.playlist
 
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import android.media.session.PlaybackState
 import android.net.Uri
 import android.os.Binder
@@ -10,7 +13,6 @@ import android.os.Handler
 import android.os.IBinder
 import android.support.v4.media.session.MediaSessionCompat
 import android.util.Log
-import com.brave.playlist.adapter.PlayerNotificationAdapter
 import com.brave.playlist.local_database.PlaylistRepository
 import com.brave.playlist.model.PlaylistItemModel
 import com.brave.playlist.util.ConstantUtils.CAST_ACTION
@@ -24,7 +26,11 @@ import com.brave.playlist.util.PlaylistPreferenceUtils.continuousListening
 import com.brave.playlist.util.PlaylistPreferenceUtils.rememberFilePlaybackPosition
 import com.brave.playlist.util.PlaylistPreferenceUtils.rememberListPlaybackPosition
 import com.brave.playlist.util.PlaylistPreferenceUtils.setLatestPlaylistItem
+import com.brave.playlist.util.PlaylistUtils
 import com.brave.playlist.util.PlaylistUtils.createNotificationChannel
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.DefaultLoadControl
 import com.google.android.exoplayer2.ExoPlayer
@@ -45,7 +51,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-
 
 class PlaylistVideoService : Service(), Player.Listener, SessionAvailabilityListener {
     private var playlistName: String? = null
@@ -81,6 +86,7 @@ class PlaylistVideoService : Service(), Player.Listener, SessionAvailabilityList
     companion object {
         const val PLAYLIST_CHANNEL_ID = "brave_playlist_channel"
         const val NOTIFICATION_ID = 1001
+        var CURRENTLY_PLAYED_ITEM_ID: String? = null
     }
 
     private fun lastSavedPositionTimer() {
@@ -97,6 +103,7 @@ class PlaylistVideoService : Service(), Player.Listener, SessionAvailabilityList
     }
 
     override fun onBind(intent: Intent?): IBinder {
+        Log.e("NTP", "onBind")
         return PlaylistVideoServiceBinder()
     }
 
@@ -108,9 +115,27 @@ class PlaylistVideoService : Service(), Player.Listener, SessionAvailabilityList
         super.onCreate()
         createNotificationChannel(applicationContext)
         currentItemIndex = C.INDEX_UNSET
+        val loadControl = DefaultLoadControl.Builder()
+            .setBufferDurationsMs(32 * 1024, 64 * 1024, 1024, 1024)
+            .build()
+        val audioAttributes: AudioAttributes = AudioAttributes.Builder()
+            .setUsage(C.USAGE_MEDIA)
+            .setContentType(C.AUDIO_CONTENT_TYPE_MOVIE)
+            .build()
+        localPlayer = ExoPlayer.Builder(applicationContext).setLoadControl(loadControl)
+            .setReleaseTimeoutMs(5000).setAudioAttributes(audioAttributes, true).build()
+//        localPlayer = ExoPlayer.Builder(applicationContext).setLoadControl(loadControl)
+//            .setReleaseTimeoutMs(5000).build()
+        localPlayer?.videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING
+        localPlayer?.addListener(this)
+        castContext = CastContext.getSharedInstance()
+        castPlayer = castContext?.let { CastPlayer(it) }
+        castPlayer?.addListener(this)
+        castPlayer?.setSessionAvailabilityListener(this)
     }
 
     private fun release() {
+        CURRENTLY_PLAYED_ITEM_ID = null
         currentItemIndex = C.INDEX_UNSET
         mediaQueue.clear()
         castMediaQueue.clear()
@@ -133,38 +158,56 @@ class PlaylistVideoService : Service(), Player.Listener, SessionAvailabilityList
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        release()
-
-        val loadControl = DefaultLoadControl.Builder()
-            .setBufferDurationsMs(32 * 1024, 64 * 1024, 1024, 1024)
-            .build()
-        val audioAttributes: AudioAttributes = AudioAttributes.Builder()
-            .setUsage(C.USAGE_MEDIA)
-            .setContentType(C.AUDIO_CONTENT_TYPE_MOVIE)
-            .build()
-        localPlayer = ExoPlayer.Builder(applicationContext).setLoadControl(loadControl)
-            .setReleaseTimeoutMs(5000).setAudioAttributes(audioAttributes, true).build()
-//        localPlayer = ExoPlayer.Builder(applicationContext).setLoadControl(loadControl)
-//            .setReleaseTimeoutMs(5000).build()
-        localPlayer?.videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING
-        localPlayer?.addListener(this)
-        castContext = CastContext.getSharedInstance()
-        castPlayer = castContext?.let { CastPlayer(it) }
-        castPlayer?.addListener(this)
-        castPlayer?.setSessionAvailabilityListener(this)
-
+        Log.e("NTP", "onStartCommand")
         intent?.let {
             playlistName = it.getStringExtra(PLAYLIST_NAME)
             playlistItemsModel = it.getParcelableArrayListExtra(PLAYER_ITEMS)
         }
 
-        val playerNotificationAdapter =
-            PlayerNotificationAdapter(applicationContext, playlistItemsModel, playlistName)
         playerNotificationManager = PlayerNotificationManager.Builder(
             applicationContext,
             NOTIFICATION_ID,
             PLAYLIST_CHANNEL_ID
-        ).setMediaDescriptionAdapter(playerNotificationAdapter).build()
+        ).setMediaDescriptionAdapter(object : PlayerNotificationManager.MediaDescriptionAdapter {
+            override fun getCurrentContentTitle(player: Player): CharSequence {
+                return playlistName.toString()
+            }
+
+            override fun createCurrentContentIntent(player: Player): PendingIntent? {
+//                return PendingIntent.getActivity(
+//                    applicationContext,
+//                    0,
+//                    playlistItemsModel?.get(player.currentMediaItemIndex)
+//                        ?.let { PlaylistUtils.playlistNotificationIntent(applicationContext, it) },
+//                    PendingIntent.FLAG_IMMUTABLE
+//                )
+                return null
+            }
+
+            override fun getCurrentContentText(player: Player): CharSequence {
+                return playlistItemsModel?.get(player.currentMediaItemIndex)?.name ?: ""
+            }
+
+            override fun getCurrentLargeIcon(
+                player: Player,
+                callback: PlayerNotificationManager.BitmapCallback
+            ): Bitmap? {
+                Glide.with(applicationContext)
+                    .asBitmap()
+                    .load(playlistItemsModel?.get(player.currentMediaItemIndex)?.thumbnailPath)
+                    .into(object : CustomTarget<Bitmap?>() {
+                        override fun onResourceReady(
+                            resource: Bitmap,
+                            transition: Transition<in Bitmap?>?
+                        ) {
+                            callback.onBitmap(resource)
+                        }
+
+                        override fun onLoadCleared(placeholder: Drawable?) {}
+                    })
+                return null
+            }
+        }).build()
 
         playlistItemsModel?.forEach { mediaModel ->
             val movieMetadata: MediaMetadata =
@@ -172,13 +215,13 @@ class PlaylistVideoService : Service(), Player.Listener, SessionAvailabilityList
                     .setArtworkUri(Uri.parse(mediaModel.thumbnailPath)).build()
             val mediaUri = if (mediaModel.isCached) mediaModel.mediaPath else mediaModel.mediaSrc
             val mediaItem = MediaItem.Builder()
-                .setUri("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4")
-//                .setUri(Uri.parse(mediaUri))
+//                .setUri("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4")
+                .setUri(Uri.parse(mediaUri))
                 .setMediaMetadata(movieMetadata)
                 .setMimeType(MimeTypes.VIDEO_MP4).build()
             val castMediaItem = MediaItem.Builder()
-                .setUri("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4")
-//                .setUri(mediaModel.mediaSrc)
+//                .setUri("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4")
+                .setUri(mediaModel.mediaSrc)
                 .setMediaMetadata(movieMetadata)
                 .setMimeType(MimeTypes.VIDEO_MP4).build()
             mediaQueue.add(mediaItem)
@@ -189,7 +232,7 @@ class PlaylistVideoService : Service(), Player.Listener, SessionAvailabilityList
         scope.launch {
             lastSavedPositionTimer()
         }
-        return START_NOT_STICKY
+        return START_STICKY
     }
 
     override fun onTaskRemoved(rootIntent: Intent?) {
@@ -218,9 +261,13 @@ class PlaylistVideoService : Service(), Player.Listener, SessionAvailabilityList
 
     override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
         super.onMediaItemTransition(mediaItem, reason)
-        Log.e("NTP", PlaylistVideoService::class.java.name + "onMediaItemTransition : Reason : "+ reason)
+        Log.e(
+            "NTP",
+            PlaylistVideoService::class.java.name + "onMediaItemTransition : Reason : " + reason
+        )
         if (reason != Player.MEDIA_ITEM_TRANSITION_REASON_SEEK) {
-            currentPlayer?.playWhenReady = PlaylistPreferenceUtils.defaultPrefs(applicationContext).continuousListening
+            currentPlayer?.playWhenReady =
+                PlaylistPreferenceUtils.defaultPrefs(applicationContext).continuousListening
         }
     }
 
@@ -232,12 +279,13 @@ class PlaylistVideoService : Service(), Player.Listener, SessionAvailabilityList
         updateCurrentItemIndex()
         val playbackState = currentPlayer!!.playbackState
         if (playbackState == PlaybackState.STATE_PLAYING) {
-            val previousItemIndex = if (currentItemIndex < playlistItemsModel?.size!!) currentItemIndex -1 else currentItemIndex
+            val previousItemIndex =
+                if (currentItemIndex < playlistItemsModel?.size!!) currentItemIndex - 1 else currentItemIndex
             saveLastPosition(previousItemIndex, 0)
         }
     }
 
-    private fun saveLastPosition(itemIndex : Int, currentPosition : Long) {
+    private fun saveLastPosition(itemIndex: Int, currentPosition: Long) {
         scope.launch {
             playlistItemsModel?.get(itemIndex)
                 ?.let {
@@ -246,7 +294,8 @@ class PlaylistVideoService : Service(), Player.Listener, SessionAvailabilityList
                         playlistRepository.insertPlaylistItemModel(it)
                     }
                     if (PlaylistPreferenceUtils.defaultPrefs(applicationContext).rememberListPlaybackPosition) {
-                        PlaylistPreferenceUtils.defaultPrefs(applicationContext).setLatestPlaylistItem(it.playlistId, it.id)
+                        PlaylistPreferenceUtils.defaultPrefs(applicationContext)
+                            .setLatestPlaylistItem(it.playlistId, it.id)
                     }
                 }
         }
@@ -268,7 +317,7 @@ class PlaylistVideoService : Service(), Player.Listener, SessionAvailabilityList
         sendCastStatusBroadcast(shouldShowControls = true)
     }
 
-    private fun sendCastStatusBroadcast (shouldShowControls : Boolean) {
+    private fun sendCastStatusBroadcast(shouldShowControls: Boolean) {
         val intent = Intent()
         intent.action = CAST_ACTION
         intent.putExtra(SHOULD_SHOW_CONTROLS, shouldShowControls)
@@ -288,6 +337,8 @@ class PlaylistVideoService : Service(), Player.Listener, SessionAvailabilityList
             intent.putExtra(CURRENT_PLAYING_ITEM_ID, currentPlayingItemId)
             sendBroadcast(intent)
         }
+        CURRENTLY_PLAYED_ITEM_ID = currentPlayingItemId
+        Log.e("CURRENTLY_PLAYED_ITEM_ID", CURRENTLY_PLAYED_ITEM_ID.toString())
     }
 
     // Internal methods.
@@ -318,12 +369,12 @@ class PlaylistVideoService : Service(), Player.Listener, SessionAvailabilityList
             playerNotificationManager?.setPlayer(currentPlayer)
             playerNotificationManager?.setMediaSessionToken(mediaSession.sessionToken)
             playerView?.controllerShowTimeoutMs = StyledPlayerControlView.DEFAULT_SHOW_TIMEOUT_MS
-            val audioAttributes: AudioAttributes = AudioAttributes.Builder()
-                .setUsage(C.USAGE_MEDIA)
-                .setContentType(C.AUDIO_CONTENT_TYPE_MOVIE)
-                .build()
-
-            localPlayer?.setAudioAttributes(audioAttributes, true)
+//            val audioAttributes: AudioAttributes = AudioAttributes.Builder()
+//                .setUsage(C.USAGE_MEDIA)
+//                .setContentType(C.AUDIO_CONTENT_TYPE_MOVIE)
+//                .build()
+//
+//            localPlayer?.setAudioAttributes(audioAttributes, true)
         }
 
         // Player state management.
@@ -376,18 +427,12 @@ class PlaylistVideoService : Service(), Player.Listener, SessionAvailabilityList
         currentPlayer?.playWhenReady = true
     }
 
-    fun playNextItem() {
-        currentPlayer?.let {
-            if (it.hasNextMediaItem()) {
-                it.seekToNextMediaItem()
-            }
-        }
-    }
-
     private fun maybeSetCurrentItemAndNotify(currentItemIndex: Int) {
         if (this.currentItemIndex != currentItemIndex) {
             val oldIndex = this.currentItemIndex
             this.currentItemIndex = currentItemIndex
+            CURRENTLY_PLAYED_ITEM_ID = getCurrentPlayingItem()?.id
+            Log.e("CURRENTLY_PLAYED_ITEM_ID", CURRENTLY_PLAYED_ITEM_ID.toString())
         }
     }
 }
