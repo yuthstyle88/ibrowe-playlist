@@ -1,6 +1,7 @@
 package com.brave.playlist.activity
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.ScrollView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
@@ -11,6 +12,8 @@ import com.brave.playlist.adapter.PlaylistOnboardingFragmentStateAdapter
 import com.brave.playlist.extension.afterMeasured
 import com.brave.playlist.extension.showOnboardingGradientBg
 import com.brave.playlist.model.PlaylistOnboardingModel
+import com.brave.playlist.util.ConstantUtils
+import com.brave.playlist.util.PlaylistUtils
 import com.brave.playlist.util.PlaylistViewUtils
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
@@ -18,6 +21,8 @@ import com.google.android.material.tabs.TabLayoutMediator
 class PlaylistMenuOnboardingActivity : AppCompatActivity(R.layout.playlist_onboarding_activity) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        Log.e("NTP", intent.getStringExtra(ConstantUtils.PLAYLIST_NAME).toString())
 
         val onboardingLayout = findViewById<ScrollView>(R.id.onboardingLayout)
         onboardingLayout.afterMeasured {
@@ -34,7 +39,7 @@ class PlaylistMenuOnboardingActivity : AppCompatActivity(R.layout.playlist_onboa
         val nextButton: AppCompatButton = findViewById(R.id.btNextOnboarding)
         nextButton.setOnClickListener {
             if (playlistOnboardingViewPager.currentItem == 2) {
-                finish()
+                PlaylistUtils.openBraveActivityWithUrl(this,ConstantUtils.PLAYLIST_FEATURE_YT_URL)
             } else {
                 playlistOnboardingViewPager.currentItem =
                     playlistOnboardingViewPager.currentItem + 1
