@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2023 The Brave Authors. All rights reserved.
+  ~ This Source Code Form is subject to the terms of the Mozilla Public
+  ~ License, v. 2.0. If a copy of the MPL was not distributed with this file,
+  ~ You can obtain one at https://mozilla.org/MPL/2.0/.
+  -->
+
 <resources>
     <string name="playlist_feature_text">Playlist</string>
     <string name="playlist_create_toolbar_text">Create</string>
@@ -51,5 +58,6 @@
     <string name="playlist_offline_message">Playlist item is not cached.\nPlease cache the item for offline mode.</string>
     <string name="playlist_item_expired_message">Content expired. Try again in a few seconds.</string>
     <string name="playlist_empty_playlist_name">Please enter valid playlist name</string>
-<!--    Last Updated String-->
+    <string name="share_with">"Share with : "</string>
+    <!--    Last Updated String-->
 </resources>

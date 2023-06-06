@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2023 The Brave Authors. All rights reserved.
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 package com.brave.playlist.model
 
 import android.os.Build
@@ -7,8 +14,8 @@ import com.google.gson.annotations.SerializedName
 
 data class PlaylistModel(
     @SerializedName("id") val id: String,
-    @SerializedName("name") val name: String,
-    @SerializedName("items") val items: List<PlaylistItemModel>
+    @SerializedName("name") var name: String,
+    @SerializedName("items") var items: List<PlaylistItemModel>
 ) :
     Parcelable {
     companion object {

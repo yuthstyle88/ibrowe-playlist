@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2023 The Brave Authors. All rights reserved.
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 package com.brave.playlist.view.bottomsheet
 
 import android.os.Bundle
@@ -9,8 +16,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.brave.playlist.PlaylistViewModel
 import com.brave.playlist.R
-import com.brave.playlist.adapter.PlaylistAdapter
-import com.brave.playlist.enums.PlaylistOptions
+import com.brave.playlist.adapter.recyclerview.PlaylistAdapter
+import com.brave.playlist.enums.PlaylistOptionsEnum
 import com.brave.playlist.extension.setTopCornersRounded
 import com.brave.playlist.fragment.AllPlaylistFragment
 import com.brave.playlist.fragment.NewPlaylistFragment
@@ -26,8 +33,8 @@ import com.google.android.material.card.MaterialCardView
 class MoveOrCopyToPlaylistBottomSheet :
     BottomSheetDialogFragment(), PlaylistClickListener {
 
-    private lateinit var playlistViewModel: PlaylistViewModel
-    private val moveOrCopyModel: MoveOrCopyModel = PlaylistUtils.moveOrCopyModel
+    private lateinit var mPlaylistViewModel: PlaylistViewModel
+    private val mMoveOrCopyModel: MoveOrCopyModel = PlaylistUtils.moveOrCopyModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -37,24 +44,19 @@ class MoveOrCopyToPlaylistBottomSheet :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        playlistViewModel = activity?.let {
-            ViewModelProvider(
-                it, ViewModelProvider.NewInstanceFactory()
-            )
-        }!![PlaylistViewModel::class.java]
+        mPlaylistViewModel = ViewModelProvider(requireActivity())[PlaylistViewModel::class.java]
 
         val layoutBottomSheet: MaterialCardView = view.findViewById(R.id.layoutBottomSheet)
         layoutBottomSheet.setTopCornersRounded(16)
 
         var fromPlaylistId = ""
-        if (moveOrCopyModel.items.isNotEmpty()) {
-            fromPlaylistId = moveOrCopyModel.items[0].playlistId
+        if (mMoveOrCopyModel.playlistItems.isNotEmpty()) {
+            fromPlaylistId = mMoveOrCopyModel.playlistItems[0].playlistId
         }
 
-        playlistViewModel.fetchPlaylistData(ConstantUtils.ALL_PLAYLIST)
+        mPlaylistViewModel.fetchPlaylistData(ConstantUtils.ALL_PLAYLIST)
 
-        playlistViewModel.allPlaylistData.observe(viewLifecycleOwner) { allPlaylistData ->
+        mPlaylistViewModel.allPlaylistData.observe(viewLifecycleOwner) { allPlaylistData ->
             val allPlaylistList = mutableListOf<PlaylistModel>()
             for (allPlaylistModel in allPlaylistData) {
                 if (allPlaylistModel.id != fromPlaylistId) {
@@ -90,9 +92,9 @@ class MoveOrCopyToPlaylistBottomSheet :
     override fun onPlaylistClick(playlistModel: PlaylistModel) {
         if (playlistModel.id == ConstantUtils.NEW_PLAYLIST) {
             PlaylistUtils.moveOrCopyModel =
-                MoveOrCopyModel(moveOrCopyModel.playlistOptions, "", moveOrCopyModel.items)
+                MoveOrCopyModel(mMoveOrCopyModel.playlistOptionsEnum, "", mMoveOrCopyModel.playlistItems)
             val newPlaylistFragment = NewPlaylistFragment.newInstance(
-                PlaylistOptions.NEW_PLAYLIST,
+                PlaylistOptionsEnum.NEW_PLAYLIST,
                 shouldMoveOrCopy = true
             )
             parentFragmentManager
@@ -102,11 +104,11 @@ class MoveOrCopyToPlaylistBottomSheet :
                 .commit()
         } else {
             PlaylistUtils.moveOrCopyModel = MoveOrCopyModel(
-                moveOrCopyModel.playlistOptions,
+                mMoveOrCopyModel.playlistOptionsEnum,
                 playlistModel.id,
-                moveOrCopyModel.items
+                mMoveOrCopyModel.playlistItems
             )
-            playlistViewModel.performMoveOrCopy(PlaylistUtils.moveOrCopyModel)
+            mPlaylistViewModel.performMoveOrCopy(PlaylistUtils.moveOrCopyModel)
         }
         dismiss()
     }

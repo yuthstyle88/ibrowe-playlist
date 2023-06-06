@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2023 The Brave Authors. All rights reserved.
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 package com.brave.playlist.util
 
 object ConstantUtils {
@@ -24,4 +31,8 @@ object ConstantUtils {
     const val PLAYLIST_ACTION = "playlist"
     const val CURRENT_PLAYLIST_ID = "current_playlist_id"
     const val PLAYLIST_FEATURE_YT_URL = "https://youtu.be/dL0Aw6QGTwY"
+
+    const val DOWNLOAD_CONTENT_DIRECTORY = "downloads"
+    const val PLAYLIST_CHANNEL_ID = "playlist"
+    const val PLAYLIST_NOTIFICATION_ID = 1001
 }
