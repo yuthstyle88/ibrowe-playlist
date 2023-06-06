@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2023 The Brave Authors. All rights reserved.
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 package com.brave.playlist.fragment
 
 import android.os.Bundle
@@ -11,12 +18,12 @@ import com.brave.playlist.util.ConstantUtils.ONBOARDING_MODEL
 
 class PlaylistOnboardingSingleFragment : Fragment(R.layout.fragment_single_playlist_onboarding) {
 
-    private var playlistOnboardingModel: PlaylistOnboardingModel? = null
+    private var mPlaylistOnboardingModel: PlaylistOnboardingModel? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            playlistOnboardingModel = it.getParcelable(ONBOARDING_MODEL)
+            mPlaylistOnboardingModel = it.getParcelable(ONBOARDING_MODEL)
         }
     }
 
@@ -27,7 +34,7 @@ class PlaylistOnboardingSingleFragment : Fragment(R.layout.fragment_single_playl
         val tvOnboardingTitle: AppCompatTextView = view.findViewById(R.id.tvOnboardingTitle)
         val tvOnboardingMessage: AppCompatTextView = view.findViewById(R.id.tvOnboardingMessage)
 
-        playlistOnboardingModel?.let {
+        mPlaylistOnboardingModel?.let {
             tvOnboardingTitle.text = it.title
             tvOnboardingMessage.text = it.message
             ivOnboardingIllustration.setImageResource(it.illustration)

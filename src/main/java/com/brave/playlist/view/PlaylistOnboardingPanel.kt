@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2023 The Brave Authors. All rights reserved.
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 package com.brave.playlist.view
 
 import android.view.Gravity
@@ -15,7 +22,7 @@ import com.brave.playlist.extension.addScrimBackground
 import com.brave.playlist.extension.afterMeasured
 import com.brave.playlist.extension.showOnboardingGradientBg
 import com.brave.playlist.listener.PlaylistOnboardingActionClickListener
-import com.brave.playlist.util.PlaylistViewUtils
+import com.brave.playlist.util.PlaylistUtils
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 
@@ -41,7 +48,7 @@ class PlaylistOnboardingPanel(
             view.findViewById(R.id.playlistOnboardingViewPager)
 
         val adapter = PlaylistOnboardingFragmentStateAdapter(
-            fragmentActivity, PlaylistViewUtils.getOnboardingItemList(context = view.context)
+            fragmentActivity, PlaylistUtils.getOnboardingItemList(context = view.context)
         )
         playlistOnboardingViewPager.adapter = adapter
 

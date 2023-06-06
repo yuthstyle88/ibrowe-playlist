@@ -1,8 +1,15 @@
+/*
+ * Copyright (c) 2023 The Brave Authors. All rights reserved.
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 package com.brave.playlist
 
 import android.app.Notification
 import android.content.Context
-import com.brave.playlist.PlaylistVideoService.Companion.PLAYLIST_CHANNEL_ID
+import com.brave.playlist.util.ConstantUtils.PLAYLIST_CHANNEL_ID
 import com.google.android.exoplayer2.offline.Download
 import com.google.android.exoplayer2.offline.DownloadManager
 import com.google.android.exoplayer2.offline.DownloadService
