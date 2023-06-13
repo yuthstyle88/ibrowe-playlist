@@ -9,12 +9,7 @@ This is a customized version of Brave's [playlist-kotlin](https://github.com/bra
 
 No other modifications were made to the source code.
 
-## Usage
+A work in progress playlist module for Brave browser written in kotlin and can be integrated with Kotlin or Java project. 
+This module includes UI and related behaviours for playlist feature. 
 
-This library is used internally in the [iBrowe Browser](https://ibrowe.com) for managing playlists in the Android version of the app.
-
-## License
-
-This project is licensed under the [Mozilla Public License Version 2.0 (MPL-2.0)](https://www.mozilla.org/MPL/2.0/).  
-The original project is © Brave Software and available at:  
-👉 https://github.com/brave-experiments/playlist-kotlin
+To build .aar for module, please follow [Build Script](https://github.com/brave-experiments/playlist-kotlin/blob/dp_playlist_brave_app_work/script/build_aar.sh)  
