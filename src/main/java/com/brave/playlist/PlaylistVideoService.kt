@@ -16,27 +16,25 @@ import android.graphics.drawable.Drawable
 import android.media.session.PlaybackState
 import android.net.Uri
 import android.os.Binder
+import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.support.v4.media.session.MediaSessionCompat
 import android.util.Log
-import androidx.lifecycle.ViewModelProvider
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.brave.playlist.local_database.PlaylistRepository
 import com.brave.playlist.model.PlaylistItemModel
 import com.brave.playlist.util.ConstantUtils
-import com.brave.playlist.util.ConstantUtils.CAST_ACTION
-import com.brave.playlist.util.ConstantUtils.CURRENT_PLAYING_ITEM_ACTION
-import com.brave.playlist.util.ConstantUtils.CURRENT_PLAYING_ITEM_ID
 import com.brave.playlist.util.ConstantUtils.PLAYER_ITEMS
 import com.brave.playlist.util.ConstantUtils.PLAYLIST_NAME
-import com.brave.playlist.util.ConstantUtils.SHOULD_SHOW_CONTROLS
 import com.brave.playlist.util.ConstantUtils.TAG
 import com.brave.playlist.util.PlaylistPreferenceUtils
 import com.brave.playlist.util.PlaylistPreferenceUtils.continuousListening
 import com.brave.playlist.util.PlaylistPreferenceUtils.rememberFilePlaybackPosition
 import com.brave.playlist.util.PlaylistPreferenceUtils.rememberListPlaybackPosition
 import com.brave.playlist.util.PlaylistPreferenceUtils.setLatestPlaylistItem
+import com.brave.playlist.util.PlaylistUtils
 import com.brave.playlist.util.PlaylistUtils.createNotificationChannel
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
@@ -85,10 +83,6 @@ class PlaylistVideoService : Service(), Player.Listener, SessionAvailabilityList
     private val mPlaylistRepository: PlaylistRepository by lazy {
         PlaylistRepository(applicationContext)
     }
-    private val mPlaylistViewModel: PlaylistViewModel by lazy {
-        ViewModelProvider.AndroidViewModelFactory.getInstance(application)
-            .create(PlaylistViewModel::class.java)
-    }
     private val mSavePositionRunnableCode: Runnable = object : Runnable {
         override fun run() {
             if (mCurrentPlayer?.isPlaying == true) {
@@ -102,6 +96,17 @@ class PlaylistVideoService : Service(), Player.Listener, SessionAvailabilityList
 
     companion object {
         var CURRENTLY_PLAYED_ITEM_ID: String? = null
+        private val mutableCastStatus = MutableLiveData<Boolean>()
+        val castStatus: LiveData<Boolean> get() = mutableCastStatus
+        private fun setCastStatus(shouldShowControls: Boolean) {
+            mutableCastStatus.value = shouldShowControls
+        }
+
+        private val mutableCurrentPlayingItem = MutableLiveData<String>()
+        val currentPlayingItem: LiveData<String> get() = mutableCurrentPlayingItem
+        private fun setCurrentPlayingItem(currentPlayingItemId: String) {
+            mutableCurrentPlayingItem.value = currentPlayingItemId
+        }
     }
 
     private fun lastSavedPositionTimer() {
@@ -179,11 +184,23 @@ class PlaylistVideoService : Service(), Player.Listener, SessionAvailabilityList
         super.onDestroy()
     }
 
+    @Suppress("DEPRECATION")
+    private fun getPlaylistItemModels(intent: Intent): ArrayList<PlaylistItemModel>? {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableArrayListExtra(
+                PLAYER_ITEMS,
+                PlaylistItemModel::class.java
+            )
+        } else {
+            intent.getParcelableArrayListExtra(PLAYER_ITEMS)
+        }
+    }
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.e(TAG, "onStartCommand")
         intent?.let {
             mPlaylistName = it.getStringExtra(PLAYLIST_NAME)
-            mPlaylistItemsModel = it.getParcelableArrayListExtra(PLAYER_ITEMS)
+            mPlaylistItemsModel = getPlaylistItemModels(it)
         }
 
         mPlayerNotificationManager = PlayerNotificationManager.Builder(
@@ -196,14 +213,13 @@ class PlaylistVideoService : Service(), Player.Listener, SessionAvailabilityList
             }
 
             override fun createCurrentContentIntent(player: Player): PendingIntent? {
-//                return PendingIntent.getActivity(
-//                    applicationContext,
-//                    0,
-//                    getMediaItemFromPosition(player.currentMediaItemIndex)
-//                        ?.let { PlaylistUtils.playlistNotificationIntent(applicationContext, it) },
-//                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-//                )
-                return null
+                return PendingIntent.getActivity(
+                    applicationContext,
+                    0,
+                    getMediaItemFromPosition(player.currentMediaItemIndex)
+                        ?.let { PlaylistUtils.playlistNotificationIntent(applicationContext, it) },
+                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                )
             }
 
             override fun getCurrentContentText(player: Player): CharSequence {
@@ -375,21 +391,13 @@ class PlaylistVideoService : Service(), Player.Listener, SessionAvailabilityList
     override fun onCastSessionAvailable() {
         Log.e(TAG, "onCastSessionUnavailable : setCurrentPlayer")
         setCurrentPlayer(mCastPlayer)
-        sendCastStatusBroadcast(shouldShowControls = false)
+        setCastStatus(false)
     }
 
     override fun onCastSessionUnavailable() {
         Log.e(TAG, "onCastSessionUnavailable : setCurrentPlayer")
         setCurrentPlayer(mLocalPlayer)
-        sendCastStatusBroadcast(shouldShowControls = true)
-    }
-
-    private fun sendCastStatusBroadcast(shouldShowControls: Boolean) {
-        val intent = Intent()
-        intent.action = packageName + CAST_ACTION
-        intent.putExtra(packageName + SHOULD_SHOW_CONTROLS, shouldShowControls)
-        intent.setPackage(packageName)
-        LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
+        setCastStatus(true)
     }
 
     private fun sendCurrentPlayingItemBroadcast() {
@@ -400,11 +408,7 @@ class PlaylistVideoService : Service(), Player.Listener, SessionAvailabilityList
             )?.id
         }
         if (!currentPlayingItemId.isNullOrEmpty()) {
-            val intent = Intent()
-            intent.action = CURRENT_PLAYING_ITEM_ACTION
-            intent.putExtra(CURRENT_PLAYING_ITEM_ID, currentPlayingItemId)
-            intent.setPackage(packageName)
-            LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
+            setCurrentPlayingItem(currentPlayingItemId)
         }
         CURRENTLY_PLAYED_ITEM_ID = currentPlayingItemId
         Log.e("CURRENTLY_PLAYED_ITEM_ID", CURRENTLY_PLAYED_ITEM_ID.toString())
