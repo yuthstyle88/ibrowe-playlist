@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.offline.DownloadService
 import com.google.android.exoplayer2.ui.DownloadNotificationHelper
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
+import com.google.android.exoplayer2.upstream.FileDataSource
 import com.google.android.exoplayer2.upstream.cache.Cache
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource
 import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor
@@ -41,7 +42,7 @@ object PlaylistDownloadUtils {
     @Synchronized
     fun getDataSourceFactory(context: Context): DataSource.Factory {
         if (mDataSourceFactory == null) {
-            val upstreamFactory = DefaultHttpDataSource.Factory()
+            val upstreamFactory = FileDataSource.Factory()
             mDataSourceFactory =
                 getDownloadCache(context)?.let { buildReadOnlyCacheDataSource(upstreamFactory, it) }
         }

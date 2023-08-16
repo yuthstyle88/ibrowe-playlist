@@ -120,14 +120,14 @@ class AllPlaylistFragment : Fragment(R.layout.fragment_all_playlist), PlaylistOp
                     if (recentPlaylist.isNotEmpty()) View.VISIBLE else View.GONE
             }
 
-            mPlaylistToolbar.setOptionsButtonClickListener {
-                MenuUtils.showAllPlaylistsMenu(
-                    it.context,
-                    parentFragmentManager,
-                    allPlaylistList,
-                    this
-                )
-            }
+//            mPlaylistToolbar.setOptionsButtonClickListener {
+//                MenuUtils.showAllPlaylistsMenu(
+//                    it.context,
+//                    parentFragmentManager,
+//                    allPlaylistList,
+//                    this
+//                )
+//            }
 
             mRvPlaylist.layoutManager = LinearLayoutManager(requireContext())
             mRvPlaylist.adapter = PlaylistAdapter(allPlaylistList, this)

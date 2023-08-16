@@ -29,6 +29,7 @@ import com.brave.playlist.util.ConstantUtils
 import com.brave.playlist.util.ConstantUtils.PLAYER_ITEMS
 import com.brave.playlist.util.ConstantUtils.PLAYLIST_NAME
 import com.brave.playlist.util.ConstantUtils.TAG
+import com.brave.playlist.util.MediaUtils
 import com.brave.playlist.util.PlaylistPreferenceUtils
 import com.brave.playlist.util.PlaylistPreferenceUtils.continuousListening
 import com.brave.playlist.util.PlaylistPreferenceUtils.rememberFilePlaybackPosition
@@ -52,15 +53,19 @@ import com.google.android.exoplayer2.ext.cast.CastPlayer
 import com.google.android.exoplayer2.ext.cast.SessionAvailabilityListener
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory
+import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.ui.PlayerNotificationManager
 import com.google.android.exoplayer2.ui.StyledPlayerControlView
 import com.google.android.exoplayer2.ui.StyledPlayerView
+import com.google.android.exoplayer2.upstream.DataSource
+import com.google.android.exoplayer2.upstream.FileDataSource
 import com.google.android.exoplayer2.util.MimeTypes
 import com.google.android.gms.cast.framework.CastContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import java.io.File
 
 class PlaylistVideoService : Service(), Player.Listener, SessionAvailabilityListener {
     private var mPlaylistName: String? = null
@@ -143,13 +148,11 @@ class PlaylistVideoService : Service(), Player.Listener, SessionAvailabilityList
             .setUsage(C.USAGE_MEDIA)
             .setContentType(C.CONTENT_TYPE_MOVIE)
             .build()
+        val dataSourceFactory = DataSource.Factory { FileDataSource() }
+        val mediaSourceFactory = ProgressiveMediaSource.Factory(dataSourceFactory)
         mLocalPlayer = ExoPlayer.Builder(applicationContext)
             .setMediaSourceFactory(
-                DefaultMediaSourceFactory(
-                    PlaylistDownloadUtils.getDataSourceFactory(
-                        applicationContext
-                    )
-                )
+                mediaSourceFactory
             )
             .setLoadControl(loadControl)
             .setReleaseTimeoutMs(5000).setAudioAttributes(audioAttributes, true).build()
@@ -256,21 +259,30 @@ class PlaylistVideoService : Service(), Player.Listener, SessionAvailabilityList
             val movieMetadata: MediaMetadata =
                 MediaMetadata.Builder().setTitle(mediaModel.name).setArtist(mediaModel.author)
                     .setArtworkUri(Uri.parse(mediaModel.thumbnailPath)).build()
+            Log.e("data_source", Uri.fromFile(MediaUtils.getTempFile(applicationContext)).toString())
+            if (MediaUtils.getTempFile(applicationContext).exists()) {
+                Log.e("data_source", "File exist")
+            }
+            if (MediaUtils.getTempFile(applicationContext).canRead()) {
+                Log.e("data_source", "canRead")
+            }
             val onlineMediaItem = MediaItem.Builder()
-                .setUri(Uri.parse(if (mediaModel.isCached) mediaModel.mediaPath else mediaModel.mediaSrc))
+                .setUri(Uri.parse(if (mediaModel.isCached) mediaModel.mediaPath else MediaUtils.getTempFile(applicationContext).absolutePath))
+//                .setUri(Uri.parse(MediaUtils.getTempFile(applicationContext).absolutePath))
+                .setMimeType(MimeTypes.VIDEO_MP4)
                 .setMediaMetadata(movieMetadata)
                 .build()
-            val mediaItem: MediaItem = PlaylistDownloadUtils.getMediaItemFromDownloadRequest(
-                applicationContext,
-                mediaModel
-            ) ?: onlineMediaItem
+//            val mediaItem: MediaItem = PlaylistDownloadUtils.getMediaItemFromDownloadRequest(
+//                applicationContext,
+//                mediaModel
+//            ) ?: onlineMediaItem
             val castMediaItem = MediaItem.Builder()
 //                .setUri("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4")
                 .setUri(mediaModel.mediaSrc)
                 .setMediaMetadata(movieMetadata)
                 .setMimeType(MimeTypes.VIDEO_MP4)
                 .build()
-            mMediaQueue.add(mediaItem)
+            mMediaQueue.add(onlineMediaItem)
             mCastMediaQueue.add(castMediaItem)
         }
 
@@ -309,31 +321,31 @@ class PlaylistVideoService : Service(), Player.Listener, SessionAvailabilityList
 
     override fun onPlayerError(error: PlaybackException) {
         super.onPlayerError(error)
-        when (error.errorCode) {
-            PlaybackException.ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED -> {
-                val currentPlaylistItemModel = getCurrentPlayingItem()
-                val movieMetadata: MediaMetadata =
-                    MediaMetadata.Builder().setTitle(currentPlaylistItemModel?.name)
-                        .setArtist(currentPlaylistItemModel?.author)
-                        .setArtworkUri(Uri.parse(currentPlaylistItemModel?.thumbnailPath)).build()
-                val mediaItem = MediaItem.Builder()
-//                .setUri("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4")
-                    .setUri(Uri.parse(currentPlaylistItemModel?.mediaSrc))
-                    .setMediaMetadata(movieMetadata)
-                    .setMimeType(MimeTypes.APPLICATION_M3U8)
-                    .build()
-                mMediaQueue[mCurrentPlayer?.currentMediaItemIndex ?: 0] = mediaItem
-                mCastMediaQueue[mCurrentPlayer?.currentMediaItemIndex ?: 0] = mediaItem
-                Log.e(TAG, "onPlayerError : setCurrentPlayer")
-                setCurrentPlayer(if (mCastPlayer?.isCastSessionAvailable == true) mCastPlayer else mLocalPlayer)
-            }
-
-            else -> {
-                if (mCurrentPlayer?.hasNextMediaItem() == true) {
-                    mCurrentPlayer?.nextMediaItemIndex?.let { setCurrentItem(it) }
-                }
-            }
-        }
+//        when (error.errorCode) {
+//            PlaybackException.ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED -> {
+//                val currentPlaylistItemModel = getCurrentPlayingItem()
+//                val movieMetadata: MediaMetadata =
+//                    MediaMetadata.Builder().setTitle(currentPlaylistItemModel?.name)
+//                        .setArtist(currentPlaylistItemModel?.author)
+//                        .setArtworkUri(Uri.parse(currentPlaylistItemModel?.thumbnailPath)).build()
+//                val mediaItem = MediaItem.Builder()
+////                .setUri("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4")
+//                    .setUri(Uri.parse(currentPlaylistItemModel?.mediaSrc))
+//                    .setMediaMetadata(movieMetadata)
+//                    .setMimeType(MimeTypes.APPLICATION_M3U8)
+//                    .build()
+//                mMediaQueue[mCurrentPlayer?.currentMediaItemIndex ?: 0] = mediaItem
+//                mCastMediaQueue[mCurrentPlayer?.currentMediaItemIndex ?: 0] = mediaItem
+//                Log.e(TAG, "onPlayerError : setCurrentPlayer")
+//                setCurrentPlayer(if (mCastPlayer?.isCastSessionAvailable == true) mCastPlayer else mLocalPlayer)
+//            }
+//
+//            else -> {
+//                if (mCurrentPlayer?.hasNextMediaItem() == true) {
+//                    mCurrentPlayer?.nextMediaItemIndex?.let { setCurrentItem(it) }
+//                }
+//            }
+//        }
         Log.e(TAG, "onPlayerError : " + error.message.toString())
     }
 
