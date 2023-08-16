@@ -338,7 +338,9 @@ public class BraveChromiumHttpDataSource implements HttpDataSource {
 //            }
 //            readLength = (int) min(readLength, bytesRemaining);
 //        }
-        readLength = min(readLength, 200);
+        readLength = min(readLength, 50);
+
+        Log.e("readInternal", "readLength"+readLength);
 
         int read = castNonNull(inputStream).read(buffer, offset, readLength);
         if (read == -1) {

@@ -139,4 +139,16 @@ class PlaylistViewModel : ViewModel() {
     fun setDefaultPlaylist(playlistId: String) {
         mutableDefaultPlaylist.value = playlistId
     }
+
+    private val mutableOpenPlaylistStream = MutableLiveData<PlaylistItemModel>()
+    val openPlaylistStream: LiveData<PlaylistItemModel> get() = mutableOpenPlaylistStream
+    fun openPlaylistStream(playlistItemModel: PlaylistItemModel) {
+        mutableOpenPlaylistStream.value = playlistItemModel
+    }
+
+    private val mutableSetPlaylistItemToOpen = MutableLiveData<PlaylistItemModel>()
+    val setPlaylistItemToOpen: LiveData<PlaylistItemModel> get() = mutableSetPlaylistItemToOpen
+    fun setPlaylistItemToOpen(playlistItemModel: PlaylistItemModel) {
+        mutableSetPlaylistItemToOpen.value = playlistItemModel
+    }
 }

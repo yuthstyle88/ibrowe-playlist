@@ -9,8 +9,14 @@ package com.brave.playlist.util
 
 import android.content.Context
 import android.net.Uri
+import android.os.Environment
 import android.util.Log
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 import java.io.InputStream
+import java.io.OutputStream
+
 
 object MediaUtils {
     fun getFileSizeFromUri(context: Context, uri: Uri): Long {
@@ -31,5 +37,22 @@ object MediaUtils {
             inputStream?.close()
         }
         return fileSize
+    }
+
+    @JvmStatic
+    fun writeToFile(data: ByteArray?, filePath:String) {
+        val file = File(filePath)
+        data?.let { file.appendBytes(it) }
+    }
+
+    @JvmStatic
+    fun getTempFile(context: Context): File {
+        val outputDir =
+            File(Environment.getExternalStorageDirectory(),Environment.DIRECTORY_DOWNLOADS) // context being the Activity pointer
+        val file =  File(outputDir, "index.mp4")
+        Log.e("data_source","path :"+ file.absolutePath)
+        Log.e("data_source","canWrite :"+ file.canWrite())
+        Log.e("data_source","canRead :"+ file.canRead())
+        return file
     }
 }
