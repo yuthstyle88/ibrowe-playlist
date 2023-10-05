@@ -28,7 +28,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.brave.playlist.PlaylistDownloadUtils
 import com.brave.playlist.PlaylistVideoService
 import com.brave.playlist.PlaylistViewModel
 import com.brave.playlist.R
@@ -40,17 +39,16 @@ import com.brave.playlist.listener.PlaylistItemClickListener
 import com.brave.playlist.listener.PlaylistItemOptionsListener
 import com.brave.playlist.listener.PlaylistOptionsListener
 import com.brave.playlist.listener.StartDragListener
+import com.brave.playlist.local_database.PlaylistRepository
 import com.brave.playlist.model.MoveOrCopyModel
 import com.brave.playlist.model.PlaylistItemModel
 import com.brave.playlist.model.PlaylistItemOptionModel
 import com.brave.playlist.model.PlaylistModel
 import com.brave.playlist.model.PlaylistOptionsModel
 import com.brave.playlist.util.ConnectionUtils
-import com.brave.playlist.util.ConstantUtils
 import com.brave.playlist.util.ConstantUtils.CURRENT_PLAYING_ITEM_ID
 import com.brave.playlist.util.ConstantUtils.DEFAULT_PLAYLIST
 import com.brave.playlist.util.ConstantUtils.TAG
-import com.brave.playlist.util.HLSParsingUtil.getContentManifestUrl
 import com.brave.playlist.util.MediaUtils
 import com.brave.playlist.util.MenuUtils
 import com.brave.playlist.util.PlaylistItemGestureHelper
@@ -93,6 +91,10 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist), ItemInteractionLi
 
     private lateinit var mEmptyView: View
     private lateinit var mPlaylistView: View
+
+    private val mPlaylistRepository: PlaylistRepository by lazy {
+        PlaylistRepository(requireContext())
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -207,16 +209,32 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist), ItemInteractionLi
                 requireActivity().finish()
             }
 
-            playlistData.items.forEach { playlistItemModel ->
-                val extension: String = playlistItemModel.mediaPath
-                    .substring(playlistItemModel.mediaPath.lastIndexOf("."))
-                Log.e(TAG, "extension : $extension")
-                if (playlistItemModel.isCached && extension == ".m3u8") {
-                    val contentManifestUrl = getContentManifestUrl(requireActivity(), playlistItemModel)
-                    Log.e(TAG, "contentManifestUrl : $contentManifestUrl")
-                }
-//                PlaylistDownloadUtils.startDownloadRequest(requireContext(), playlistItemModel)
-            }
+//            playlistData.items.forEach { playlistItemModel ->
+//                val extension: String = playlistItemModel.mediaPath
+//                    .substring(playlistItemModel.mediaPath.lastIndexOf("."))
+//                Log.e(TAG, "extension : $extension")
+//                if (playlistItemModel.isCached && extension == ".m3u8") {
+//                    val contentManifestUrl = getContentManifestUrl(requireActivity(), playlistItemModel)
+//                    Log.e(TAG, "contentManifestUrl : $contentManifestUrl")
+//                }
+////                mPlaylistViewModel.openPlaylistStream(playlistItemModel)
+////                PlaylistDownloadUtils.startDownloadRequest(requireContext(), playlistItemModel)
+//            }
+
+//            mPlaylistRepository.getAllDownloadItemModel()?.forEach { downloadQueueModel ->
+//                val playlistItemModel = downloadQueueModel.playlistItemModel
+//                playlistItemModel?.let {
+//                    val extension: String = it.mediaPath
+//                        .substring(it.mediaPath.lastIndexOf("."))
+//                    Log.e(TAG, "extension : $extension")
+//                    if (it.isCached && extension == ".m3u8") {
+//                        val contentManifestUrl = getContentManifestUrl(requireActivity(), it)
+//                        Log.e(TAG, "contentManifestUrl : $contentManifestUrl")
+//                        mPlaylistViewModel.startDownloadingFromQueue(it)
+//                    }
+////                PlaylistDownloadUtils.startDownloadRequest(requireContext(), playlistItemModel)
+//                }
+//            }
 
             if (mPlaylistModel.items.isNotEmpty()) {
                 Glide.with(requireContext())
@@ -286,12 +304,16 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist), ItemInteractionLi
                                     view.context,
                                     Uri.parse(it.mediaPath)
                                 )
-                                it.fileSize = fileSize
+//                                it.mediaFileBytes = fileSize
                                 totalFileSize += fileSize
                             }
                         } catch (ex: IOException) {
                             Log.e(TAG, ex.message.toString())
                         }
+                    }
+
+                    if (mPlaylistRepository.getAllDownloadQueueModel()?.isNotEmpty() == true) {
+                        mPlaylistViewModel.startDownloadingFromQueue(true);
                     }
 
                     activity?.runOnUiThread {
@@ -421,11 +443,12 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist), ItemInteractionLi
             ).show()
             return
         }
-        if (!playlistItemModel.isCached) {
-            mPlaylistViewModel.openPlaylistStream(playlistItemModel)
-        } else {
+//        val extension: String = playlistItemModel.mediaPath.substring(playlistItemModel.mediaPath.lastIndexOf("."))
+//        if ((extension == ".m3u8" && playlistItemModel.isCached) || !playlistItemModel.isCached) {
+//            mPlaylistViewModel.openPlaylistStream(playlistItemModel)
+//        } else {
             openPlaylistPlayer(playlistItemModel)
-        }
+//        }
     }
 
     override fun onPlaylistItemClick(count: Int) {

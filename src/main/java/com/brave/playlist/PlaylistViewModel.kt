@@ -140,10 +140,10 @@ class PlaylistViewModel : ViewModel() {
         mutableDefaultPlaylist.value = playlistId
     }
 
-    private val mutableOpenPlaylistStream = MutableLiveData<PlaylistItemModel>()
-    val openPlaylistStream: LiveData<PlaylistItemModel> get() = mutableOpenPlaylistStream
-    fun openPlaylistStream(playlistItemModel: PlaylistItemModel) {
-        mutableOpenPlaylistStream.value = playlistItemModel
+    private val mutableStartDownloadingFromQueue = MutableLiveData(false)
+    val startDownloadingFromQueue: LiveData<Boolean> get() = mutableStartDownloadingFromQueue
+    fun startDownloadingFromQueue(shouldStartDownload: Boolean) {
+        mutableStartDownloadingFromQueue.postValue(shouldStartDownload)
     }
 
     private val mutableSetPlaylistItemToOpen = MutableLiveData<PlaylistItemModel>()

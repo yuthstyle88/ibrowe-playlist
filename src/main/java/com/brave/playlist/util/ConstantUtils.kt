@@ -31,4 +31,6 @@ object ConstantUtils {
     const val DOWNLOAD_CONTENT_DIRECTORY = "downloads"
     const val PLAYLIST_CHANNEL_ID = "playlist"
     const val PLAYLIST_NOTIFICATION_ID = 1001
+
+    const val HLS_FILE_EXTENSION = ".m3u8"
 }

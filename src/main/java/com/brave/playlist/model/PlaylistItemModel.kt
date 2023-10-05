@@ -21,14 +21,15 @@ data class PlaylistItemModel(
     @SerializedName("name") val name: String,
     @SerializedName("page_source") @ColumnInfo(name = "page_source") val pageSource: String,
     @SerializedName("media_path") @ColumnInfo(name = "media_path") val mediaPath: String,
+    @SerializedName("hls_media_path") @ColumnInfo(name = "hls_media_path") val hlsMediaPath: String,
     @SerializedName("media_src") @ColumnInfo(name = "media_src") val mediaSrc: String,
     @SerializedName("thumbnail_path") @ColumnInfo(name = "thumbnail_path") val thumbnailPath: String,
     @SerializedName("author") val author: String,
     @SerializedName("duration") val duration: String,
     @SerializedName("last_played_position") @ColumnInfo(name = "last_played_position") var lastPlayedPosition: Long,
+    @SerializedName("media_file_bytes") @ColumnInfo(name = "media_file_bytes") var mediaFileBytes: Long,
     @SerializedName("is_cached") @ColumnInfo(name = "is_cached") val isCached: Boolean = false,
-    @SerializedName("is_selected") @ColumnInfo(name = "is_selected") var isSelected: Boolean = false,
-    @SerializedName("file_size") @ColumnInfo(name = "file_size") var fileSize: Long = 0,
+    @SerializedName("is_selected") @ColumnInfo(name = "is_selected") var isSelected: Boolean = false
 ) : Parcelable {
     companion object {
         @JvmField
@@ -44,14 +45,15 @@ data class PlaylistItemModel(
         name = parcel.readString().toString(),
         pageSource = parcel.readString().toString(),
         mediaPath = parcel.readString().toString(),
+        hlsMediaPath = parcel.readString().toString(),
         mediaSrc = parcel.readString().toString(),
         thumbnailPath = parcel.readString().toString(),
         author = parcel.readString().toString(),
         duration = parcel.readString().toString(),
         lastPlayedPosition = parcel.readLong(),
+        mediaFileBytes = parcel.readLong(),
         isCached = parcel.readInt() == 1,
-        isSelected = parcel.readInt() == 1,
-        fileSize = parcel.readLong(),
+        isSelected = parcel.readInt() == 1
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -60,14 +62,15 @@ data class PlaylistItemModel(
         parcel.writeString(name)
         parcel.writeString(pageSource)
         parcel.writeString(mediaPath)
+        parcel.writeString(hlsMediaPath)
         parcel.writeString(mediaSrc)
         parcel.writeString(thumbnailPath)
         parcel.writeString(author)
         parcel.writeString(duration)
         parcel.writeLong(lastPlayedPosition)
+        parcel.writeLong(mediaFileBytes)
         parcel.writeInt(if (isCached) 1 else 0)
         parcel.writeInt(if (isSelected) 1 else 0)
-        parcel.writeLong(fileSize)
     }
 
     override fun describeContents() = 0

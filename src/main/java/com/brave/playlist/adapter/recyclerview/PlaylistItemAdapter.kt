@@ -78,7 +78,7 @@ class PlaylistItemAdapter(
         }
 
         index?.let {
-            playlistItemEventModel.playlistItemModel.fileSize = itemList[it].fileSize
+            playlistItemEventModel.playlistItemModel.mediaFileBytes = itemList[it].mediaFileBytes
             itemList[it] = playlistItemEventModel.playlistItemModel
             notifyItemChanged(it)
         }
@@ -164,7 +164,7 @@ class PlaylistItemAdapter(
             }
 
             if (model.isCached) {
-                val fileSize = model.fileSize
+                val fileSize = model.mediaFileBytes
                 tvMediaFileSize.text =
                     Formatter.formatShortFileSize(itemView.context, fileSize)
             }

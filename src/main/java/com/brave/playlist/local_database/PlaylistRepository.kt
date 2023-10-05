@@ -8,16 +8,13 @@
 package com.brave.playlist.local_database
 
 import android.content.Context
+import com.brave.playlist.model.DownloadQueueModel
 import com.brave.playlist.model.PlaylistItemModel
 
 class PlaylistRepository(context: Context) {
 
-    var playlistItemModelDao: PlaylistItemModelDao? =
+    private var playlistItemModelDao: PlaylistItemModelDao? =
         PlaylistDatabase.getInstance(context)?.playlistItemModelDao()
-
-    fun getAllPlaylistItemModel(): List<PlaylistItemModel>? {
-        return playlistItemModelDao?.getAll()
-    }
 
     fun getPlaylistItemById(playlistItemId: String): PlaylistItemModel? {
         return playlistItemModelDao?.getPlaylistItemById(playlistItemId)
@@ -27,15 +24,23 @@ class PlaylistRepository(context: Context) {
         playlistItemModelDao?.insertPlaylistItemModel(playlistItemModel)
     }
 
-    fun updatePlaylistItemModel(playlistItemModel: PlaylistItemModel) {
-        playlistItemModelDao?.updatePlaylistItemModel(playlistItemModel)
-    }
-
-    fun deletePlaylistItemModel(playlistItemModel: PlaylistItemModel) {
-        playlistItemModelDao?.deletePlaylistItemModel(playlistItemModel)
-    }
-
     fun deleteAllPlaylistItemModel() {
         playlistItemModelDao?.deleteAllPlaylistItemModel()
+    }
+
+    fun getAllDownloadQueueModel() : List<DownloadQueueModel>? {
+        return playlistItemModelDao?.getAllDownloadQueueModel()
+    }
+
+    fun insertDownloadQueueModel(downloadQueueModel: DownloadQueueModel) {
+        playlistItemModelDao?.insertDownloadQueueModel(downloadQueueModel)
+    }
+
+    fun deleteAllDownloadQueueModel() {
+        playlistItemModelDao?.deleteAllDownloadQueueModel()
+    }
+
+    fun deleteDownloadQueueModel(downloadQueueModel: DownloadQueueModel) {
+        playlistItemModelDao?.deleteDownloadQueueModel(downloadQueueModel)
     }
 }
