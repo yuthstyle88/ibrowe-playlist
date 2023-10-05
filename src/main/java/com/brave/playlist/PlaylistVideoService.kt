@@ -266,9 +266,20 @@ class PlaylistVideoService : Service(), Player.Listener, SessionAvailabilityList
             if (MediaUtils.getTempFile(applicationContext).canRead()) {
                 Log.e("data_source", "canRead")
             }
+
+            var mediaPath = ""
+            if (mediaModel.isCached){
+                mediaPath = if (MediaUtils.isHlsFile(mediaModel.mediaPath)) {
+                    mediaModel.hlsMediaPath
+                } else {
+                    mediaModel.mediaPath
+                }
+            }
+
             val onlineMediaItem = MediaItem.Builder()
-                .setUri(Uri.parse(if (mediaModel.isCached) mediaModel.mediaPath else MediaUtils.getTempFile(applicationContext).absolutePath))
+                .setUri(Uri.parse(mediaPath))
 //                .setUri(Uri.parse(MediaUtils.getTempFile(applicationContext).absolutePath))
+//                .setUri(Uri.parse("file:///data/user/0/com.brave.browser_nightly/app_chrome/Default/playlist/3C2F35009A72E7E38CD7BE3BCA4BBA5F/media_file.mp4"))
                 .setMimeType(MimeTypes.VIDEO_MP4)
                 .setMediaMetadata(movieMetadata)
                 .build()

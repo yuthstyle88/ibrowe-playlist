@@ -13,6 +13,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import com.brave.playlist.model.DownloadQueueModel
 import com.brave.playlist.model.PlaylistItemModel
 
 @Dao
@@ -34,4 +35,22 @@ interface PlaylistItemModelDao {
 
     @Query("DELETE FROM PlaylistItemModel")
     fun deleteAllPlaylistItemModel()
+
+
+    // Download queue models
+    @Query("SELECT * FROM DownloadQueueModel")
+    fun getAllDownloadQueueModel(): List<DownloadQueueModel>
+
+    @Query("SELECT * FROM DownloadQueueModel WHERE playlist_item_id = :playlistItemId LIMIT 1")
+    fun getDownloadQueuePlaylistItemById(playlistItemId: String): DownloadQueueModel
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertDownloadQueueModel(vararg downloadQueueModel: DownloadQueueModel)
+
+    @Delete
+    fun deleteDownloadQueueModel(vararg downloadQueueModel: DownloadQueueModel)
+
+    @Query("DELETE FROM DownloadQueueModel")
+    fun deleteAllDownloadQueueModel()
+
 }

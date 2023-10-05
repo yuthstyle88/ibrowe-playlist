@@ -12,6 +12,7 @@ import android.net.Uri
 import android.util.Log
 import com.brave.playlist.model.PlaylistItemModel
 import com.brave.playlist.util.ConstantUtils
+import com.brave.playlist.util.MediaUtils
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.database.DatabaseProvider
 import com.google.android.exoplayer2.database.StandaloneDatabaseProvider
@@ -22,7 +23,6 @@ import com.google.android.exoplayer2.offline.DownloadService
 import com.google.android.exoplayer2.ui.DownloadNotificationHelper
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
-import com.google.android.exoplayer2.upstream.FileDataSource
 import com.google.android.exoplayer2.upstream.cache.Cache
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource
 import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor
@@ -33,7 +33,8 @@ import java.util.concurrent.Executors
 
 object PlaylistDownloadUtils {
     private var mDataSourceFactory: DataSource.Factory? = null
-//    private var mHttpDataSourceFactory: DataSource.Factory? = null
+
+    //    private var mHttpDataSourceFactory: DataSource.Factory? = null
     private var mDatabaseProvider: DatabaseProvider? = null
     private var mDownloadDirectory: File? = null
     private var mDownloadCache: Cache? = null
@@ -42,7 +43,7 @@ object PlaylistDownloadUtils {
     @Synchronized
     fun getDataSourceFactory(context: Context): DataSource.Factory {
         if (mDataSourceFactory == null) {
-            val upstreamFactory = FileDataSource.Factory()
+            val upstreamFactory = DefaultHttpDataSource.Factory()
             mDataSourceFactory =
                 getDownloadCache(context)?.let { buildReadOnlyCacheDataSource(upstreamFactory, it) }
         }
@@ -108,19 +109,14 @@ object PlaylistDownloadUtils {
     private fun buildReadOnlyCacheDataSource(
         upstreamFactory: DataSource.Factory, cache: Cache
     ): CacheDataSource.Factory {
-        return CacheDataSource.Factory()
-            .setCache(cache)
-            .setUpstreamDataSourceFactory(upstreamFactory)
-            .setCacheWriteDataSinkFactory(null)
+        return CacheDataSource.Factory().setCache(cache)
+            .setUpstreamDataSourceFactory(upstreamFactory).setCacheWriteDataSinkFactory(null)
             .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR)
     }
 
     @JvmStatic
     fun startDownloadRequest(context: Context, playlistIteModel: PlaylistItemModel) {
-        val extension: String = playlistIteModel.mediaSrc
-            .substring(playlistIteModel.mediaSrc.lastIndexOf("."))
-        Log.e(ConstantUtils.TAG, "extension : $extension")
-        if (playlistIteModel.isCached && extension == ".m3u8") {
+        if (playlistIteModel.isCached && MediaUtils.isHlsFile(playlistIteModel.mediaSrc)) {
             val downloadRequest =
                 DownloadRequest.Builder(playlistIteModel.id, Uri.parse(playlistIteModel.mediaSrc))
                     .setMimeType(
@@ -128,10 +124,7 @@ object PlaylistDownloadUtils {
                     ).build()
             if (getDownloadManager(context)?.downloadIndex?.getDownload(playlistIteModel.id)?.state != Download.STATE_COMPLETED) {
                 DownloadService.sendAddDownload(
-                    context,
-                    PlaylistDownloadService::class.java,
-                    downloadRequest,
-                    true
+                    context, PlaylistDownloadService::class.java, downloadRequest, true
                 )
             }
             Log.e(ConstantUtils.TAG, playlistIteModel.name + playlistIteModel.mediaSrc)
@@ -140,28 +133,18 @@ object PlaylistDownloadUtils {
 
     @JvmStatic
     fun removeDownloadRequest(context: Context, playlistIteModel: PlaylistItemModel) {
-        val extension: String = playlistIteModel.mediaPath
-            .substring(playlistIteModel.mediaPath.lastIndexOf("."))
-        Log.e(ConstantUtils.TAG, "extension : $extension")
-        if (playlistIteModel.isCached && extension == ".m3u8") {
+        if (playlistIteModel.isCached && MediaUtils.isHlsFile(playlistIteModel.mediaPath)) {
             DownloadService.sendRemoveDownload(
-                context,
-                PlaylistDownloadService::class.java,
-                playlistIteModel.id,
-                true
+                context, PlaylistDownloadService::class.java, playlistIteModel.id, true
             )
             Log.e(ConstantUtils.TAG, playlistIteModel.name + playlistIteModel.mediaSrc)
         }
     }
 
     fun getMediaItemFromDownloadRequest(
-        context: Context,
-        playlistIteModel: PlaylistItemModel
+        context: Context, playlistIteModel: PlaylistItemModel
     ): MediaItem? {
-        val extension: String = playlistIteModel.mediaPath
-            .substring(playlistIteModel.mediaPath.lastIndexOf("."))
-        return if (playlistIteModel.isCached && extension == ".m3u8") {
-            Log.e(ConstantUtils.TAG, "extension : $extension")
+        return if (playlistIteModel.isCached && MediaUtils.isHlsFile(playlistIteModel.mediaPath)) {
             Log.e(
                 ConstantUtils.TAG,
                 getDownloadManager(context)?.downloadIndex?.getDownload(playlistIteModel.id)?.state.toString()

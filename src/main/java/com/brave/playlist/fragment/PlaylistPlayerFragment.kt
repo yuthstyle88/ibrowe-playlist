@@ -398,17 +398,17 @@ class PlaylistPlayerFragment : Fragment(R.layout.fragment_playlist_player), Play
             }
 
             mScope.launch {
-                mPlaylistItems.forEach {
-                    try {
-                        if (it.isCached) {
-                            val fileSize =
-                                MediaUtils.getFileSizeFromUri(view.context, Uri.parse(it.mediaPath))
-                            it.fileSize = fileSize
-                        }
-                    } catch (ex: IOException) {
-                        Log.e(TAG, ex.message.toString())
-                    }
-                }
+//                mPlaylistItems.forEach {
+//                    try {
+//                        if (it.isCached) {
+//                            val fileSize =
+//                                MediaUtils.getFileSizeFromUri(view.context, Uri.parse(it.mediaPath))
+//                            it.mediaFileBytes = fileSize
+//                        }
+//                    } catch (ex: IOException) {
+//                        Log.e(TAG, ex.message.toString())
+//                    }
+//                }
 
                 activity?.runOnUiThread {
                     // Bottom Layout set up

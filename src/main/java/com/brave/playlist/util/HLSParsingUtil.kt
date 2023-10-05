@@ -16,16 +16,18 @@ import com.google.android.exoplayer2.source.hls.playlist.HlsMultivariantPlaylist
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParser
 import java.io.File
 import java.io.FileInputStream
+import java.util.LinkedList
+import java.util.Queue
 
 object HLSParsingUtil {
     @JvmStatic
-    fun getContentManifestUrl(context: Context, playlistItemModel: PlaylistItemModel): String {
+    fun getContentManifestUrl(context: Context, baseUrl: String, localManifestFilePath:String): String {
         var contentManifestUrl = ""
         val hlsParser =
-            context.contentResolver?.openInputStream(Uri.parse(playlistItemModel.mediaPath))
+            context.contentResolver?.openInputStream(Uri.parse(localManifestFilePath))
                 ?.let {
                     HlsPlaylistParser().parse(
-                        Uri.parse(playlistItemModel.mediaSrc),
+                        Uri.parse(baseUrl),
                         it
                     )
                 }
@@ -39,15 +41,15 @@ object HLSParsingUtil {
     fun getContentSegments(
         contentManifestFilePath: String,
         baseUrl: String
-    ): List<Segment>? {
-        var contentSegments:List<Segment> ? = null
+    ): Queue<Segment> {
+        val contentSegments:Queue<Segment> = LinkedList()
         val hlsParser = HlsPlaylistParser().parse(
             Uri.parse(baseUrl), FileInputStream(
                 File(contentManifestFilePath)
             )
         )
         if (hlsParser is HlsMediaPlaylist) {
-            contentSegments =  hlsParser.segments
+            contentSegments.addAll(hlsParser.segments)
         }
         return contentSegments
     }
