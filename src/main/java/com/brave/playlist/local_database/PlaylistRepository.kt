@@ -28,6 +28,22 @@ class PlaylistRepository(context: Context) {
         playlistItemModelDao?.deleteAllPlaylistItemModel()
     }
 
+    fun getDownloadQueueModelById(playlistItemId: String): DownloadQueueModel? {
+        return playlistItemModelDao?.getDownloadQueueModelById(playlistItemId)
+    }
+
+    fun isDownloadQueueModelExists(playlistItemId: String) : Boolean? {
+        return playlistItemModelDao?.isDownloadQueueModelExists(playlistItemId)
+    }
+
+    fun updateDownloadQueueModel(downloadQueueModel: DownloadQueueModel) {
+        playlistItemModelDao?.updateDownloadQueueModel(downloadQueueModel)
+    }
+
+    fun getFirstDownloadQueueModel() : DownloadQueueModel? {
+        return playlistItemModelDao?.getFirstDownloadQueueModel()
+    }
+
     fun getAllDownloadQueueModel() : List<DownloadQueueModel>? {
         return playlistItemModelDao?.getAllDownloadQueueModel()
     }
@@ -42,5 +58,6 @@ class PlaylistRepository(context: Context) {
 
     fun deleteDownloadQueueModel(downloadQueueModel: DownloadQueueModel) {
         playlistItemModelDao?.deleteDownloadQueueModel(downloadQueueModel)
+
     }
 }

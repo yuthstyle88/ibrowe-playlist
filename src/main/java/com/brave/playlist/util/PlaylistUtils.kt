@@ -19,10 +19,13 @@ import android.os.Build
 import android.util.Log
 import com.brave.playlist.R
 import com.brave.playlist.activity.PlaylistMenuOnboardingActivity
+import com.brave.playlist.local_database.PlaylistRepository
+import com.brave.playlist.model.DownloadQueueModel
 import com.brave.playlist.model.MoveOrCopyModel
 import com.brave.playlist.model.PlaylistItemModel
 import com.brave.playlist.model.PlaylistOnboardingModel
 import com.brave.playlist.util.ConstantUtils.PLAYLIST_CHANNEL_ID
+import com.google.android.material.internal.ContextUtils
 import java.util.Date
 
 
@@ -127,5 +130,10 @@ object PlaylistUtils {
         } catch (ex: ClassNotFoundException) {
             Log.e(ConstantUtils.TAG, "openBraveActivityWithUrl : " + ex.message)
         }
+    }
+
+    @JvmStatic
+    fun insertDownloadQueue(context: Context, downloadQueueModel: DownloadQueueModel?) {
+        downloadQueueModel?.let { PlaylistRepository(context).insertDownloadQueueModel(it) }
     }
 }

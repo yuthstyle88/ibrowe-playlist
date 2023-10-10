@@ -259,13 +259,6 @@ class PlaylistVideoService : Service(), Player.Listener, SessionAvailabilityList
             val movieMetadata: MediaMetadata =
                 MediaMetadata.Builder().setTitle(mediaModel.name).setArtist(mediaModel.author)
                     .setArtworkUri(Uri.parse(mediaModel.thumbnailPath)).build()
-            Log.e("data_source", Uri.fromFile(MediaUtils.getTempFile(applicationContext)).toString())
-            if (MediaUtils.getTempFile(applicationContext).exists()) {
-                Log.e("data_source", "File exist")
-            }
-            if (MediaUtils.getTempFile(applicationContext).canRead()) {
-                Log.e("data_source", "canRead")
-            }
 
             var mediaPath = ""
             if (mediaModel.isCached){

@@ -32,6 +32,7 @@ import com.brave.playlist.PlaylistVideoService
 import com.brave.playlist.PlaylistViewModel
 import com.brave.playlist.R
 import com.brave.playlist.adapter.recyclerview.PlaylistItemAdapter
+import com.brave.playlist.enums.DownloadStatus
 import com.brave.playlist.enums.PlaylistOptionsEnum
 import com.brave.playlist.extension.afterMeasured
 import com.brave.playlist.listener.ItemInteractionListener
@@ -40,6 +41,7 @@ import com.brave.playlist.listener.PlaylistItemOptionsListener
 import com.brave.playlist.listener.PlaylistOptionsListener
 import com.brave.playlist.listener.StartDragListener
 import com.brave.playlist.local_database.PlaylistRepository
+import com.brave.playlist.model.DownloadQueueModel
 import com.brave.playlist.model.MoveOrCopyModel
 import com.brave.playlist.model.PlaylistItemModel
 import com.brave.playlist.model.PlaylistItemOptionModel
@@ -304,7 +306,6 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist), ItemInteractionLi
                                     view.context,
                                     Uri.parse(it.mediaPath)
                                 )
-//                                it.mediaFileBytes = fileSize
                                 totalFileSize += fileSize
                             }
                         } catch (ex: IOException) {
@@ -312,8 +313,15 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist), ItemInteractionLi
                         }
                     }
 
+                    mPlaylistModel.items.forEach {
+                        playlistItemModel ->
+                        val isDownloadQueueModelExists = mPlaylistRepository.isDownloadQueueModelExists(playlistItemModel.id) ?: false
+                        if (playlistItemModel.isCached && MediaUtils.isHlsFile(playlistItemModel.mediaPath) && !isDownloadQueueModelExists) {
+                            mPlaylistRepository.insertDownloadQueueModel(DownloadQueueModel(playlistItemModel.id, DownloadStatus.PENDING.name))
+                        }
+                    }
                     if (mPlaylistRepository.getAllDownloadQueueModel()?.isNotEmpty() == true) {
-                        mPlaylistViewModel.startDownloadingFromQueue(true);
+                        mPlaylistViewModel.startDownloadingFromQueue(true)
                     }
 
                     activity?.runOnUiThread {

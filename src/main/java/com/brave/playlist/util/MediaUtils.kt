@@ -46,45 +46,6 @@ object MediaUtils {
     }
 
     @JvmStatic
-    fun writeToPrivateFile(data: ByteArray?, filePath:String) {
-        var fileOutputStream: FileOutputStream? = null
-        try {
-            fileOutputStream = FileOutputStream(File(filePath), true)
-            fileOutputStream.write(data)
-        } catch (e: IOException) {
-            e.printStackTrace()
-        } finally {
-            try {
-                fileOutputStream?.close()
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-        }
-    }
-
-    @JvmStatic
-    fun getTempFile(context: Context): File {
-        val outputDir =
-            File(Environment.getExternalStorageDirectory(),Environment.DIRECTORY_DOWNLOADS) // context being the Activity pointer
-        val file =  File(outputDir, "index.mp4")
-//        Log.e("data_source","getTempFile path :"+ file.absolutePath)
-//        Log.e("data_source","getTempFile canWrite :"+ file.canWrite())
-//        Log.e("data_source","getTempFile canRead :"+ file.canRead())
-        return file
-    }
-
-    @JvmStatic
-    fun getTempManifestFile(context: Context): File {
-        val outputDir =
-            File(Environment.getExternalStorageDirectory(),Environment.DIRECTORY_DOWNLOADS) // context being the Activity pointer
-        val file =  File(outputDir, "index.m3u8")
-//        Log.e("data_source","getTempManifestFile path :"+ file.absolutePath)
-//        Log.e("data_source","getTempManifestFile canWrite :"+ file.canWrite())
-//        Log.e("data_source","getTempManifestFile canRead :"+ file.canRead())
-        return file
-    }
-
-    @JvmStatic
     fun isHlsFile(mediaPath : String) : Boolean{
         val extension: String = mediaPath
             .substring(mediaPath.lastIndexOf("."))
