@@ -42,7 +42,9 @@ class PlaylistItemOptionsBottomSheet(
 
         val rvBottomSheet: RecyclerView = view.findViewById(R.id.rvBottomSheet)
         rvBottomSheet.layoutManager = LinearLayoutManager(view.context)
-        rvBottomSheet.adapter = PlaylistItemOptionsBottomSheetAdapter(playlistItemOptionModel, this)
+        val playlistItemOptionsBottomSheetAdapter = PlaylistItemOptionsBottomSheetAdapter(this)
+        rvBottomSheet.adapter = playlistItemOptionsBottomSheetAdapter
+        playlistItemOptionsBottomSheetAdapter.submitList(playlistItemOptionModel)
 
         val behavior = BottomSheetBehavior.from(layoutBottomSheet)
         behavior.state = BottomSheetBehavior.STATE_EXPANDED
@@ -52,8 +54,8 @@ class PlaylistItemOptionsBottomSheet(
             ?.setBackgroundResource(android.R.color.transparent)
     }
 
-    override fun onOptionClicked(playlistItemOptionModel: PlaylistItemOptionModel) {
-        playlistItemOptionsListener.onOptionClicked(playlistItemOptionModel)
+    override fun onPlaylistItemOptionClicked(playlistItemOptionModel: PlaylistItemOptionModel) {
+        playlistItemOptionsListener.onPlaylistItemOptionClicked(playlistItemOptionModel)
         dismiss()
     }
 }

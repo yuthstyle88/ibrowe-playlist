@@ -10,8 +10,8 @@ package com.brave.playlist.fragment
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.TextView
 import androidx.appcompat.widget.AppCompatButton
+import androidx.appcompat.widget.AppCompatTextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -44,7 +44,7 @@ class AllPlaylistFragment : Fragment(R.layout.fragment_all_playlist), PlaylistOp
     private lateinit var mBtAddNewPlaylist: AppCompatButton
     private lateinit var mRvRecentlyPlayed: RecyclerView
     private lateinit var mRvPlaylist: RecyclerView
-    private lateinit var mTvRecentlyPlayed: TextView
+    private lateinit var mTvRecentlyPlayed: AppCompatTextView
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -113,7 +113,9 @@ class AllPlaylistFragment : Fragment(R.layout.fragment_all_playlist), PlaylistOp
                 }
                 mRvRecentlyPlayed.layoutManager =
                     LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-                mRvRecentlyPlayed.adapter = RecentlyPlayedPlaylistAdapter(recentPlaylist, this)
+                val recentlyPlayedPlaylistAdapter = RecentlyPlayedPlaylistAdapter(this)
+                mRvRecentlyPlayed.adapter = recentlyPlayedPlaylistAdapter
+                recentlyPlayedPlaylistAdapter.submitList(recentPlaylist)
                 mRvRecentlyPlayed.visibility =
                     if (recentPlaylist.isNotEmpty()) View.VISIBLE else View.GONE
                 mTvRecentlyPlayed.visibility =
@@ -130,11 +132,13 @@ class AllPlaylistFragment : Fragment(R.layout.fragment_all_playlist), PlaylistOp
 //            }
 
             mRvPlaylist.layoutManager = LinearLayoutManager(requireContext())
-            mRvPlaylist.adapter = PlaylistAdapter(allPlaylistList, this)
+            val playlistAdapter = PlaylistAdapter(this)
+            mRvPlaylist.adapter = playlistAdapter
+            playlistAdapter.submitList(allPlaylistList)
         }
     }
 
-    override fun onOptionClicked(playlistOptionsModel: PlaylistOptionsModel) {
+    override fun onPlaylistOptionClicked(playlistOptionsModel: PlaylistOptionsModel) {
         mPlaylistViewModel.setAllPlaylistOption(playlistOptionsModel)
     }
 

@@ -9,6 +9,7 @@ package com.brave.playlist.adapter.recyclerview
 
 import android.annotation.SuppressLint
 import android.graphics.Color
+import android.text.TextUtils
 import android.text.format.Formatter
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -23,16 +24,13 @@ import com.brave.playlist.listener.StartDragListener
 import com.brave.playlist.model.DownloadProgressModel
 import com.brave.playlist.model.PlaylistItemEventModel
 import com.brave.playlist.model.PlaylistItemModel
+import com.brave.playlist.util.MediaUtils
 import com.bumptech.glide.Glide
 
 class PlaylistItemAdapter(
-    mediaItemList: MutableList<PlaylistItemModel>,
     private val playlistItemClickListener: PlaylistItemClickListener?,
     private val startDragListener: StartDragListener? = null,
-) :
-    AbstractRecyclerViewAdapter<PlaylistItemAdapter.MediaItemViewHolder, PlaylistItemModel>(
-        mediaItemList
-    ) {
+) : AbstractRecyclerViewAdapter<PlaylistItemModel, PlaylistItemAdapter.MediaItemViewHolder>() {
     private var editMode = false
     private var isBottomLayout = false
 
@@ -51,36 +49,19 @@ class PlaylistItemAdapter(
             tvMediaDownloadProgress?.visibility = View.VISIBLE
             tvMediaDownloadProgress?.text =
                 view?.resources?.getString(R.string.playlist_percentage_text)
-                    ?.let { String.format(it, downloadProgressModel.percentComplete.toString()) }
+                    ?.let { String.format(it, downloadProgressModel.percentComplete) }
         }
     }
 
     fun updatePlaylistItem(playlistItemEventModel: PlaylistItemEventModel) {
-        val view = allViewHolderViews[playlistItemEventModel.playlistItemModel.id]
+        val view = allViewHolderViews[playlistItemEventModel.playlistItemModelId]
         val ivMediaStatus: AppCompatImageView? = view?.findViewById(R.id.ivMediaStatus)
         val tvMediaDownloadProgress: AppCompatTextView? =
             view?.findViewById(R.id.tvMediaDownloadProgress)
-        if (playlistItemEventModel.playlistItemEventEnum == PlaylistItemEventEnum.ITEM_CACHED) {
+        if (playlistItemEventModel.playlistItemEventEnumOrdinal == PlaylistItemEventEnum.ITEM_UPDATED.ordinal) {
             tvMediaDownloadProgress?.visibility = View.GONE
             ivMediaStatus?.visibility = View.VISIBLE
             ivMediaStatus?.setImageResource(R.drawable.ic_downloaded)
-        } else if (playlistItemEventModel.playlistItemEventEnum == PlaylistItemEventEnum.ITEM_LOCAL_DATA_REMOVED) {
-            tvMediaDownloadProgress?.visibility = View.GONE
-            ivMediaStatus?.visibility = View.VISIBLE
-            ivMediaStatus?.setImageResource(R.drawable.ic_offline)
-        }
-        var index: Int? = null
-        for (i in 0 until itemList.size) {
-            if (itemList[i].id == playlistItemEventModel.playlistItemModel.id) {
-                index = i
-                break
-            }
-        }
-
-        index?.let {
-            playlistItemEventModel.playlistItemModel.mediaFileBytes = itemList[it].mediaFileBytes
-            itemList[it] = playlistItemEventModel.playlistItemModel
-            notifyItemChanged(it)
         }
     }
 
@@ -109,8 +90,8 @@ class PlaylistItemAdapter(
 
     fun setEditMode(enable: Boolean) {
         editMode = enable
-        itemList.forEach { it.isSelected = false }
-        notifyItemRangeChanged(0, size)
+        currentList.forEach { it.isSelected = false }
+        notifyItemRangeChanged(0, itemCount)
     }
 
     fun getEditMode(): Boolean {
@@ -121,8 +102,7 @@ class PlaylistItemAdapter(
         isBottomLayout = true
     }
 
-    inner class MediaItemViewHolder(view: View) :
-        AbstractViewHolder<PlaylistItemModel>(view) {
+    inner class MediaItemViewHolder(view: View) : AbstractViewHolder<PlaylistItemModel>(view) {
         private val ivMediaThumbnail: AppCompatImageView
         private val tvMediaTitle: AppCompatTextView
         private val tvMediaDuration: AppCompatTextView
@@ -148,16 +128,23 @@ class PlaylistItemAdapter(
         @SuppressLint("ClickableViewAccessibility")
         override fun onBind(position: Int, model: PlaylistItemModel) {
             setViewOnSelected(model.isSelected)
-            ivMediaStatus.setImageResource(if (model.isCached) R.drawable.ic_downloaded else R.drawable.ic_offline)
+            val downloadIcon =
+                if (model.isCached && ((MediaUtils.isHlsFile(model.mediaPath) && !TextUtils.isEmpty(
+                        model.hlsMediaPath
+                    )) || !MediaUtils.isHlsFile(model.mediaPath))
+                ) {
+                    R.drawable.ic_downloaded
+                } else {
+                    R.drawable.ic_offline
+                }
+            ivMediaStatus.setImageResource(downloadIcon)
             ivMediaStatus.visibility = if (!editMode) View.VISIBLE else View.GONE
             tvMediaTitle.text = model.name
 
             if (model.thumbnailPath.isNotEmpty()) {
-                Glide.with(itemView.context)
-                    .asBitmap()
+                Glide.with(itemView.context).asBitmap()
                     .placeholder(R.drawable.ic_playlist_item_placeholder)
-                    .error(R.drawable.ic_playlist_item_placeholder)
-                    .load(model.thumbnailPath)
+                    .error(R.drawable.ic_playlist_item_placeholder).load(model.thumbnailPath)
                     .into(ivMediaThumbnail)
             } else {
                 ivMediaThumbnail.setImageResource(R.drawable.ic_playlist_item_placeholder)
@@ -165,44 +152,36 @@ class PlaylistItemAdapter(
 
             if (model.isCached) {
                 val fileSize = model.mediaFileBytes
-                tvMediaFileSize.text =
-                    Formatter.formatShortFileSize(itemView.context, fileSize)
+                tvMediaFileSize.text = Formatter.formatShortFileSize(itemView.context, fileSize)
             }
 
             tvMediaFileSize.visibility = if (model.isCached) View.VISIBLE else View.GONE
 
             if (model.duration.isNotEmpty()) {
                 val duration = model.duration.toLongOrNull()
-                if (duration != null) {
+                if (duration != null && duration > 0) {
                     val milliseconds = (duration / 1000) % 1000
                     val seconds = ((duration / 1000) - milliseconds) / 1000 % 60
-                    val minutes =
-                        (((duration / 1000) - milliseconds) / 1000 - seconds) / 60 % 60
+                    val minutes = (((duration / 1000) - milliseconds) / 1000 - seconds) / 60 % 60
                     val hours =
                         ((((duration / 1000) - milliseconds) / 1000 - seconds) / 60 - minutes) / 60
 
                     val hourTime: String = if (hours > 0) itemView.context.resources.getString(
-                        R.string.playlist_time_text,
-                        hours.toString()
+                        R.string.playlist_time_text, hours.toString()
                     ) else ""
                     val minuteTime: String = if (minutes > 0) itemView.context.resources.getString(
-                        R.string.playlist_time_text,
-                        minutes.toString()
+                        R.string.playlist_time_text, minutes.toString()
                     ) else ""
                     tvMediaDuration.visibility = View.VISIBLE
                     tvMediaDuration.text = itemView.context.resources.getString(
-                        R.string.playlist_duration_text,
-                        hourTime,
-                        minuteTime,
-                        seconds.toString()
+                        R.string.playlist_duration_text, hourTime, minuteTime, seconds.toString()
                     )
                 }
             }
             ivMediaOptions.visibility = if (!editMode) View.VISIBLE else View.GONE
             ivMediaOptions.setOnClickListener {
                 playlistItemClickListener?.onPlaylistItemMenuClick(
-                    view = it,
-                    playlistItemModel = model
+                    view = it, playlistItemModel = model
                 )
             }
             ivDragMedia.visibility = if (editMode) View.VISIBLE else View.GONE
@@ -211,7 +190,7 @@ class PlaylistItemAdapter(
                     model.isSelected = !model.isSelected
                     setViewOnSelected(model.isSelected)
                     var count = 0
-                    itemList.forEach {
+                    currentList.forEach {
                         if (it.isSelected) {
                             count++
                         }
@@ -224,8 +203,9 @@ class PlaylistItemAdapter(
                 }
             }
             ivDragMedia.setOnTouchListener { _, event ->
-                if (event.actionMasked == MotionEvent.ACTION_DOWN)
-                    startDragListener?.onStartDrag(this)
+                if (event.actionMasked == MotionEvent.ACTION_DOWN) startDragListener?.onStartDrag(
+                    this
+                )
                 false
             }
 
@@ -233,7 +213,7 @@ class PlaylistItemAdapter(
         }
 
         override fun isSelected(position: Int): Boolean {
-            return position in 0 until size && itemList[position].isSelected
+            return position in 0 until itemCount && currentList[position].isSelected
         }
 
         private fun setViewOnSelected(isSelected: Boolean) {
@@ -250,7 +230,7 @@ class PlaylistItemAdapter(
 
     fun getSelectedItems(): ArrayList<PlaylistItemModel> {
         val selectedItems = arrayListOf<PlaylistItemModel>()
-        itemList.forEach {
+        currentList.forEach {
             if (it.isSelected) {
                 selectedItems.add(it)
             }
@@ -259,6 +239,6 @@ class PlaylistItemAdapter(
     }
 
     fun getPlaylistItems(): MutableList<PlaylistItemModel> {
-        return itemList
+        return currentList.toMutableList()
     }
 }

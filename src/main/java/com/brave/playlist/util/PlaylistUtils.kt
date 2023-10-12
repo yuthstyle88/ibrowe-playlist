@@ -7,7 +7,7 @@
 
 package com.brave.playlist.util
 
-import android.app.Activity
+import android.app.ActivityManager
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -17,6 +17,7 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.util.Log
+import androidx.activity.ComponentActivity
 import com.brave.playlist.R
 import com.brave.playlist.activity.PlaylistMenuOnboardingActivity
 import com.brave.playlist.local_database.PlaylistRepository
@@ -25,7 +26,6 @@ import com.brave.playlist.model.MoveOrCopyModel
 import com.brave.playlist.model.PlaylistItemModel
 import com.brave.playlist.model.PlaylistOnboardingModel
 import com.brave.playlist.util.ConstantUtils.PLAYLIST_CHANNEL_ID
-import com.google.android.material.internal.ContextUtils
 import java.util.Date
 
 
@@ -119,7 +119,7 @@ object PlaylistUtils {
     }
 
     @JvmStatic
-    fun openBraveActivityWithUrl(activity: Activity, url: String) {
+    fun openBraveActivityWithUrl(activity: ComponentActivity, url: String) {
         try {
             val intent =
                 Intent(activity, Class.forName("org.chromium.chrome.browser.ChromeTabbedActivity"))
@@ -135,5 +135,21 @@ object PlaylistUtils {
     @JvmStatic
     fun insertDownloadQueue(context: Context, downloadQueueModel: DownloadQueueModel?) {
         downloadQueueModel?.let { PlaylistRepository(context).insertDownloadQueueModel(it) }
+    }
+
+    @JvmStatic
+    fun isServiceRunning(context: Context, serviceClass: Class<*>): Boolean {
+        val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        val runningServices = activityManager.runningAppProcesses
+
+        if (runningServices != null) {
+            for (processInfo in runningServices) {
+                if (processInfo.processName == serviceClass.name) {
+                    return true
+                }
+            }
+        }
+
+        return false
     }
 }

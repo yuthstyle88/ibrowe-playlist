@@ -7,12 +7,12 @@
 
 package com.brave.playlist.util
 
-import android.app.Activity
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
 import androidx.transition.Slide
 import androidx.transition.TransitionManager
@@ -34,7 +34,7 @@ import com.google.android.material.snackbar.Snackbar
 object PlaylistViewUtils {
     @JvmStatic
     fun showPlaylistButton(
-        activity: Activity,
+        activity: AppCompatActivity,
         parent: ViewGroup,
         playlistOptionsListener: PlaylistOptionsListener,
         playlistOnboardingActionClickListener: PlaylistOnboardingActionClickListener

@@ -18,7 +18,7 @@ android {
         }
     }
     namespace 'com.brave.playlist'
-    compileSdk 33
+    compileSdk 34
 
     buildFeatures {
         buildConfig = true
@@ -26,7 +26,7 @@ android {
 
     defaultConfig {
         minSdk 24
-        targetSdk 33
+        targetSdk 34
         versionCode 1
         versionName '0.0.1'
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -34,8 +34,8 @@ android {
         vectorDrawables.useSupportLibrary = true
     }
 
-    libraryVariants.all { variant ->
-        variant.outputs.all { output ->
+    libraryVariants.configureEach { variant ->
+        variant.outputs.configureEach { output ->
             outputFileName = "playlist_${variant.name}_${defaultConfig.versionName}.aar"
         }
     }
@@ -45,6 +45,7 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
+            debuggable true
         }
         debug {
             debuggable true
@@ -61,35 +62,38 @@ android {
 
 ext {
     exoplayerVersion = '2.17.1'
+    room_version = "2.6.0"
 }
 
 dependencies {
-    implementation 'androidx.core:core-ktx:1.9.0'
-    implementation 'androidx.appcompat:appcompat:1.5.1'
-    implementation 'com.google.android.material:material:1.7.0'
+    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.10.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     //noinspection GradleDependency
     implementation "com.google.android.exoplayer:exoplayer-core:$exoplayerVersion"
     //noinspection GradleDependency
     implementation "com.google.android.exoplayer:exoplayer-ui:$exoplayerVersion"
     implementation "com.google.android.exoplayer:extension-cast:$exoplayerVersion"
-    implementation "com.google.android.gms:play-services-cast-framework:21.2.0"
     implementation "com.google.android.exoplayer:extension-mediasession:$exoplayerVersion"
     implementation "com.google.android.exoplayer:exoplayer-hls:$exoplayerVersion"
 
-    implementation "androidx.preference:preference:1.2.0"
+    implementation "com.google.android.gms:play-services-cast-framework:21.3.0"
+
+    implementation "androidx.preference:preference-ktx:1.2.1"
 
     implementation "com.google.code.gson:gson:2.10.1"
 
-    implementation "androidx.room:room-runtime:2.5.1"
-    annotationProcessor "androidx.room:room-compiler:2.5.1"
-    kapt "androidx.room:room-compiler:2.5.1"
+    implementation "androidx.room:room-runtime:$room_version"
+    annotationProcessor "androidx.room:room-compiler:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
 
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2'
 
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
 
     implementation "com.github.bumptech.glide:glide:4.12.0"
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+
 }

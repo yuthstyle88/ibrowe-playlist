@@ -10,6 +10,7 @@ package com.brave.playlist.fragment
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -46,9 +47,7 @@ class NewPlaylistFragment : Fragment(R.layout.fragment_new_playlist) {
         mPlaylistViewModel = ViewModelProvider(requireActivity())[PlaylistViewModel::class.java]
 
         mEtPlaylistName = view.findViewById(R.id.etPlaylistName)
-        if (mPlaylistModel != null) {
-            mEtPlaylistName.setText(mPlaylistModel?.name)
-        }
+        mEtPlaylistName.setText(mPlaylistModel?.name)
         mPlaylistToolbar = view.findViewById(R.id.playlistToolbar)
         mPlaylistToolbar.setToolbarTitle(
             if (mPlaylistOptionsEnum == PlaylistOptionsEnum.NEW_PLAYLIST) getString(
@@ -60,7 +59,8 @@ class NewPlaylistFragment : Fragment(R.layout.fragment_new_playlist) {
                 R.string.playlist_create_toolbar_text
             ) else getString(R.string.playlist_rename_text)
         )
-        mPlaylistToolbar.setActionButtonClickListener {
+
+        mPlaylistToolbar.setActionButtonClickListener(clickListener = View.OnClickListener {
             if (mPlaylistOptionsEnum == PlaylistOptionsEnum.NEW_PLAYLIST) {
                 if (!mEtPlaylistName.text.isNullOrEmpty()) {
                     mPlaylistViewModel.setCreatePlaylistOption(
@@ -69,10 +69,11 @@ class NewPlaylistFragment : Fragment(R.layout.fragment_new_playlist) {
                             mShouldMoveOrCopy
                         )
                     )
-                    activity?.onBackPressedDispatcher?.onBackPressed()
+                    if (activity is AppCompatActivity)
+                        (activity as AppCompatActivity).onBackPressedDispatcher.onBackPressed()
                 } else {
                     Toast.makeText(
-                        requireContext(),
+                        requireActivity(),
                         R.string.playlist_empty_playlist_name,
                         Toast.LENGTH_SHORT
                     ).show()
@@ -85,7 +86,8 @@ class NewPlaylistFragment : Fragment(R.layout.fragment_new_playlist) {
                             mEtPlaylistName.text.toString()
                         )
                     )
-                    activity?.onBackPressedDispatcher?.onBackPressed()
+                    if (activity is AppCompatActivity)
+                        (activity as AppCompatActivity).onBackPressedDispatcher.onBackPressed()
                 } else {
                     Toast.makeText(
                         requireContext(),
@@ -94,7 +96,7 @@ class NewPlaylistFragment : Fragment(R.layout.fragment_new_playlist) {
                     ).show()
                 }
             }
-        }
+        })
         mEtPlaylistName.requestFocus()
     }
 

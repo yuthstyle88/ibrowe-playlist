@@ -81,7 +81,9 @@ class MoveOrCopyToPlaylistBottomSheet :
 
             val rvPlaylists: RecyclerView = view.findViewById(R.id.rvPlaylists)
             rvPlaylists.layoutManager = LinearLayoutManager(view.context)
-            rvPlaylists.adapter = PlaylistAdapter(allPlaylistList, this)
+            val playlistAdapter = PlaylistAdapter(this)
+            rvPlaylists.adapter = playlistAdapter
+            playlistAdapter.submitList(allPlaylistList)
         }
 
         val behavior = BottomSheetBehavior.from(layoutBottomSheet)

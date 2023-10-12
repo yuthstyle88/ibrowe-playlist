@@ -11,7 +11,6 @@ import android.content.Context
 import android.content.res.ColorStateList
 import android.util.AttributeSet
 import android.view.WindowManager
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
@@ -31,7 +30,7 @@ class PlaylistToolbar(context: Context, attrs: AttributeSet?, defStyleAttr: Int,
 
     // Edit toolbar
     private val layoutEditToolbar: LinearLayoutCompat
-    private val tvItemSelected: TextView
+    private val tvItemSelected: AppCompatTextView
     private val ivExitEditMode: AppCompatImageView
     private val ivMoveItem: AppCompatImageView
     private val ivDeleteItem: AppCompatImageView

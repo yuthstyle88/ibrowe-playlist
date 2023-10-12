@@ -11,6 +11,5 @@ data class DownloadProgressModel(
     val playlistItemId: String,
     val totalBytes: Long,
     val receivedBytes: Long,
-    val percentComplete: Byte,
-    val timeRemaining: String
+    val percentComplete: String
 )
