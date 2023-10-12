@@ -8,6 +8,6 @@
 package com.brave.playlist.enums
 
 enum class DownloadStatus {
-    DOWNLOADING,
+    DOWNLOADED,
     PENDING
 }

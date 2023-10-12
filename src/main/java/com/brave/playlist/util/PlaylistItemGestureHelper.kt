@@ -25,12 +25,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.brave.playlist.R
 import com.brave.playlist.adapter.recyclerview.AbstractRecyclerViewAdapter
 import com.brave.playlist.listener.ItemInteractionListener
+import com.brave.playlist.model.PlaylistItemModel
 import kotlin.math.min
 
-class PlaylistItemGestureHelper<VH : AbstractRecyclerViewAdapter.AbstractViewHolder<M>, M>(
+class PlaylistItemGestureHelper<VH : AbstractRecyclerViewAdapter.AbstractViewHolder<M>, M : Any>(
     context: Context,
     private val recyclerView: RecyclerView,
-    private val adapter: AbstractRecyclerViewAdapter<VH, M>,
+    private val adapter: AbstractRecyclerViewAdapter<M, VH>,
     private val itemInteractionListener: ItemInteractionListener
 ) :
     SimpleCallback(

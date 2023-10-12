@@ -23,6 +23,7 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.brave.playlist.enums.DownloadStatus
 import com.brave.playlist.local_database.PlaylistRepository
 import com.brave.playlist.model.PlaylistItemModel
 import com.brave.playlist.util.ConstantUtils
@@ -359,7 +360,31 @@ class PlaylistVideoService : Service(), Player.Listener, SessionAvailabilityList
             TAG,
             PlaylistVideoService::class.java.name + " : onMediaItemTransition : Reason : " + reason
         )
-        if (reason != Player.MEDIA_ITEM_TRANSITION_REASON_SEEK) {
+        if (reason == Player.MEDIA_ITEM_TRANSITION_REASON_SEEK) {
+//            mScope.launch {
+//                val currentPlayingItem = mCurrentPlayer?.currentMediaItemIndex?.let {
+//                    getMediaItemFromPosition(
+//                        it
+//                    )
+//                }
+//                currentPlayingItem?.id?.let {
+//                    val downloadStatus = mPlaylistRepository.getDownloadQueueModelById(it)?.downloadStatus
+//                    Log.e(TAG, "downloadStatus : $downloadStatus")
+//                    when(downloadStatus) {
+//                        DownloadStatus.PENDING.name -> {
+//                            mCurrentPlayer?.pause()
+//                        }
+//                        DownloadStatus.DOWNLOADING.name -> {
+//                            mCurrentPlayer?.pause()
+//                        }
+//                        DownloadStatus.DOWNLOADED.name -> {
+//                            mCurrentPlayer?.prepare()
+//                            mCurrentPlayer?.play()
+//                        }
+//                    }
+//                }
+//            }
+        } else {
             mCurrentPlayer?.playWhenReady =
                 PlaylistPreferenceUtils.defaultPrefs(applicationContext).continuousListening
         }

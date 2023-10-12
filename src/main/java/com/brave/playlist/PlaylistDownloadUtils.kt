@@ -10,6 +10,9 @@ package com.brave.playlist
 import android.content.Context
 import android.net.Uri
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import com.brave.playlist.model.DownloadProgressModel
 import com.brave.playlist.model.PlaylistItemModel
 import com.brave.playlist.util.ConstantUtils
 import com.brave.playlist.util.MediaUtils
@@ -157,5 +160,12 @@ object PlaylistDownloadUtils {
         } else {
             null
         }
+    }
+
+    private val mutableDownloadProgress = MutableLiveData<DownloadProgressModel>()
+    val downloadProgress: LiveData<DownloadProgressModel> get() = mutableDownloadProgress
+    @JvmStatic
+    fun updateDownloadProgress(downloadProgressModel: DownloadProgressModel) {
+        mutableDownloadProgress.value = downloadProgressModel
     }
 }

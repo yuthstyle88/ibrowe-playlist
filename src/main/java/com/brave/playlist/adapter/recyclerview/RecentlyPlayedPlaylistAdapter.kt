@@ -18,13 +18,8 @@ import com.brave.playlist.model.PlaylistModel
 import com.brave.playlist.util.ConstantUtils
 import com.bumptech.glide.Glide
 
-class RecentlyPlayedPlaylistAdapter(
-    playlists: MutableList<PlaylistModel>,
-    private val playlistClickListener: PlaylistClickListener?
-) :
-    AbstractRecyclerViewAdapter<RecentlyPlayedPlaylistAdapter.RecentlyPlayedPlaylistViewHolder, PlaylistModel>(
-        playlists
-    ) {
+class RecentlyPlayedPlaylistAdapter(private val playlistClickListener: PlaylistClickListener?) :
+    AbstractRecyclerViewAdapter<PlaylistModel, RecentlyPlayedPlaylistAdapter.RecentlyPlayedPlaylistViewHolder>() {
 
     class RecentlyPlayedPlaylistViewHolder(
         view: View,

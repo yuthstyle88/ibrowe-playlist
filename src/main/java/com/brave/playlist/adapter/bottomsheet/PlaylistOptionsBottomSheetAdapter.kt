@@ -17,13 +17,8 @@ import com.brave.playlist.adapter.recyclerview.AbstractRecyclerViewAdapter
 import com.brave.playlist.listener.PlaylistOptionsListener
 import com.brave.playlist.model.PlaylistOptionsModel
 
-class PlaylistOptionsBottomSheetAdapter(
-    itemList: MutableList<PlaylistOptionsModel>,
-    private val playlistOptionsListener: PlaylistOptionsListener
-) :
-    AbstractRecyclerViewAdapter<PlaylistOptionsBottomSheetAdapter.PlaylistOptionsViewHolder, PlaylistOptionsModel>(
-        itemList
-    ) {
+class PlaylistOptionsBottomSheetAdapter(private val playlistOptionsListener: PlaylistOptionsListener) :
+    AbstractRecyclerViewAdapter<PlaylistOptionsModel, PlaylistOptionsBottomSheetAdapter.PlaylistOptionsViewHolder>() {
 
     class PlaylistOptionsViewHolder(
         view: View,
@@ -44,7 +39,7 @@ class PlaylistOptionsBottomSheetAdapter(
             ivOptionIcon.setImageResource(model.optionIcon)
             tvOptionTitle.text = model.optionTitle
             optionView.setOnClickListener {
-                playlistOptionsListener.onOptionClicked(model)
+                playlistOptionsListener.onPlaylistOptionClicked(model)
             }
         }
     }
