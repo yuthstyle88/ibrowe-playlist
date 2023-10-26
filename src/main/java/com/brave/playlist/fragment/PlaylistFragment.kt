@@ -208,37 +208,11 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist), ItemInteractionLi
             Log.e(TAG, playlistData.toString())
             var totalFileSize = 0L
             mPlaylistModel = playlistData
+            mIvPlaylistOptions.setImageResource(if(mPlaylistModel.id == DEFAULT_PLAYLIST) R.drawable.ic_edit_playlist else R.drawable.ic_options_toolbar_playlist)
 
             view.findViewById<AppCompatButton>(R.id.btBrowseForMedia).setOnClickListener {
                 requireActivity().finish()
             }
-
-//            playlistData.items.forEach { playlistItemModel ->
-//                val extension: String = playlistItemModel.mediaPath
-//                    .substring(playlistItemModel.mediaPath.lastIndexOf("."))
-//                Log.e(TAG, "extension : $extension")
-//                if (playlistItemModel.isCached && extension == ".m3u8") {
-//                    val contentManifestUrl = getContentManifestUrl(requireActivity(), playlistItemModel)
-//                    Log.e(TAG, "contentManifestUrl : $contentManifestUrl")
-//                }
-////                mPlaylistViewModel.openPlaylistStream(playlistItemModel)
-////                PlaylistDownloadUtils.startDownloadRequest(requireContext(), playlistItemModel)
-//            }
-
-//            mPlaylistRepository.getAllDownloadItemModel()?.forEach { downloadQueueModel ->
-//                val playlistItemModel = downloadQueueModel.playlistItemModel
-//                playlistItemModel?.let {
-//                    val extension: String = it.mediaPath
-//                        .substring(it.mediaPath.lastIndexOf("."))
-//                    Log.e(TAG, "extension : $extension")
-//                    if (it.isCached && extension == ".m3u8") {
-//                        val contentManifestUrl = getContentManifestUrl(requireActivity(), it)
-//                        Log.e(TAG, "contentManifestUrl : $contentManifestUrl")
-//                        mPlaylistViewModel.startDownloadingFromQueue(it)
-//                    }
-////                PlaylistDownloadUtils.startDownloadRequest(requireContext(), playlistItemModel)
-//                }
-//            }
 
             if (mPlaylistModel.items.isNotEmpty()) {
                 Glide.with(requireContext()).load(mPlaylistModel.items[0].thumbnailPath)
@@ -278,33 +252,29 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist), ItemInteractionLi
                     if (mPlaylistModel.id == DEFAULT_PLAYLIST) resources.getString(R.string.playlist_play_later) else mPlaylistModel.name
 
                 if (activity is AppCompatActivity) {
-                    (activity as AppCompatActivity).onBackPressedDispatcher.addCallback(
-                            requireActivity(),
-                            object : OnBackPressedCallback(true) {
-                                override fun handleOnBackPressed() {
-                                    if (mPlaylistItemAdapter?.getEditMode() == true) {
-                                        mPlaylistItemAdapter?.setEditMode(false)
-                                        mPlaylistToolbar.enableEditMode(false)
-                                        mIvPlaylistOptions.visibility = View.VISIBLE
-                                        //Reorder list
-                                        mPlaylistItemAdapter?.getPlaylistItems()
-                                            ?.let { mPlaylistViewModel.reorderPlaylistItems(it) }
-                                    } else {
-                                        this.remove()
-                                        (activity as AppCompatActivity).onBackPressedDispatcher.onBackPressed()
-                                    }
+                    (activity as AppCompatActivity).onBackPressedDispatcher.addCallback(requireActivity(),
+                        object : OnBackPressedCallback(true) {
+                            override fun handleOnBackPressed() {
+                                if (mPlaylistItemAdapter?.getEditMode() == true) {
+                                    mPlaylistItemAdapter?.setEditMode(false)
+                                    mPlaylistToolbar.enableEditMode(false)
+                                    mIvPlaylistOptions.visibility = View.VISIBLE
+                                    //Reorder list
+                                    mPlaylistItemAdapter?.getPlaylistItems()
+                                        ?.let { mPlaylistViewModel.reorderPlaylistItems(it) }
+                                } else {
+                                    this.remove()
+                                    (activity as AppCompatActivity).onBackPressedDispatcher.onBackPressed()
                                 }
-                            })
+                            }
+                        })
                 }
 
                 mScope.launch {
                     mPlaylistModel.items.forEach {
                         try {
                             if (it.isCached) {
-                                val fileSize = MediaUtils.getFileSizeFromUri(
-                                    view.context, Uri.parse(it.mediaPath)
-                                )
-                                totalFileSize += fileSize
+                                totalFileSize += it.mediaFileBytes
                             }
                         } catch (ex: IOException) {
                             Log.e(TAG, ex.message.toString())
@@ -375,8 +345,7 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist), ItemInteractionLi
                             mPlaylistItemAdapter?.updatePlaylistItemDownloadProgress(it)
                         }
 
-                        mPlaylistViewModel.playlistItemEventUpdate.observe(viewLifecycleOwner) {
-//                            mPlaylistViewModel.fetchPlaylistData(mPlaylistModel.id)
+                        mPlaylistViewModel.playlistItemUpdate.observe(viewLifecycleOwner) {
                             mPlaylistItemAdapter?.updatePlaylistItem(it)
                         }
 
@@ -402,21 +371,31 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist), ItemInteractionLi
                     }
                 }
             } else {
-                mIvPlaylistCover.setImageResource(R.drawable.ic_playlist_placeholder)
-                mEmptyView.visibility = View.VISIBLE
-                mPlaylistView.visibility = View.GONE
+                setEmptyView();
             }
         }
 
         mIvPlaylistOptions.setOnClickListener {
-            MenuUtils.showPlaylistMenu(
-                view.context,
-                parentFragmentManager,
-                mPlaylistModel,
-                this@PlaylistFragment,
-                mPlaylistModel.id == DEFAULT_PLAYLIST
-            )
+            if (mPlaylistModel.id == DEFAULT_PLAYLIST) {
+                mPlaylistItemAdapter?.setEditMode(true)
+                mPlaylistToolbar.enableEditMode(true)
+                mIvPlaylistOptions.visibility = View.GONE
+            } else {
+                MenuUtils.showPlaylistMenu(
+                    view.context,
+                    parentFragmentManager,
+                    mPlaylistModel,
+                    this@PlaylistFragment,
+                    mPlaylistModel.id == DEFAULT_PLAYLIST
+                )
+            }
         }
+    }
+
+    fun setEmptyView() {
+        mIvPlaylistCover.setImageResource(R.drawable.ic_playlist_placeholder)
+        mEmptyView.visibility = View.VISIBLE
+        mPlaylistView.visibility = View.GONE
     }
 
     override fun onItemDelete(position: Int) {
@@ -461,12 +440,12 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist), ItemInteractionLi
 
     override fun onPlaylistItemClick(playlistItemModel: PlaylistItemModel) {
 //        openPlaylistPlayer(playlistItemModel)
-        if (!playlistItemModel.isCached && !ConnectionUtils.isDeviceOnline(requireContext())) {
-            Toast.makeText(
-                requireContext(), getString(R.string.playlist_offline_message), Toast.LENGTH_SHORT
-            ).show()
-            return
-        }
+//        if (!playlistItemModel.isCached && !ConnectionUtils.isDeviceOnline(requireContext())) {
+//            Toast.makeText(
+//                requireContext(), getString(R.string.playlist_offline_message), Toast.LENGTH_SHORT
+//            ).show()
+//            return
+//        }
 //        val extension: String = playlistItemModel.mediaPath.substring(playlistItemModel.mediaPath.lastIndexOf("."))
 //        if ((extension == ".m3u8" && playlistItemModel.isCached) || !playlistItemModel.isCached) {
 //            mPlaylistViewModel.openPlaylistStream(playlistItemModel)
@@ -508,7 +487,15 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist), ItemInteractionLi
 //                playlistId = selectedPlaylistItemModel.playlistId
 //            )
 //            mPlaylistViewModel.setPlaylistItemOption(playlistItemOptionModel)
-//        } else {
+//        } else
+
+        if (!PlaylistUtils.isPlaylistItemCached(selectedPlaylistItemModel)) {
+            Toast.makeText(
+                activity, getString(R.string.playlist_offline_message), Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+
         var recentPlaylistIds = LinkedList<String>()
         val recentPlaylistJson =
             PlaylistPreferenceUtils.defaultPrefs(requireContext()).recentlyPlayedPlaylist
@@ -565,8 +552,7 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist), ItemInteractionLi
 
             PlaylistOptionsEnum.DELETE_PLAYLIST -> {
                 activity?.stopService(Intent(requireContext(), PlaylistVideoService::class.java))
-                if (activity is AppCompatActivity)
-                (activity as AppCompatActivity).onBackPressedDispatcher.onBackPressed()
+                if (activity is AppCompatActivity) (activity as AppCompatActivity).onBackPressedDispatcher.onBackPressed()
             }
 
             else -> {

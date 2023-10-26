@@ -19,6 +19,7 @@ import java.io.InputStream
 
 
 object MediaUtils {
+    @JvmStatic
     fun getFileSizeFromUri(context: Context, uri: Uri): Long {
         var fileSize = 0L
         var inputStream: InputStream? = null

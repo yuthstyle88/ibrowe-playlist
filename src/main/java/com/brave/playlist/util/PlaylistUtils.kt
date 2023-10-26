@@ -16,6 +16,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
 import android.os.Build
+import android.text.TextUtils
 import android.util.Log
 import androidx.activity.ComponentActivity
 import com.brave.playlist.R
@@ -151,5 +152,12 @@ object PlaylistUtils {
         }
 
         return false
+    }
+
+    @JvmStatic
+    fun isPlaylistItemCached(selectedPlaylistItemModel : PlaylistItemModel) : Boolean {
+        return selectedPlaylistItemModel.isCached && (!MediaUtils.isHlsFile(selectedPlaylistItemModel.mediaPath) || (MediaUtils.isHlsFile(
+            selectedPlaylistItemModel.mediaPath
+        ) && !TextUtils.isEmpty(selectedPlaylistItemModel.hlsMediaPath)))
     }
 }
