@@ -116,6 +116,12 @@ class PlaylistViewModel : ViewModel() {
         mutablePlaylistItemEventUpdate.value = playlistItemEventModel
     }
 
+    private val mutablePlaylistItemUpdate = MutableLiveData<PlaylistItemModel>()
+    val playlistItemUpdate: LiveData<PlaylistItemModel> get() = mutablePlaylistItemUpdate
+    fun updatePlaylistItem(playlistItemModel: PlaylistItemModel) {
+        mutablePlaylistItemUpdate.value = playlistItemModel
+    }
+
     private val mutableFetchPlaylistData = MutableLiveData<String>()
     val fetchPlaylistData: LiveData<String> get() = mutableFetchPlaylistData
     fun fetchPlaylistData(playlistId: String) {
@@ -150,5 +156,11 @@ class PlaylistViewModel : ViewModel() {
     val setPlaylistItemToOpen: LiveData<PlaylistItemModel> get() = mutableSetPlaylistItemToOpen
     fun setPlaylistItemToOpen(playlistItemModel: PlaylistItemModel) {
         mutableSetPlaylistItemToOpen.value = playlistItemModel
+    }
+
+    private val mutablePlaylistItemRemove = MutableLiveData<String>()
+    val playlistItemRemove: LiveData<String> get() = mutablePlaylistItemRemove
+    fun removePlaylistItem(playlistItemId : String) {
+        mutablePlaylistItemRemove.value = playlistItemId
     }
 }

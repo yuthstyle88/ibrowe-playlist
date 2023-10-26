@@ -358,10 +358,12 @@ class PlaylistPlayerFragment : Fragment(R.layout.fragment_playlist_player), Play
         mPlaylistViewModel.playlistData.observe(viewLifecycleOwner) { playlistData ->
             mPlaylistItems = mutableListOf()
             playlistData.items.forEach {
-                if (it.id != mSelectedPlaylistItemId) {
-                    mPlaylistItems.add(it)
-                } else {
-                    mPlaylistItems.add(0, it)
+                if (PlaylistUtils.isPlaylistItemCached(it)) {
+                    if (it.id != mSelectedPlaylistItemId) {
+                        mPlaylistItems.add(it)
+                    } else {
+                        mPlaylistItems.add(0, it)
+                    }
                 }
             }
 
@@ -421,10 +423,10 @@ class PlaylistPlayerFragment : Fragment(R.layout.fragment_playlist_player), Play
 
                     PlaylistItemEventEnum.ITEM_CACHED.ordinal
 
-                    mPlaylistViewModel.playlistItemEventUpdate.observe(viewLifecycleOwner) {
-//                        mPlaylistModel?.id?.let { playlistId -> mPlaylistViewModel.fetchPlaylistData(playlistId) }
-                        mPlaylistItemAdapter?.updatePlaylistItem(it)
-                    }
+//                    mPlaylistViewModel.playlistItemEventUpdate.observe(viewLifecycleOwner) {
+////                        mPlaylistModel?.id?.let { playlistId -> mPlaylistViewModel.fetchPlaylistData(playlistId) }
+//                        mPlaylistItemAdapter?.updatePlaylistItem(it)
+//                    }
                 }
             }
         }
@@ -506,7 +508,7 @@ class PlaylistPlayerFragment : Fragment(R.layout.fragment_playlist_player), Play
     private fun setToolbar() {
         mPlaylistToolbar.setOptionsButtonClickListener {
             if (activity is AppCompatActivity)
-            (activity as AppCompatActivity).onBackPressedDispatcher.onBackPressed()
+                (activity as AppCompatActivity).onBackPressedDispatcher.onBackPressed()
         }
     }
 
@@ -777,7 +779,7 @@ class PlaylistPlayerFragment : Fragment(R.layout.fragment_playlist_player), Play
             if (playlistItemOptionModel.optionType == PlaylistOptionsEnum.DELETE_PLAYLIST_ITEM) {
                 mPlaylistVideoService?.getCurrentPlayer()?.stop()
                 if (activity is AppCompatActivity)
-                (activity as AppCompatActivity).onBackPressedDispatcher.onBackPressed()
+                    (activity as AppCompatActivity).onBackPressedDispatcher.onBackPressed()
             } else if (playlistItemOptionModel.optionType == PlaylistOptionsEnum.MOVE_PLAYLIST_ITEM || playlistItemOptionModel.optionType == PlaylistOptionsEnum.COPY_PLAYLIST_ITEM) {
                 val moveOrCopyItems = ArrayList<PlaylistItemModel>()
                 playlistItemOptionModel.playlistItemModel?.let { moveOrCopyItems.add(it) }

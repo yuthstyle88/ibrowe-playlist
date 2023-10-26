@@ -9,7 +9,6 @@ package com.brave.playlist.adapter.recyclerview
 
 import android.annotation.SuppressLint
 import android.graphics.Color
-import android.text.TextUtils
 import android.text.format.Formatter
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -18,13 +17,11 @@ import android.view.ViewGroup
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
 import com.brave.playlist.R
-import com.brave.playlist.enums.PlaylistItemEventEnum
 import com.brave.playlist.listener.PlaylistItemClickListener
 import com.brave.playlist.listener.StartDragListener
 import com.brave.playlist.model.DownloadProgressModel
-import com.brave.playlist.model.PlaylistItemEventModel
 import com.brave.playlist.model.PlaylistItemModel
-import com.brave.playlist.util.MediaUtils
+import com.brave.playlist.util.PlaylistUtils
 import com.bumptech.glide.Glide
 
 class PlaylistItemAdapter(
@@ -53,15 +50,27 @@ class PlaylistItemAdapter(
         }
     }
 
-    fun updatePlaylistItem(playlistItemEventModel: PlaylistItemEventModel) {
-        val view = allViewHolderViews[playlistItemEventModel.playlistItemModelId]
-        val ivMediaStatus: AppCompatImageView? = view?.findViewById(R.id.ivMediaStatus)
-        val tvMediaDownloadProgress: AppCompatTextView? =
-            view?.findViewById(R.id.tvMediaDownloadProgress)
-        if (playlistItemEventModel.playlistItemEventEnumOrdinal == PlaylistItemEventEnum.ITEM_UPDATED.ordinal) {
-            tvMediaDownloadProgress?.visibility = View.GONE
-            ivMediaStatus?.visibility = View.VISIBLE
-            ivMediaStatus?.setImageResource(R.drawable.ic_downloaded)
+    fun updatePlaylistItem(playlistItemModel: PlaylistItemModel) {
+        val currentPlaylistItems = ArrayList<PlaylistItemModel>()
+        currentList.forEach {
+            if (it.id == playlistItemModel.id) {
+                playlistItemModel.playlistId = it.playlistId
+                currentPlaylistItems.add(playlistItemModel)
+            } else {
+             currentPlaylistItems.add(it)
+            }
+        }
+        submitList(currentPlaylistItems)
+    }
+
+    fun List<PlaylistItemModel>.replace(newValue: PlaylistItemModel, block: (String) -> Boolean): List<PlaylistItemModel> {
+        return map {
+            if (block(it.id)){
+                newValue.playlistId = it.playlistId
+                newValue
+            } else{
+                it
+            }
         }
     }
 
@@ -91,7 +100,6 @@ class PlaylistItemAdapter(
     fun setEditMode(enable: Boolean) {
         editMode = enable
         currentList.forEach { it.isSelected = false }
-        notifyItemRangeChanged(0, itemCount)
     }
 
     fun getEditMode(): Boolean {
@@ -129,10 +137,7 @@ class PlaylistItemAdapter(
         override fun onBind(position: Int, model: PlaylistItemModel) {
             setViewOnSelected(model.isSelected)
             val downloadIcon =
-                if (model.isCached && ((MediaUtils.isHlsFile(model.mediaPath) && !TextUtils.isEmpty(
-                        model.hlsMediaPath
-                    )) || !MediaUtils.isHlsFile(model.mediaPath))
-                ) {
+                if (PlaylistUtils.isPlaylistItemCached(model)) {
                     R.drawable.ic_downloaded
                 } else {
                     R.drawable.ic_offline
@@ -140,6 +145,9 @@ class PlaylistItemAdapter(
             ivMediaStatus.setImageResource(downloadIcon)
             ivMediaStatus.visibility = if (!editMode) View.VISIBLE else View.GONE
             tvMediaTitle.text = model.name
+            if (PlaylistUtils.isPlaylistItemCached(model)) {
+                tvMediaDownloadProgress.visibility = View.GONE
+            }
 
             if (model.thumbnailPath.isNotEmpty()) {
                 Glide.with(itemView.context).asBitmap()

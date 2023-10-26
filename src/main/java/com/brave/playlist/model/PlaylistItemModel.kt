@@ -17,7 +17,7 @@ import com.google.gson.annotations.SerializedName
 @Entity
 data class PlaylistItemModel(
     @PrimaryKey val id: String,
-    @SerializedName("playlist_id") @ColumnInfo(name = "playlist_id") val playlistId: String,
+    @SerializedName("playlist_id") @ColumnInfo(name = "playlist_id") var playlistId: String,
     @SerializedName("name") val name: String,
     @SerializedName("page_source") @ColumnInfo(name = "page_source") val pageSource: String,
     @SerializedName("media_path") @ColumnInfo(name = "media_path") val mediaPath: String,

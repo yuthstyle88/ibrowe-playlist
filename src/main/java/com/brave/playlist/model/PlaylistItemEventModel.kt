@@ -11,5 +11,5 @@ import com.brave.playlist.enums.PlaylistItemEventEnum
 
 data class PlaylistItemEventModel(
     val playlistItemEventEnumOrdinal: Int,
-    val playlistItemModelId: String
+    val playlistItemModel: PlaylistItemModel
 )
