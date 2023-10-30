@@ -7,18 +7,18 @@
 
 package com.brave.playlist.util
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
-import com.brave.playlist.model.PlaylistItemModel
-import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist
-import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segment
-import com.google.android.exoplayer2.source.hls.playlist.HlsMultivariantPlaylist
-import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParser
+import androidx.media3.exoplayer.hls.playlist.HlsMediaPlaylist
+import androidx.media3.exoplayer.hls.playlist.HlsMultivariantPlaylist
+import androidx.media3.exoplayer.hls.playlist.HlsPlaylistParser
 import java.io.File
 import java.io.FileInputStream
 import java.util.LinkedList
 import java.util.Queue
 
+@SuppressLint("UnsafeOptInUsageError")
 object HLSParsingUtil {
     @JvmStatic
     fun getContentManifestUrl(context: Context, baseUrl: String, localManifestFilePath:String): String {
@@ -41,8 +41,8 @@ object HLSParsingUtil {
     fun getContentSegments(
         contentManifestFilePath: String,
         baseUrl: String
-    ): Queue<Segment> {
-        val contentSegments:Queue<Segment> = LinkedList()
+    ): Queue<HlsMediaPlaylist.Segment> {
+        val contentSegments:Queue<HlsMediaPlaylist.Segment> = LinkedList()
         val hlsParser = HlsPlaylistParser().parse(
             Uri.parse(baseUrl), FileInputStream(
                 File(contentManifestFilePath)

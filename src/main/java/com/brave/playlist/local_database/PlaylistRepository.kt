@@ -9,55 +9,63 @@ package com.brave.playlist.local_database
 
 import android.content.Context
 import com.brave.playlist.model.DownloadQueueModel
-import com.brave.playlist.model.PlaylistItemModel
+import com.brave.playlist.model.LastPlayedPositionModel
 
 class PlaylistRepository(context: Context) {
 
-    private var playlistItemModelDao: PlaylistItemModelDao? =
+    private var mPlaylistItemModelDao: PlaylistItemModelDao? =
         PlaylistDatabase.getInstance(context)?.playlistItemModelDao()
 
-    fun getPlaylistItemById(playlistItemId: String): PlaylistItemModel? {
-        return playlistItemModelDao?.getPlaylistItemById(playlistItemId)
+//    fun getPlaylistItemById(playlistItemId: String): PlaylistItemModel? {
+//        return playlistItemModelDao?.getPlaylistItemById(playlistItemId)
+//    }
+//
+//    fun insertPlaylistItemModel(playlistItemModel: PlaylistItemModel) {
+//        playlistItemModelDao?.insertPlaylistItemModel(playlistItemModel)
+//    }
+//
+//    fun deleteAllPlaylistItemModel() {
+//        playlistItemModelDao?.deleteAllPlaylistItemModel()
+//    }
+
+    fun getLastPlayedPositionByPlaylistItemId(playlistItemId: String): LastPlayedPositionModel? {
+        return mPlaylistItemModelDao?.getLastPlayedPositionByPlaylistItemId(playlistItemId)
     }
 
-    fun insertPlaylistItemModel(playlistItemModel: PlaylistItemModel) {
-        playlistItemModelDao?.insertPlaylistItemModel(playlistItemModel)
-    }
-
-    fun deleteAllPlaylistItemModel() {
-        playlistItemModelDao?.deleteAllPlaylistItemModel()
+    fun insertLastPlayedPosition(lastPlayedPositionModel: LastPlayedPositionModel) {
+        mPlaylistItemModelDao?.insertLastPlayedPosition(lastPlayedPositionModel)
     }
 
     fun getDownloadQueueModelById(playlistItemId: String): DownloadQueueModel? {
-        return playlistItemModelDao?.getDownloadQueueModelById(playlistItemId)
+        return mPlaylistItemModelDao?.getDownloadQueueModelById(playlistItemId)
     }
 
     fun isDownloadQueueModelExists(playlistItemId: String) : Boolean? {
-        return playlistItemModelDao?.isDownloadQueueModelExists(playlistItemId)
+        return mPlaylistItemModelDao?.isDownloadQueueModelExists(playlistItemId)
     }
 
     fun updateDownloadQueueModel(downloadQueueModel: DownloadQueueModel) {
-        playlistItemModelDao?.updateDownloadQueueModel(downloadQueueModel)
+        mPlaylistItemModelDao?.updateDownloadQueueModel(downloadQueueModel)
     }
 
     fun getFirstDownloadQueueModel() : DownloadQueueModel? {
-        return playlistItemModelDao?.getFirstDownloadQueueModel()
+        return mPlaylistItemModelDao?.getFirstDownloadQueueModel()
     }
 
     fun getAllDownloadQueueModel() : List<DownloadQueueModel>? {
-        return playlistItemModelDao?.getAllDownloadQueueModel()
+        return mPlaylistItemModelDao?.getAllDownloadQueueModel()
     }
 
     fun insertDownloadQueueModel(downloadQueueModel: DownloadQueueModel) {
-        playlistItemModelDao?.insertDownloadQueueModel(downloadQueueModel)
+        mPlaylistItemModelDao?.insertDownloadQueueModel(downloadQueueModel)
     }
 
     fun deleteAllDownloadQueueModel() {
-        playlistItemModelDao?.deleteAllDownloadQueueModel()
+        mPlaylistItemModelDao?.deleteAllDownloadQueueModel()
     }
 
     fun deleteDownloadQueueModel(downloadQueueModel: DownloadQueueModel) {
-        playlistItemModelDao?.deleteDownloadQueueModel(downloadQueueModel)
+        mPlaylistItemModelDao?.deleteDownloadQueueModel(downloadQueueModel)
 
     }
 }

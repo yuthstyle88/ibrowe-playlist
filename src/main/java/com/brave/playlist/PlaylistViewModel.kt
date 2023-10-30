@@ -152,12 +152,6 @@ class PlaylistViewModel : ViewModel() {
         mutableStartDownloadingFromQueue.postValue(shouldStartDownload)
     }
 
-    private val mutableSetPlaylistItemToOpen = MutableLiveData<PlaylistItemModel>()
-    val setPlaylistItemToOpen: LiveData<PlaylistItemModel> get() = mutableSetPlaylistItemToOpen
-    fun setPlaylistItemToOpen(playlistItemModel: PlaylistItemModel) {
-        mutableSetPlaylistItemToOpen.value = playlistItemModel
-    }
-
     private val mutablePlaylistItemRemove = MutableLiveData<String>()
     val playlistItemRemove: LiveData<String> get() = mutablePlaylistItemRemove
     fun removePlaylistItem(playlistItemId : String) {
