@@ -94,7 +94,8 @@ object PlaylistPreferenceUtils {
             rememberFilePlaybackPosition = true
             rememberListPlaybackPosition = false
             continuousListening = true
-            PlaylistRepository(context).deleteAllPlaylistItemModel()
+            // Need to reset all prefs
+//            PlaylistRepository(context).deleteAllPlaylistItemModel()
         }
     }
 }

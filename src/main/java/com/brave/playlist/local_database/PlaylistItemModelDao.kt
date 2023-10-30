@@ -14,27 +14,37 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.brave.playlist.model.DownloadQueueModel
+import com.brave.playlist.model.LastPlayedPositionModel
 import com.brave.playlist.model.PlaylistItemModel
 
 @Dao
 interface PlaylistItemModelDao {
-    @Query("SELECT * FROM PlaylistItemModel")
-    fun getAll(): List<PlaylistItemModel>
+//    @Query("SELECT * FROM PlaylistItemModel")
+//    fun getAll(): List<PlaylistItemModel>
+//
+//    @Query("SELECT * FROM PlaylistItemModel WHERE id = :playlistItemId LIMIT 1")
+//    fun getPlaylistItemById(playlistItemId: String): PlaylistItemModel
+//
+//    @Insert(onConflict = OnConflictStrategy.REPLACE)
+//    fun insertPlaylistItemModel(vararg playlistItemModel: PlaylistItemModel)
 
-    @Query("SELECT * FROM PlaylistItemModel WHERE id = :playlistItemId LIMIT 1")
-    fun getPlaylistItemById(playlistItemId: String): PlaylistItemModel
+//    @Query("SELECT * FROM PlaylistItemModel")
+//    fun getAll(): List<PlaylistItemModel>
+
+    @Query("SELECT * FROM LastPlayedPositionModel WHERE playlist_item_id = :playlistItemId LIMIT 1")
+    fun getLastPlayedPositionByPlaylistItemId(playlistItemId: String): LastPlayedPositionModel
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertPlaylistItemModel(vararg playlistItemModel: PlaylistItemModel)
+    fun insertLastPlayedPosition(vararg lastPlayedPositionModel: LastPlayedPositionModel)
 
-    @Update
-    fun updatePlaylistItemModel(vararg playlistItemModel: PlaylistItemModel)
-
-    @Delete
-    fun deletePlaylistItemModel(vararg playlistItemModel: PlaylistItemModel)
-
-    @Query("DELETE FROM PlaylistItemModel")
-    fun deleteAllPlaylistItemModel()
+//    @Update
+//    fun updatePlaylistItemModel(vararg playlistItemModel: PlaylistItemModel)
+//
+//    @Delete
+//    fun deletePlaylistItemModel(vararg playlistItemModel: PlaylistItemModel)
+//
+//    @Query("DELETE FROM PlaylistItemModel")
+//    fun deleteAllPlaylistItemModel()
 
 
     // Download queue models

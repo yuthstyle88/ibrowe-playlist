@@ -19,9 +19,12 @@ import android.os.Build
 import android.text.TextUtils
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.brave.playlist.R
 import com.brave.playlist.activity.PlaylistMenuOnboardingActivity
 import com.brave.playlist.local_database.PlaylistRepository
+import com.brave.playlist.model.DownloadProgressModel
 import com.brave.playlist.model.DownloadQueueModel
 import com.brave.playlist.model.MoveOrCopyModel
 import com.brave.playlist.model.PlaylistItemModel
@@ -84,6 +87,22 @@ object PlaylistUtils {
             intent.putExtra(ConstantUtils.CURRENT_PLAYING_ITEM_ID, playlistItemModel.id)
             intent.putExtra(ConstantUtils.CURRENT_PLAYLIST_ID, playlistItemModel.playlistId)
             intent.putExtra(ConstantUtils.PLAYLIST_NAME, playlistItemModel.name)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        } catch (ex: ClassNotFoundException) {
+            Log.e(ConstantUtils.TAG, "playlistNotificationIntent" + ex.message)
+            null
+        }
+    }
+
+    fun playlistNotificationIntent(
+        context: Context
+    ): Intent? {
+        return try {
+            val intent = Intent(
+                context,
+                Class.forName("org.chromium.chrome.browser.playlist.PlaylistHostActivity")
+            )
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         } catch (ex: ClassNotFoundException) {
@@ -159,5 +178,12 @@ object PlaylistUtils {
         return selectedPlaylistItemModel.isCached && (!MediaUtils.isHlsFile(selectedPlaylistItemModel.mediaPath) || (MediaUtils.isHlsFile(
             selectedPlaylistItemModel.mediaPath
         ) && !TextUtils.isEmpty(selectedPlaylistItemModel.hlsMediaPath)))
+    }
+
+    private val mutableDownloadProgress = MutableLiveData<DownloadProgressModel>()
+    val downloadProgress: LiveData<DownloadProgressModel> get() = mutableDownloadProgress
+    @JvmStatic
+    fun updateDownloadProgress(downloadProgressModel: DownloadProgressModel) {
+        mutableDownloadProgress.value = downloadProgressModel
     }
 }

@@ -13,9 +13,10 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.brave.playlist.model.DownloadQueueModel
+import com.brave.playlist.model.LastPlayedPositionModel
 import com.brave.playlist.model.PlaylistItemModel
 
-@Database(entities = [PlaylistItemModel::class, DownloadQueueModel::class], version = 1, exportSchema = false)
+@Database(entities = [LastPlayedPositionModel::class, DownloadQueueModel::class], version = 1, exportSchema = false)
 //@TypeConverters(PlaylistItemModelConverter::class)
 abstract class PlaylistDatabase : RoomDatabase() {
     abstract fun playlistItemModelDao(): PlaylistItemModelDao

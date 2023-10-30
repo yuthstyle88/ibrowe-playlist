@@ -19,8 +19,7 @@
         android:id="@+id/playlistToolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:optionButtonIcon="@drawable/ic_arrow_down_playlist"
-        app:showOptions="true" />
+        app:optionButtonIcon="@drawable/ic_arrow_down_playlist" />
 
     <com.brave.playlist.slidingpanel.BottomPanelLayout
         android:id="@+id/sliding_layout"
@@ -41,20 +40,19 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <com.google.android.exoplayer2.ui.AspectRatioFrameLayout
+                <androidx.media3.ui.AspectRatioFrameLayout
                     android:id="@+id/aspect_ratio_frame_layout"
                     android:layout_width="match_parent"
                     android:layout_height="300dp"
                     android:layout_gravity="center_horizontal">
 
-                    <com.google.android.exoplayer2.ui.StyledPlayerView
+                    <androidx.media3.ui.PlayerView
                         android:id="@+id/styledPlayerView"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         app:resize_mode="fit"
-                        app:show_buffering="always"
-                        app:use_controller="false" />
-                </com.google.android.exoplayer2.ui.AspectRatioFrameLayout>
+                        app:show_buffering="always" />
+                </androidx.media3.ui.AspectRatioFrameLayout>
 
                 <androidx.appcompat.widget.LinearLayoutCompat
                     android:id="@+id/hover_controls_layout"

@@ -11,7 +11,8 @@ import android.view.View
 import com.brave.playlist.model.PlaylistItemModel
 
 interface PlaylistItemClickListener {
-    fun onPlaylistItemClick(playlistItemModel: PlaylistItemModel) {}
-    fun onPlaylistItemClick(count: Int) {}
+    fun onPlaylistItemClick(position: Int) {}
+
+    fun onPlaylistItemClickInEditMode(count: Int) {}
     fun onPlaylistItemMenuClick(view: View, playlistItemModel: PlaylistItemModel) {}
 }

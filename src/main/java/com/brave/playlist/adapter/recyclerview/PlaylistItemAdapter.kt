@@ -100,6 +100,7 @@ class PlaylistItemAdapter(
     fun setEditMode(enable: Boolean) {
         editMode = enable
         currentList.forEach { it.isSelected = false }
+        notifyItemRangeChanged(0, itemCount)
     }
 
     fun getEditMode(): Boolean {
@@ -203,11 +204,9 @@ class PlaylistItemAdapter(
                             count++
                         }
                     }
-                    playlistItemClickListener?.onPlaylistItemClick(count)
+                    playlistItemClickListener?.onPlaylistItemClickInEditMode(count)
                 } else {
-                    if (isBottomLayout) playlistItemClickListener?.onPlaylistItemClick(position) else playlistItemClickListener?.onPlaylistItemClick(
-                        playlistItemModel = model
-                    )
+                    playlistItemClickListener?.onPlaylistItemClick(position)
                 }
             }
             ivDragMedia.setOnTouchListener { _, event ->
@@ -244,9 +243,5 @@ class PlaylistItemAdapter(
             }
         }
         return selectedItems
-    }
-
-    fun getPlaylistItems(): MutableList<PlaylistItemModel> {
-        return currentList.toMutableList()
     }
 }
