@@ -25,7 +25,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.brave.playlist.R
 import com.brave.playlist.adapter.recyclerview.AbstractRecyclerViewAdapter
 import com.brave.playlist.listener.ItemInteractionListener
-import com.brave.playlist.model.PlaylistItemModel
 import kotlin.math.min
 
 class PlaylistItemGestureHelper<VH : AbstractRecyclerViewAdapter.AbstractViewHolder<M>, M : Any>(
@@ -33,18 +32,14 @@ class PlaylistItemGestureHelper<VH : AbstractRecyclerViewAdapter.AbstractViewHol
     private val recyclerView: RecyclerView,
     private val adapter: AbstractRecyclerViewAdapter<M, VH>,
     private val itemInteractionListener: ItemInteractionListener
-) :
-    SimpleCallback(
-        UP or DOWN,
-        START or END
-    ), RecyclerView.OnItemTouchListener {
+) : SimpleCallback(
+    UP or DOWN, START or END
+), RecyclerView.OnItemTouchListener {
 
     private val deleteIcon: Drawable?
     private val shareIcon: Drawable?
-    private val removeOfflineIcon: Drawable?
     private val deleteIconBg: Drawable
     private val shareIconBg: Drawable
-    private val removeOfflineIconBg: Drawable
     private val buttonPositions: MutableMap<Int, List<OptionButton>> = mutableMapOf()
     private val gestureDetector: GestureDetector
     private var swipePosition = -1
@@ -53,9 +48,7 @@ class PlaylistItemGestureHelper<VH : AbstractRecyclerViewAdapter.AbstractViewHol
     private val gestureListener: SimpleOnGestureListener = object : SimpleOnGestureListener() {
         override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
             if (swipePosition != -1) {
-                for (button in buttonPositions[swipePosition]!!)
-                    if (button.handleTouch(e))
-                        return true
+                for (button in buttonPositions[swipePosition].orEmpty()) if (button.handleTouch(e)) return true
             }
             return false
         }
@@ -64,15 +57,10 @@ class PlaylistItemGestureHelper<VH : AbstractRecyclerViewAdapter.AbstractViewHol
     init {
         deleteIcon = AppCompatResources.getDrawable(context, R.drawable.ic_playlist_delete)
         deleteIcon?.setTint(context.getColor(R.color.playlist_progress_bar_tint))
-        shareIcon =
-            AppCompatResources.getDrawable(context, R.drawable.ic_share)
+        shareIcon = AppCompatResources.getDrawable(context, R.drawable.ic_share)
         shareIcon?.setTint(context.getColor(R.color.playlist_progress_bar_tint))
-        removeOfflineIcon =
-            AppCompatResources.getDrawable(context, R.drawable.ic_remove_offline_data_playlist)
-        removeOfflineIcon?.setTint(context.getColor(R.color.playlist_progress_bar_tint))
         deleteIconBg = ColorDrawable(context.getColor(R.color.swipe_delete))
         shareIconBg = ColorDrawable(context.getColor(R.color.upload_option_bg))
-        removeOfflineIconBg = ColorDrawable(context.getColor(R.color.remove_offline_option_bg))
         gestureDetector = GestureDetector(context, gestureListener)
         recyclerView.addOnItemTouchListener(this)
     }
@@ -90,14 +78,11 @@ class PlaylistItemGestureHelper<VH : AbstractRecyclerViewAdapter.AbstractViewHol
 
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
         if (direction == START) {
-            if (viewHolder.bindingAdapterPosition == oldSwipePosition)
-                oldSwipePosition = -1
-            if (viewHolder.bindingAdapterPosition == swipePosition)
-                swipePosition = -1
+            if (viewHolder.bindingAdapterPosition == oldSwipePosition) oldSwipePosition = -1
+            if (viewHolder.bindingAdapterPosition == swipePosition) swipePosition = -1
             buttonPositions.remove(viewHolder.bindingAdapterPosition)
             itemInteractionListener.onItemDelete(viewHolder.layoutPosition)
-        } else if (direction == END)
-            oldSwipePosition = swipePosition
+        } else if (direction == END) oldSwipePosition = swipePosition
     }
 
     override fun onChildDraw(
@@ -110,8 +95,7 @@ class PlaylistItemGestureHelper<VH : AbstractRecyclerViewAdapter.AbstractViewHol
         isCurrentlyActive: Boolean
     ) {
         var newDX = dX
-        if (dX < 0)
-            onSwipeLeft(viewHolder, dX, c)
+        if (dX < 0) onSwipeLeft(viewHolder, dX, c)
         else if (dX > 0) {
             newDX = min(onSwipeRight(viewHolder, dX, c), dX)
             swipePosition = viewHolder.bindingAdapterPosition
@@ -126,7 +110,6 @@ class PlaylistItemGestureHelper<VH : AbstractRecyclerViewAdapter.AbstractViewHol
     private fun resetButtons(c: Canvas) {
         resetDrawableBounds(deleteIconBg, c)
         resetDrawableBounds(shareIconBg, c)
-        resetDrawableBounds(removeOfflineIconBg, c)
     }
 
     private fun resetDrawableBounds(drawable: Drawable, c: Canvas) {
@@ -135,69 +118,35 @@ class PlaylistItemGestureHelper<VH : AbstractRecyclerViewAdapter.AbstractViewHol
     }
 
     private fun onSwipeRight(viewHolder: RecyclerView.ViewHolder, dX: Float, c: Canvas): Float {
-        if (shareIcon == null || removeOfflineIcon == null)
-            return 0f
+        if (shareIcon == null) return 0f
 
         val itemView = viewHolder.itemView
 
         val rightBound = itemView.left + dX.toInt()
 
-        val offlineIconMargin = (itemView.height - removeOfflineIcon.intrinsicHeight) / 2
-        val offlineIconTop =
-            itemView.top + (itemView.height - removeOfflineIcon.intrinsicHeight) / 2
-        val offlineIconBottom = offlineIconTop + removeOfflineIcon.intrinsicHeight
-        val offlineIconLeft = itemView.left + offlineIconMargin
-        val offlineIconRight = offlineIconLeft + removeOfflineIcon.intrinsicWidth
-
-        if (rightBound >= offlineIconRight)
-            removeOfflineIcon.setBounds(
-                offlineIconLeft,
-                offlineIconTop,
-                offlineIconRight,
-                offlineIconBottom
-            )
-        else
-            removeOfflineIcon.setBounds(0, 0, 0, 0)
-
-        if (!buttonPositions.containsKey(viewHolder.bindingAdapterPosition))
-            buttonPositions[viewHolder.bindingAdapterPosition] =
-                instantiateOptions(viewHolder.bindingAdapterPosition)
+        if (!buttonPositions.containsKey(viewHolder.bindingAdapterPosition)) buttonPositions[viewHolder.bindingAdapterPosition] =
+            instantiateOptions(viewHolder.bindingAdapterPosition)
 
 
-        buttonPositions[viewHolder.bindingAdapterPosition]!![0].viewRect = Rect(
-            itemView.left,
-            itemView.top,
-            min(rightBound, offlineIconRight + offlineIconMargin),
-            itemView.bottom
+        buttonPositions[viewHolder.bindingAdapterPosition]?.get(0)?.viewRect = Rect(
+            itemView.left, itemView.top, itemView.right, itemView.bottom
         )
-
-        removeOfflineIconBg.bounds =
-            buttonPositions[viewHolder.bindingAdapterPosition]!![0].viewRect!!
-
-        removeOfflineIconBg.draw(c)
-        removeOfflineIcon.draw(c)
 
         val shareIconMargin = (itemView.height - shareIcon.intrinsicHeight) / 2
         val shareIconTop = itemView.top + (itemView.height - shareIcon.intrinsicHeight) / 2
         val shareIconBottom = shareIconTop + shareIcon.intrinsicHeight
-        val shareIconLeft = offlineIconRight + offlineIconMargin + shareIconMargin
+        val shareIconLeft = itemView.left + shareIconMargin
         val shareIconRight = shareIconLeft + shareIcon.intrinsicWidth
 
-        if (rightBound >= shareIconRight)
-            shareIcon.setBounds(shareIconLeft, shareIconTop, shareIconRight, shareIconBottom)
-        else
-            shareIcon.setBounds(0, 0, 0, 0)
+        if (rightBound >= shareIconRight) shareIcon.setBounds(
+            shareIconLeft,
+            shareIconTop,
+            shareIconRight,
+            shareIconBottom
+        )
+        else shareIcon.setBounds(0, 0, 0, 0)
 
-        if (rightBound >= offlineIconRight + offlineIconMargin) {
-            buttonPositions[viewHolder.bindingAdapterPosition]!![1].viewRect = Rect(
-                offlineIconRight + offlineIconMargin,
-                itemView.top,
-                min(rightBound, shareIconRight + shareIconMargin),
-                itemView.bottom
-            )
-            shareIconBg.bounds = buttonPositions[viewHolder.bindingAdapterPosition]!![1].viewRect!!
-        } else
-            shareIconBg.setBounds(0, 0, 0, 0)
+        shareIconBg.setBounds(itemView.left, itemView.top, itemView.right, itemView.bottom)
 
         shareIconBg.draw(c)
         shareIcon.draw(c)
@@ -207,8 +156,7 @@ class PlaylistItemGestureHelper<VH : AbstractRecyclerViewAdapter.AbstractViewHol
 
     private fun onSwipeLeft(viewHolder: RecyclerView.ViewHolder, dX: Float, c: Canvas) {
         val itemView = viewHolder.itemView
-        if (deleteIcon == null)
-            return
+        if (deleteIcon == null) return
 
         val iconMargin = (itemView.height - deleteIcon.intrinsicHeight) / 2
         val iconTop = itemView.top + (itemView.height - deleteIcon.intrinsicHeight) / 2
@@ -217,10 +165,8 @@ class PlaylistItemGestureHelper<VH : AbstractRecyclerViewAdapter.AbstractViewHol
         val iconRight = itemView.right - iconMargin
         val leftBound = itemView.right + dX.toInt()
 
-        if (leftBound <= iconLeft)
-            deleteIcon.setBounds(iconLeft, iconTop, iconRight, iconBottom)
-        else
-            deleteIcon.setBounds(0, 0, 0, 0)
+        if (leftBound <= iconLeft) deleteIcon.setBounds(iconLeft, iconTop, iconRight, iconBottom)
+        else deleteIcon.setBounds(0, 0, 0, 0)
 
         deleteIconBg.setBounds(leftBound, itemView.top, itemView.right, itemView.bottom)
 
@@ -229,8 +175,7 @@ class PlaylistItemGestureHelper<VH : AbstractRecyclerViewAdapter.AbstractViewHol
     }
 
     override fun onSelectedChanged(
-        viewHolder: RecyclerView.ViewHolder?,
-        actionState: Int
+        viewHolder: RecyclerView.ViewHolder?, actionState: Int
     ) {
         super.onSelectedChanged(viewHolder, actionState)
 
@@ -244,28 +189,23 @@ class PlaylistItemGestureHelper<VH : AbstractRecyclerViewAdapter.AbstractViewHol
     }
 
     override fun clearView(
-        recyclerView: RecyclerView,
-        viewHolder: RecyclerView.ViewHolder
+        recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder
     ) {
         super.clearView(recyclerView, viewHolder)
         if (viewHolder is AbstractRecyclerViewAdapter.AbstractViewHolder<*> && !viewHolder.isSelected(
                 viewHolder.bindingAdapterPosition
             )
-        )
-            viewHolder.itemView.background = null
+        ) viewHolder.itemView.background = null
     }
 
     override fun isLongPressDragEnabled(): Boolean = false
 
-    private fun instantiateOptions(position: Int): List<OptionButton> =
-        listOf(
-            OptionButton(position, itemInteractionListener::onRemoveFromOffline),
-            OptionButton(position, itemInteractionListener::onShare)
-        )
+    private fun instantiateOptions(position: Int): List<OptionButton> = listOf(
+        OptionButton(position, itemInteractionListener::onShare)
+    )
 
     inner class OptionButton(
-        private val adapterPosition: Int,
-        private val click: (position: Int) -> Unit
+        private val adapterPosition: Int, private val click: (position: Int) -> Unit
     ) {
         var viewRect: Rect? = null
 
@@ -292,8 +232,7 @@ class PlaylistItemGestureHelper<VH : AbstractRecyclerViewAdapter.AbstractViewHol
         if (e.action == MotionEvent.ACTION_DOWN && swipePosition != -1) {
             recyclerView.findViewHolderForAdapterPosition(swipePosition)?.itemView?.let {
                 val rect = Rect(it.left, it.top, it.right, it.bottom)
-                if (!rect.contains(e.x.toInt(), e.y.toInt()))
-                    resetSwipedView()
+                if (!rect.contains(e.x.toInt(), e.y.toInt())) resetSwipedView()
             }
         }
         return gestureDetector.onTouchEvent(e)

@@ -9,12 +9,9 @@ package com.brave.playlist.util
 
 import android.content.Context
 import android.net.Uri
-import android.os.Environment
 import android.util.Log
 import com.brave.playlist.util.ConstantUtils.HLS_FILE_EXTENSION
 import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
 import java.io.InputStream
 
 
@@ -41,13 +38,13 @@ object MediaUtils {
     }
 
     @JvmStatic
-    fun writeToFile(data: ByteArray?, filePath:String) {
+    fun writeToFile(data: ByteArray?, filePath: String) {
         val file = File(filePath)
         data?.let { file.appendBytes(it) }
     }
 
     @JvmStatic
-    fun isHlsFile(mediaPath : String) : Boolean{
+    fun isHlsFile(mediaPath: String): Boolean {
         val extension: String = mediaPath
             .substring(mediaPath.lastIndexOf("."))
         Log.e(ConstantUtils.TAG, "extension : $extension")

@@ -22,7 +22,7 @@ import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
 
 @SuppressLint("UnsafeOptInUsageError")
-class PlayerFragment : Fragment(R.layout.fragment_playlist_player){
+class PlayerFragment : Fragment(R.layout.fragment_playlist_player) {
     private lateinit var controllerFuture: ListenableFuture<MediaController>
     private val controller: MediaController?
         get() = if (controllerFuture.isDone) controllerFuture.get() else null
@@ -49,7 +49,10 @@ class PlayerFragment : Fragment(R.layout.fragment_playlist_player){
         controllerFuture =
             MediaController.Builder(
                 requireContext(),
-                SessionToken(requireContext(), ComponentName(requireContext(), VideoPlaybackService::class.java))
+                SessionToken(
+                    requireContext(),
+                    ComponentName(requireContext(), VideoPlaybackService::class.java)
+                )
             )
                 .buildAsync()
         controllerFuture.addListener({ setController() }, MoreExecutors.directExecutor())

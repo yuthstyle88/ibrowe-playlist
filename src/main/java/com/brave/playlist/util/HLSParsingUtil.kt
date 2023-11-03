@@ -21,7 +21,11 @@ import java.util.Queue
 @SuppressLint("UnsafeOptInUsageError")
 object HLSParsingUtil {
     @JvmStatic
-    fun getContentManifestUrl(context: Context, baseUrl: String, localManifestFilePath:String): String {
+    fun getContentManifestUrl(
+        context: Context,
+        baseUrl: String,
+        localManifestFilePath: String
+    ): String {
         var contentManifestUrl = ""
         val hlsParser =
             context.contentResolver?.openInputStream(Uri.parse(localManifestFilePath))
@@ -42,7 +46,7 @@ object HLSParsingUtil {
         contentManifestFilePath: String,
         baseUrl: String
     ): Queue<HlsMediaPlaylist.Segment> {
-        val contentSegments:Queue<HlsMediaPlaylist.Segment> = LinkedList()
+        val contentSegments: Queue<HlsMediaPlaylist.Segment> = LinkedList()
         val hlsParser = HlsPlaylistParser().parse(
             Uri.parse(baseUrl), FileInputStream(
                 File(contentManifestFilePath)

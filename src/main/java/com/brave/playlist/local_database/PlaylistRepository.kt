@@ -40,7 +40,7 @@ class PlaylistRepository(context: Context) {
         return mPlaylistItemModelDao?.getDownloadQueueModelById(playlistItemId)
     }
 
-    fun isDownloadQueueModelExists(playlistItemId: String) : Boolean? {
+    fun isDownloadQueueModelExists(playlistItemId: String): Boolean? {
         return mPlaylistItemModelDao?.isDownloadQueueModelExists(playlistItemId)
     }
 
@@ -48,11 +48,11 @@ class PlaylistRepository(context: Context) {
         mPlaylistItemModelDao?.updateDownloadQueueModel(downloadQueueModel)
     }
 
-    fun getFirstDownloadQueueModel() : DownloadQueueModel? {
+    fun getFirstDownloadQueueModel(): DownloadQueueModel? {
         return mPlaylistItemModelDao?.getFirstDownloadQueueModel()
     }
 
-    fun getAllDownloadQueueModel() : List<DownloadQueueModel>? {
+    fun getAllDownloadQueueModel(): List<DownloadQueueModel>? {
         return mPlaylistItemModelDao?.getAllDownloadQueueModel()
     }
 

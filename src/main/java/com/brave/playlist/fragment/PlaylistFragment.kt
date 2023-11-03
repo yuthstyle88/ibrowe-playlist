@@ -80,7 +80,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import java.io.IOException
 import java.util.LinkedList
 
 class PlaylistFragment : Fragment(R.layout.fragment_playlist), ItemInteractionListener,
@@ -305,12 +304,8 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist), ItemInteractionLi
 
                 mScope.launch {
                     mPlaylistModel.items.forEach {
-                        try {
-                            if (it.isCached) {
-                                totalFileSize += it.mediaFileBytes
-                            }
-                        } catch (ex: IOException) {
-                            Log.e(TAG, ex.message.toString())
+                        if (it.isCached) {
+                            totalFileSize += it.mediaFileBytes
                         }
                     }
 
@@ -380,6 +375,19 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist), ItemInteractionLi
 
                         mPlaylistViewModel.playlistItemUpdate.observe(viewLifecycleOwner) {
                             mPlaylistItemAdapter?.updatePlaylistItem(it)
+                            mPlaylistModel.items.forEach { currentPlaylistItemModel ->
+                                val currentMediaFileBytes =
+                                    if (currentPlaylistItemModel.id == it.id) {
+                                        it.mediaFileBytes
+                                    } else {
+                                        currentPlaylistItemModel.mediaFileBytes
+                                    }
+                                if (currentPlaylistItemModel.isCached) {
+                                    totalFileSize += currentMediaFileBytes
+                                }
+                            }
+                            mTvPlaylistTotalSize.text =
+                                Formatter.formatShortFileSize(view.context, totalFileSize)
                         }
 
                         mRvPlaylist.afterMeasured {
@@ -516,14 +524,6 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist), ItemInteractionLi
 //        } else
 
         val browser = this.mMediaBrowser ?: return
-
-//        if (!PlaylistUtils.isPlaylistItemCached(selectedPlaylistItemModel)) {
-//            Toast.makeText(
-//                activity, getString(R.string.playlist_offline_message), Toast.LENGTH_LONG
-//            ).show()
-//            return
-//        }
-
         var recentPlaylistIds = LinkedList<String>()
         val recentPlaylistJson =
             PlaylistPreferenceUtils.defaultPrefs(requireContext()).recentlyPlayedPlaylist
@@ -542,39 +542,44 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist), ItemInteractionLi
         activity?.stopService(Intent(requireContext(), VideoPlaybackService::class.java))
 
 //        if (!PlaylistUtils.isServiceRunning(requireContext(), VideoPlaybackService::class.java)) {
-            val subItemMediaList = mutableListOf<MediaItem>()
-            mPlaylistModel.items.forEach {
-                val mediaPath = if (it.isCached) {
-                    if (MediaUtils.isHlsFile(it.mediaPath)) {
-                        it.hlsMediaPath
-                    } else {
-                        it.mediaPath
-                    }
+        val subItemMediaList = mutableListOf<MediaItem>()
+        mPlaylistModel.items.forEach {
+            val mediaPath = if (it.isCached) {
+                if (MediaUtils.isHlsFile(it.mediaPath)) {
+                    it.hlsMediaPath
                 } else {
-                    it.mediaSrc
+                    it.mediaPath
                 }
-                val mediaItem = buildMediaItem(
-                    it.id,
-                    if (mPlaylistModel.id == DEFAULT_PLAYLIST) resources.getString(R.string.playlist_play_later) else mPlaylistModel.name,
-                    it.name,
-                    Uri.parse(it.thumbnailPath),
-                    Uri.parse(mediaPath)
+            } else {
+                it.mediaSrc
+            }
+            val mediaItem = buildMediaItem(
+                it.id,
+                if (mPlaylistModel.id == DEFAULT_PLAYLIST) resources.getString(R.string.playlist_play_later) else mPlaylistModel.name,
+                it.name,
+                Uri.parse(it.thumbnailPath),
+                Uri.parse(mediaPath)
+            )
+            subItemMediaList.add(mediaItem)
+        }
+
+        mScope.launch {
+            val selectedPlaylistItem = mPlaylistModel.items[position]
+            val lastPlayedPositionModel =
+                mPlaylistRepository.getLastPlayedPositionByPlaylistItemId(selectedPlaylistItem.id)
+
+            activity?.runOnUiThread {
+                browser.setMediaItems(
+                    subItemMediaList,
+                    position,
+                    lastPlayedPositionModel?.lastPlayedPosition ?: 0
                 )
-                subItemMediaList.add(mediaItem)
+                browser.shuffleModeEnabled = isShuffle
+                browser.prepare()
+                browser.play()
+                browser.sessionActivity?.send()
             }
-
-            mScope.launch {
-                val selectedPlaylistItem = mPlaylistModel.items[position]
-                val lastPlayedPositionModel = mPlaylistRepository.getLastPlayedPositionByPlaylistItemId(selectedPlaylistItem.id)
-
-                activity?.runOnUiThread {
-                    browser.setMediaItems(subItemMediaList, position, lastPlayedPositionModel?.lastPlayedPosition?:0)
-                    browser.shuffleModeEnabled = isShuffle
-                    browser.prepare()
-                    browser.play()
-                    browser.sessionActivity?.send()
-                }
-            }
+        }
 //        }
         val playlistPlayerFragment = PlaylistPlayerFragment.newInstance(mPlaylistModel)
         parentFragmentManager.beginTransaction()

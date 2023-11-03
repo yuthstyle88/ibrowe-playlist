@@ -8,7 +8,6 @@
 package com.brave.playlist.fragment
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.*
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
@@ -16,10 +15,8 @@ import android.os.*
 import android.provider.Settings
 import android.util.TypedValue
 import android.view.MotionEvent
-import android.view.Surface
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.ProgressBar
 import android.widget.SeekBar
@@ -279,7 +276,8 @@ class PlaylistPlayerFragment : Fragment(R.layout.fragment_playlist_player), Play
     }
 
     private fun isOrientationLocked(): Boolean {
-        val contentResolver: ContentResolver? = activity?.contentResolver // You can get this from your context
+        val contentResolver: ContentResolver? =
+            activity?.contentResolver // You can get this from your context
         return try {
             val rotationSetting: Int =
                 Settings.System.getInt(contentResolver, Settings.System.ACCELEROMETER_ROTATION)
@@ -346,7 +344,7 @@ class PlaylistPlayerFragment : Fragment(R.layout.fragment_playlist_player), Play
                 activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
             }
             if (!isOrientationLocked()) {
-            activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+                activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
             }
         }
 

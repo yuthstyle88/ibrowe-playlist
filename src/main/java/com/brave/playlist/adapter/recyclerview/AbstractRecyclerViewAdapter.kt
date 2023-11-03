@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.brave.playlist.PlaylistItemDiffCallback
 import java.util.Collections
 
-abstract class AbstractRecyclerViewAdapter<M : Any, VH : AbstractRecyclerViewAdapter.AbstractViewHolder<M> > :
+abstract class AbstractRecyclerViewAdapter<M : Any, VH : AbstractRecyclerViewAdapter.AbstractViewHolder<M>> :
     ListAdapter<M, VH>(PlaylistItemDiffCallback<M>()) {
 
     abstract class AbstractViewHolder<M>(view: View) : RecyclerView.ViewHolder(view) {
