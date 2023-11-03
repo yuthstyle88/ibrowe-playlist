@@ -154,7 +154,7 @@ class PlaylistViewModel : ViewModel() {
 
     private val mutablePlaylistItemRemove = MutableLiveData<String>()
     val playlistItemRemove: LiveData<String> get() = mutablePlaylistItemRemove
-    fun removePlaylistItem(playlistItemId : String) {
+    fun removePlaylistItem(playlistItemId: String) {
         mutablePlaylistItemRemove.value = playlistItemId
     }
 }

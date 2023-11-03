@@ -174,14 +174,17 @@ object PlaylistUtils {
     }
 
     @JvmStatic
-    fun isPlaylistItemCached(selectedPlaylistItemModel : PlaylistItemModel) : Boolean {
-        return selectedPlaylistItemModel.isCached && (!MediaUtils.isHlsFile(selectedPlaylistItemModel.mediaPath) || (MediaUtils.isHlsFile(
+    fun isPlaylistItemCached(selectedPlaylistItemModel: PlaylistItemModel): Boolean {
+        return selectedPlaylistItemModel.isCached && (!MediaUtils.isHlsFile(
+            selectedPlaylistItemModel.mediaPath
+        ) || (MediaUtils.isHlsFile(
             selectedPlaylistItemModel.mediaPath
         ) && !TextUtils.isEmpty(selectedPlaylistItemModel.hlsMediaPath)))
     }
 
     private val mutableDownloadProgress = MutableLiveData<DownloadProgressModel>()
     val downloadProgress: LiveData<DownloadProgressModel> get() = mutableDownloadProgress
+
     @JvmStatic
     fun updateDownloadProgress(downloadProgressModel: DownloadProgressModel) {
         mutableDownloadProgress.value = downloadProgressModel

@@ -59,5 +59,6 @@
     <string name="playlist_empty_playlist_name">Please enter valid playlist name</string>
     <string name="playlist_share_with">"Share with : "</string>
     <string name="playlist_hide_playlist_button">Hide Playlist button</string>
+    <string name="playlist_preparing_text">Preparing...</string>
     <!--    Last Updated String-->
 </resources>

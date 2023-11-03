@@ -7,7 +7,6 @@
 
 package com.brave.playlist
 
-import android.util.Log
 import androidx.recyclerview.widget.DiffUtil
 import com.brave.playlist.model.PlaylistItemModel
 
@@ -23,7 +22,8 @@ class PlaylistItemDiffCallback<T : Any> : DiffUtil.ItemCallback<T>() {
     override fun areContentsTheSame(oldItem: T, newItem: T): Boolean {
         var value = false
         if (oldItem is PlaylistItemModel && newItem is PlaylistItemModel) {
-            value = (oldItem.id == newItem.id && oldItem.hlsMediaPath == newItem.hlsMediaPath && oldItem.isCached == newItem.isCached)
+            value =
+                (oldItem.id == newItem.id && oldItem.hlsMediaPath == newItem.hlsMediaPath && oldItem.isCached == newItem.isCached)
         }
         return value
     }

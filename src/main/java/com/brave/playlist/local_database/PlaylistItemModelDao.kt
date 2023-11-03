@@ -15,7 +15,6 @@ import androidx.room.Query
 import androidx.room.Update
 import com.brave.playlist.model.DownloadQueueModel
 import com.brave.playlist.model.LastPlayedPositionModel
-import com.brave.playlist.model.PlaylistItemModel
 
 @Dao
 interface PlaylistItemModelDao {

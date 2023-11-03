@@ -10,7 +10,6 @@ package com.brave.playlist.util
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
-import com.brave.playlist.local_database.PlaylistRepository
 
 object PlaylistPreferenceUtils {
     private const val RECENTLY_PLAYED_PLAYLIST = "recently_played_playlist"

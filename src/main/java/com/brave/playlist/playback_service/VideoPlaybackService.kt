@@ -24,17 +24,14 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaLibraryService
 import androidx.media3.session.MediaSession
-import com.brave.playlist.activity.PlaylistMenuOnboardingActivity
 import com.brave.playlist.local_database.PlaylistRepository
 import com.brave.playlist.model.LastPlayedPositionModel
-import com.brave.playlist.model.PlaylistOnboardingModel
 import com.brave.playlist.util.ConstantUtils
 import com.brave.playlist.util.PlaylistPreferenceUtils
 import com.brave.playlist.util.PlaylistPreferenceUtils.continuousListening
 import com.brave.playlist.util.PlaylistPreferenceUtils.rememberFilePlaybackPosition
 import com.brave.playlist.util.PlaylistPreferenceUtils.rememberListPlaybackPosition
 import com.brave.playlist.util.PlaylistPreferenceUtils.setLatestPlaylistItem
-import com.brave.playlist.util.PlaylistUtils
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CoroutineScope
@@ -42,7 +39,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-@UnstableApi class VideoPlaybackService : MediaLibraryService() , MediaLibraryService.MediaLibrarySession.Callback, Player.Listener {
+@UnstableApi
+class VideoPlaybackService : MediaLibraryService(),
+    MediaLibraryService.MediaLibrarySession.Callback, Player.Listener {
     private lateinit var mPlayer: ExoPlayer
     private lateinit var mMediaLibrarySession: MediaLibrarySession
     private val mScope = CoroutineScope(Job() + Dispatchers.IO)
@@ -100,6 +99,7 @@ import kotlinx.coroutines.launch
 //                ))
                 .build()
     }
+
     override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaLibrarySession {
         return mMediaLibrarySession
     }
@@ -109,6 +109,7 @@ import kotlinx.coroutines.launch
             stopSelf()
         }
     }
+
     override fun onDestroy() {
         mMediaLibrarySession.release()
         mPlayer.release()
@@ -125,7 +126,7 @@ import kotlinx.coroutines.launch
         // We need to use URI from requestMetaData because of https://github.com/androidx/media/issues/282
         val updatedMediaItems: List<MediaItem> =
             mediaItems.map { mediaItem ->
-                 MediaItem.Builder()
+                MediaItem.Builder()
                     .setMediaId(mediaItem.mediaId)
                     .setRequestMetadata(mediaItem.requestMetadata)
                     .setMediaMetadata(mediaItem.mediaMetadata)
@@ -233,10 +234,12 @@ import kotlinx.coroutines.launch
             mLastSavedPositionHandler?.postDelayed(this, 2000)
         }
     }
+
     private fun lastSavedPositionTimer() {
         mLastSavedPositionHandler = Handler(mPlayer.applicationLooper)
         mLastSavedPositionHandler?.post(mSavePositionRunnableCode)
     }
+
     private fun cancelLastSavedPositionTimer() {
         mLastSavedPositionHandler?.removeCallbacks(mSavePositionRunnableCode)
     }
@@ -248,10 +251,6 @@ import kotlinx.coroutines.launch
             mPlayer.currentMediaItem?.let { saveLastPosition(it, 0) }
         }
 //        updateCurrentItemIndex()
-    }
-
-    override fun onPlayerError(error: PlaybackException) {
-        super.onPlayerError(error)
     }
 
     override fun onTimelineChanged(timeline: Timeline, reason: @Player.TimelineChangeReason Int) {
@@ -314,15 +313,15 @@ import kotlinx.coroutines.launch
     private fun saveLastPosition(mediaItem: MediaItem, currentPosition: Long) {
         mScope.launch {
             if (PlaylistPreferenceUtils.defaultPrefs(applicationContext).rememberFilePlaybackPosition) {
-                mediaItem.mediaId.let{
-                    val lastPlayedPositionModel =LastPlayedPositionModel(it, currentPosition)
+                mediaItem.mediaId.let {
+                    val lastPlayedPositionModel = LastPlayedPositionModel(it, currentPosition)
                     mPlaylistRepository.insertLastPlayedPosition(lastPlayedPositionModel)
                 }
             }
         }
         if (PlaylistPreferenceUtils.defaultPrefs(applicationContext).rememberListPlaybackPosition) {
-            mediaItem.let{
-                val playlistId = it.mediaMetadata.extras?.getString("playlist_id")?:""
+            mediaItem.let {
+                val playlistId = it.mediaMetadata.extras?.getString("playlist_id") ?: ""
                 PlaylistPreferenceUtils.defaultPrefs(applicationContext)
                     .setLatestPlaylistItem(playlistId, it.mediaId)
             }
@@ -331,7 +330,7 @@ import kotlinx.coroutines.launch
     }
 
     private fun updateCurrentlyPlayedItem() {
-        mPlayer.currentMediaItem?.let{
+        mPlayer.currentMediaItem?.let {
             setCurrentPlayingItem(it.mediaId)
 //            CURRENTLY_PLAYED_ITEM_ID = it.mediaId
         }
