@@ -18,6 +18,7 @@ import android.net.Uri
 import android.os.Build
 import android.text.TextUtils
 import android.util.Log
+import android.util.TypedValue
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -52,8 +53,7 @@ object PlaylistUtils {
     }
 
     fun isMediaSourceExpired(mediaSrc: String): Boolean {
-        val uri: Uri =
-            Uri.parse(mediaSrc)
+        val uri: Uri = Uri.parse(mediaSrc)
         if (!uri.getQueryParameter("expire").isNullOrEmpty()) {
             val expireMillis: Long? = uri.getQueryParameter("expire")?.toLong()?.times(1000L)
             return Date() > expireMillis?.let { Date(it) }
@@ -68,25 +68,21 @@ object PlaylistUtils {
         intent.putExtra(Intent.EXTRA_TEXT, text)
         context.startActivity(
             Intent.createChooser(
-                intent,
-                context.resources.getString(R.string.playlist_share_with)
+                intent, context.resources.getString(R.string.playlist_share_with)
             )
         )
     }
 
     fun playlistNotificationIntent(
-        context: Context,
-        playlistItemModel: PlaylistItemModel
+        context: Context, playlistItemModelId: String, playlistId: String
     ): Intent? {
         return try {
             val intent = Intent(
-                context,
-                Class.forName("org.chromium.chrome.browser.playlist.PlaylistHostActivity")
+                context, Class.forName("org.chromium.chrome.browser.playlist.PlaylistHostActivity")
             )
             intent.action = ConstantUtils.PLAYLIST_ACTION
-            intent.putExtra(ConstantUtils.CURRENT_PLAYING_ITEM_ID, playlistItemModel.id)
-            intent.putExtra(ConstantUtils.CURRENT_PLAYLIST_ID, playlistItemModel.playlistId)
-            intent.putExtra(ConstantUtils.PLAYLIST_NAME, playlistItemModel.name)
+            intent.putExtra(ConstantUtils.CURRENT_PLAYING_ITEM_ID, playlistItemModelId)
+            intent.putExtra(ConstantUtils.CURRENT_PLAYLIST_ID, playlistId)
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         } catch (ex: ClassNotFoundException) {
@@ -95,15 +91,12 @@ object PlaylistUtils {
         }
     }
 
-    fun playlistNotificationIntent(
-        context: Context
-    ): Intent? {
+    fun playlistNotificationIntent(context: Context): Intent? {
         return try {
             val intent = Intent(
-                context,
-                Class.forName("org.chromium.chrome.browser.playlist.PlaylistHostActivity")
+                context, Class.forName("org.chromium.chrome.browser.playlist.PlaylistHostActivity")
             )
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            intent.action = ConstantUtils.PLAYLIST_ACTION
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         } catch (ex: ClassNotFoundException) {
             Log.e(ConstantUtils.TAG, "playlistNotificationIntent" + ex.message)
@@ -117,13 +110,11 @@ object PlaylistUtils {
                 context.getString(R.string.playlist_onboarding_title_1),
                 context.getString(R.string.playlist_onboarding_text_1),
                 R.drawable.ic_playlist_graphic_1
-            ),
-            PlaylistOnboardingModel(
+            ), PlaylistOnboardingModel(
                 context.getString(R.string.playlist_onboarding_title_2),
                 context.getString(R.string.playlist_onboarding_text_2),
                 R.drawable.ic_playlist_graphic_2
-            ),
-            PlaylistOnboardingModel(
+            ), PlaylistOnboardingModel(
                 context.getString(R.string.playlist_onboarding_title_3),
                 context.getString(R.string.playlist_onboarding_text_3),
                 R.drawable.ic_playlist_graphic_3
@@ -188,5 +179,10 @@ object PlaylistUtils {
     @JvmStatic
     fun updateDownloadProgress(downloadProgressModel: DownloadProgressModel) {
         mutableDownloadProgress.value = downloadProgressModel
+    }
+
+    fun dipToPixels(context: Context, dipValue: Float): Float {
+        val metrics = context.resources.displayMetrics
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dipValue, metrics)
     }
 }

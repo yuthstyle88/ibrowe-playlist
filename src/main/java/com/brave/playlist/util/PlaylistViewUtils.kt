@@ -84,11 +84,11 @@ object PlaylistViewUtils {
                             R.drawable.ic_playlist_settings,
                             PlaylistOptionsEnum.PLAYLIST_SETTINGS
                         ),
-                        PlaylistOptionsModel(
-                            activity.getString(R.string.playlist_hide_playlist_button),
-                            R.drawable.ic_playlist_hide,
-                            PlaylistOptionsEnum.PLAYLIST_HIDE
-                        )
+//                        PlaylistOptionsModel(
+//                            activity.getString(R.string.playlist_hide_playlist_button),
+//                            R.drawable.ic_playlist_hide,
+//                            PlaylistOptionsEnum.PLAYLIST_HIDE
+//                        )
                     ), playlistOptionsListener
                 ).show((activity as FragmentActivity).supportFragmentManager, null)
             }

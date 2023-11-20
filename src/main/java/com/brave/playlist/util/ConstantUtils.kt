@@ -32,4 +32,6 @@ object ConstantUtils {
     const val PLAYLIST_NOTIFICATION_ID = 1001
 
     const val HLS_FILE_EXTENSION = ".m3u8"
+
+    const val SHOULD_OPEN_PLAYER = "should_open_player"
 }

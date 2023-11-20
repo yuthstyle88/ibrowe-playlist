@@ -31,10 +31,10 @@ class PlaylistMenuOnboardingActivity : AppCompatActivity(R.layout.playlist_onboa
 
         val playlistOnboardingViewPager: ViewPager2 = findViewById(R.id.playlistOnboardingViewPager)
 
-        val adapter = PlaylistOnboardingFragmentStateAdapter(
+        val playlistOnboardingFragmentStateAdapter = PlaylistOnboardingFragmentStateAdapter(
             this, PlaylistUtils.getOnboardingItemList(this)
         )
-        playlistOnboardingViewPager.adapter = adapter
+        playlistOnboardingViewPager.adapter = playlistOnboardingFragmentStateAdapter
 
         val nextButton: AppCompatButton = findViewById(R.id.btNextOnboarding)
         nextButton.setOnClickListener {
@@ -52,7 +52,7 @@ class PlaylistMenuOnboardingActivity : AppCompatActivity(R.layout.playlist_onboa
                 super.onPageSelected(position)
                 nextButton.text =
                     if (position == 2) getString(R.string.playlist_try_it) else getString(R.string.playlist_next)
-                adapter.notifyItemChanged(position)
+                playlistOnboardingFragmentStateAdapter.notifyItemChanged(position)
             }
         })
 

@@ -11,9 +11,10 @@ import android.graphics.Color
 import android.graphics.LinearGradient
 import android.graphics.Shader
 import android.graphics.drawable.ShapeDrawable
-import android.graphics.drawable.shapes.RectShape
+import android.graphics.drawable.shapes.RoundRectShape
 import android.view.View
 import android.view.ViewTreeObserver
+import com.brave.playlist.util.PlaylistUtils
 
 fun View.afterMeasured(f: View.() -> Unit) {
     viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
@@ -49,7 +50,9 @@ fun View.showOnboardingGradientBg() {
         Shader.TileMode.CLAMP
     )
 
-    val shapeDrawable = ShapeDrawable(RectShape())
+    val value = PlaylistUtils.dipToPixels(context, 16f)
+    val roundedCorners = floatArrayOf(value, value, value, value, value, value, value, value)
+    val shapeDrawable = ShapeDrawable(RoundRectShape(roundedCorners, null, null))
     shapeDrawable.paint.shader = paintShader
     this.background = shapeDrawable
 }
