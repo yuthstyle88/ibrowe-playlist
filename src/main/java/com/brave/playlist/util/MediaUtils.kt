@@ -47,7 +47,6 @@ object MediaUtils {
     fun isHlsFile(mediaPath: String): Boolean {
         val extension: String = mediaPath
             .substring(mediaPath.lastIndexOf("."))
-        Log.e(ConstantUtils.TAG, "extension : $extension")
         return extension == HLS_FILE_EXTENSION
     }
 }

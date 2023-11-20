@@ -60,5 +60,6 @@
     <string name="playlist_share_with">"Share with : "</string>
     <string name="playlist_hide_playlist_button">Hide Playlist button</string>
     <string name="playlist_preparing_text">Preparing...</string>
+    <string name="playlist_up_next">Up next</string>
     <!--    Last Updated String-->
 </resources>

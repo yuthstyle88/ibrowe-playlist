@@ -8,8 +8,10 @@
 package com.brave.playlist.playback_service
 
 import android.app.PendingIntent
+import android.app.TaskStackBuilder
 import android.content.Intent
 import android.media.session.PlaybackState
+import android.net.Uri
 import android.os.Handler
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -21,17 +23,23 @@ import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.common.Timeline
 import androidx.media3.common.util.UnstableApi
+import androidx.media3.datasource.DataSource
+import androidx.media3.datasource.FileDataSource
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import androidx.media3.session.MediaLibraryService
 import androidx.media3.session.MediaSession
 import com.brave.playlist.local_database.PlaylistRepository
 import com.brave.playlist.model.LastPlayedPositionModel
+import com.brave.playlist.model.PlaylistItemModel
 import com.brave.playlist.util.ConstantUtils
+import com.brave.playlist.util.MediaItemUtil
 import com.brave.playlist.util.PlaylistPreferenceUtils
 import com.brave.playlist.util.PlaylistPreferenceUtils.continuousListening
 import com.brave.playlist.util.PlaylistPreferenceUtils.rememberFilePlaybackPosition
 import com.brave.playlist.util.PlaylistPreferenceUtils.rememberListPlaybackPosition
 import com.brave.playlist.util.PlaylistPreferenceUtils.setLatestPlaylistItem
+import com.brave.playlist.util.PlaylistUtils
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CoroutineScope
@@ -42,7 +50,6 @@ import kotlinx.coroutines.launch
 @UnstableApi
 class VideoPlaybackService : MediaLibraryService(),
     MediaLibraryService.MediaLibrarySession.Callback, Player.Listener {
-    private lateinit var mPlayer: ExoPlayer
     private lateinit var mMediaLibrarySession: MediaLibrarySession
     private val mScope = CoroutineScope(Job() + Dispatchers.IO)
 
@@ -51,9 +58,8 @@ class VideoPlaybackService : MediaLibraryService(),
     }
 
     companion object {
-        private const val immutableFlag = PendingIntent.FLAG_IMMUTABLE
-
-//        var CURRENTLY_PLAYED_ITEM_ID: String? = null
+        private lateinit var mPlayer: ExoPlayer
+        var currentPlaylistId: String = ""
 //        private val mutableCastStatus = MutableLiveData<Boolean>()
 //        val castStatus: LiveData<Boolean> get() = mutableCastStatus
 //        private fun setCastStatus(shouldShowControls: Boolean) {
@@ -64,6 +70,20 @@ class VideoPlaybackService : MediaLibraryService(),
         val currentPlayingItem: LiveData<String> get() = mutableCurrentPlayingItem
         private fun setCurrentPlayingItem(currentPlayingItemId: String) {
             mutableCurrentPlayingItem.value = currentPlayingItemId
+        }
+
+        private val mutableNewPlaylistItemModel = MutableLiveData<PlaylistItemModel>()
+        val newPlaylistItemModel: LiveData<PlaylistItemModel> get() = mutableNewPlaylistItemModel
+        fun addNewPlaylistItemModel(newPlaylistItemModel: PlaylistItemModel) {
+            mutableNewPlaylistItemModel.value = newPlaylistItemModel
+            if (newPlaylistItemModel.playlistId == currentPlaylistId) {
+                val mediaItem = MediaItemUtil.buildMediaItem(
+                    newPlaylistItemModel,
+                    newPlaylistItemModel.playlistId,
+                    "Play later",
+                )
+                mPlayer.addMediaItem(mediaItem)
+            }
         }
     }
 
@@ -76,28 +96,58 @@ class VideoPlaybackService : MediaLibraryService(),
     }
 
     private fun initializeSessionAndPlayer() {
-//        val dataSourceFactory = DataSource.Factory {FileDataSource.Factory().createDataSource() }
-//        val mediaSourceFactory = ProgressiveMediaSource.Factory(dataSourceFactory)
+//        val loadControl = DefaultLoadControl.Builder()
+//            .setBufferDurationsMs(32 * 1024, 64 * 1024, 1024, 1024)
+//            .build()
+//        val audioAttributes: AudioAttributes = AudioAttributes.Builder()
+//            .setUsage(C.USAGE_MEDIA)
+//            .setContentType(C.AUDIO_CONTENT_TYPE_MOVIE)
+//            .build()
+        val dataSourceFactory = DataSource.Factory { FileDataSource.Factory().createDataSource() }
+        val mediaSourceFactory = ProgressiveMediaSource.Factory(dataSourceFactory)
         mPlayer =
             ExoPlayer.Builder(this)
-                .setAudioAttributes(AudioAttributes.DEFAULT, /* handleAudioFocus= */ true)
-//                .setMediaSourceFactory(
-//                    mediaSourceFactory
-//                )
+                .setMediaSourceFactory(
+                    mediaSourceFactory
+                )
+//                .setLoadControl(loadControl)
                 .setHandleAudioBecomingNoisy(true)
                 .setWakeMode(C.WAKE_MODE_LOCAL)
+                .setAudioAttributes(AudioAttributes.DEFAULT, true)
                 .build()
         mPlayer.addListener(this)
 
         mMediaLibrarySession =
             MediaLibrarySession.Builder(this, mPlayer, this)
-//                .setSessionActivity(PendingIntent.getActivity(
-//                    applicationContext,
-//                    0,
-//                    Intent(this, PlaylistMenuOnboardingActivity::class.java),
-//                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-//                ))
+                .setSessionActivity(buildPendingIntent())
                 .build()
+    }
+
+//    private fun buildPendingIntent(): PendingIntent {
+//        val playlistItemId: String = mPlayer.currentMediaItem?.mediaId?:""
+//        val playlistId: String = mPlayer.currentMediaItem?.mediaMetadata?.extras?.getString(ConstantUtils.PLAYLIST_ID)?:""
+//
+//        val intent = PlaylistUtils.playlistNotificationIntent(
+//            applicationContext,
+//            playlistItemId,
+//            playlistId
+//        )
+//        val pendingIntent = TaskStackBuilder.create(this).run {
+//            addNextIntent(intent)
+//            getPendingIntent(0, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+//        }
+//        return pendingIntent
+//    }
+
+    private fun buildPendingIntent(): PendingIntent {
+        val intent = PlaylistUtils.playlistNotificationIntent(
+            applicationContext
+        )
+        val pendingIntent = TaskStackBuilder.create(this).run {
+            addNextIntent(intent)
+            getPendingIntent(0, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+        }
+        return pendingIntent
     }
 
     override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaLibrarySession {
@@ -116,6 +166,14 @@ class VideoPlaybackService : MediaLibraryService(),
         clearListener()
         cancelLastSavedPositionTimer()
         super.onDestroy()
+    }
+
+    override fun onPlayerError(error: PlaybackException) {
+        super.onPlayerError(error)
+        Log.e(
+            "onPlayerError",
+            "onPlayerError : " + error.message.toString() + "\n" + error.stackTrace
+        );
     }
 
     override fun onAddMediaItems(
@@ -228,7 +286,6 @@ class VideoPlaybackService : MediaLibraryService(),
     private val mSavePositionRunnableCode: Runnable = object : Runnable {
         override fun run() {
             if (mPlayer.isPlaying) {
-                Log.e(ConstantUtils.TAG, "runnableCode")
                 mPlayer.currentMediaItem?.let { saveLastPosition(it, mPlayer.currentPosition) }
             }
             mLastSavedPositionHandler?.postDelayed(this, 2000)
@@ -259,35 +316,7 @@ class VideoPlaybackService : MediaLibraryService(),
 
     override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
         super.onMediaItemTransition(mediaItem, reason)
-        Log.e(
-            ConstantUtils.TAG,
-            VideoPlaybackService::class.java.name + " : onMediaItemTransition : Reason : " + reason
-        )
-        if (reason == Player.MEDIA_ITEM_TRANSITION_REASON_SEEK) {
-//            mScope.launch {
-//                val currentPlayingItem = mCurrentPlayer?.currentMediaItemIndex?.let {
-//                    getMediaItemFromPosition(
-//                        it
-//                    )
-//                }
-//                currentPlayingItem?.id?.let {
-//                    val downloadStatus = mPlaylistRepository.getDownloadQueueModelById(it)?.downloadStatus
-//                    Log.e(TAG, "downloadStatus : $downloadStatus")
-//                    when(downloadStatus) {
-//                        DownloadStatus.PENDING.name -> {
-//                            mCurrentPlayer?.pause()
-//                        }
-//                        DownloadStatus.DOWNLOADING.name -> {
-//                            mCurrentPlayer?.pause()
-//                        }
-//                        DownloadStatus.DOWNLOADED.name -> {
-//                            mCurrentPlayer?.prepare()
-//                            mCurrentPlayer?.play()
-//                        }
-//                    }
-//                }
-//            }
-        } else {
+        if (reason != Player.MEDIA_ITEM_TRANSITION_REASON_SEEK) {
             mPlayer.playWhenReady =
                 PlaylistPreferenceUtils.defaultPrefs(applicationContext).continuousListening
         }
@@ -332,6 +361,7 @@ class VideoPlaybackService : MediaLibraryService(),
     private fun updateCurrentlyPlayedItem() {
         mPlayer.currentMediaItem?.let {
             setCurrentPlayingItem(it.mediaId)
+            currentPlaylistId = it.mediaMetadata.extras?.getString(ConstantUtils.PLAYLIST_ID) ?: ""
 //            CURRENTLY_PLAYED_ITEM_ID = it.mediaId
         }
 //        Log.e("CURRENTLY_PLAYED_ITEM_ID", VideoPlaybackService.CURRENTLY_PLAYED_ITEM_ID.toString())

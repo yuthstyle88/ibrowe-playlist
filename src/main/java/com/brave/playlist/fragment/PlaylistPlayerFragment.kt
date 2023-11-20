@@ -13,6 +13,7 @@ import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.os.*
 import android.provider.Settings
+import android.text.format.Formatter
 import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
@@ -69,7 +70,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 
 
-@SuppressLint("UnsafeOptInUsageError")
+@SuppressLint("UnsafeOptInUsageError", "SourceLockedOrientationActivity")
 class PlaylistPlayerFragment : Fragment(R.layout.fragment_playlist_player), Player.Listener,
     PlaylistItemClickListener, PlaylistItemOptionsListener, BottomPanelLayout.PanelSlideListener {
     private val mScope = CoroutineScope(Job() + Dispatchers.IO)
@@ -269,7 +270,6 @@ class PlaylistPlayerFragment : Fragment(R.layout.fragment_playlist_player), Play
         }
     }
 
-    @SuppressLint("SourceLockedOrientationActivity")
     override fun onDestroy() {
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         super.onDestroy()
@@ -303,7 +303,7 @@ class PlaylistPlayerFragment : Fragment(R.layout.fragment_playlist_player), Play
 //        return requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT && rotation == Surface.ROTATION_0 || requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE && rotation == Surface.ROTATION_90 || requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE && rotation == Surface.ROTATION_270
 //    }
 
-    @SuppressLint("ClickableViewAccessibility", "SourceLockedOrientationActivity")
+    @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         mPlaylistViewModel = ViewModelProvider(requireActivity())[PlaylistViewModel::class.java]
@@ -319,8 +319,9 @@ class PlaylistPlayerFragment : Fragment(R.layout.fragment_playlist_player), Play
 
         mTvVideoSource.text =
             if (mPlaylistModel?.id == DEFAULT_PLAYLIST) getString(R.string.playlist_play_later) else mPlaylistModel?.name
-        mTvPlaylistName.text =
-            if (mPlaylistModel?.id == DEFAULT_PLAYLIST) getString(R.string.playlist_play_later) else mPlaylistModel?.name
+//        mTvPlaylistName.text =
+//            if (mPlaylistModel?.id == DEFAULT_PLAYLIST) getString(R.string.playlist_play_later) else mPlaylistModel?.name
+        mTvPlaylistName.text = getString(R.string.playlist_up_next)
 
         mAspectRatioFrameLayout = view.findViewById(R.id.aspect_ratio_frame_layout)
         mAspectRatioFrameLayout.setAspectRatio(16f / 9f)
@@ -409,15 +410,27 @@ class PlaylistPlayerFragment : Fragment(R.layout.fragment_playlist_player), Play
             mPlaylistItemAdapter?.updatePlaylistItemDownloadProgress(it)
         }
 
+        PlaylistUtils.downloadProgress.observe(viewLifecycleOwner) {
+            mPlaylistItemAdapter?.updatePlaylistItemDownloadProgress(it)
+        }
+//
+//        mPlaylistViewModel.playlistItemUpdate.observe(viewLifecycleOwner) {
+//            mPlaylistItemAdapter?.updatePlaylistItem(it)
+//        }
+
+        VideoPlaybackService.newPlaylistItemModel.observe(viewLifecycleOwner) {
+            mPlaylistItemAdapter?.updatePlaylistItem(it)
+        }
+
         mPlaylistViewModel.playlistData.observe(viewLifecycleOwner) { playlistData ->
             mPlaylistItems = mutableListOf()
             playlistData.items.forEach {
 //                if (PlaylistUtils.isPlaylistItemCached(it)) {
-                if (it.id != controller?.currentMediaItem?.mediaId) {
-                    mPlaylistItems.add(it)
-                } else {
-                    mPlaylistItems.add(0, it)
-                }
+                    if (it.id != controller?.currentMediaItem?.mediaId) {
+                        mPlaylistItems.add(it)
+                    } else {
+                        mPlaylistItems.add(0, it)
+                    }
 //                }
             }
 
@@ -501,7 +514,8 @@ class PlaylistPlayerFragment : Fragment(R.layout.fragment_playlist_player), Play
             mPlayerView.player?.let {
                 mDuration = it.duration
                 updateTime(it.currentPosition)
-                mTvVideoTitle.text = mPlaylistItems[it.currentPeriodIndex].name
+//                mTvVideoTitle.text = mPlaylistItems[it.currentPeriodIndex].name
+                mTvVideoTitle.text = it.currentMediaItem?.mediaMetadata?.artist
                 mIvNextVideo.isEnabled = it.hasNextMediaItem()
                 mIvNextVideo.alpha = if (it.hasNextMediaItem()) 1.0f else 0.4f
                 mIvPrevVideo.isEnabled = it.hasPreviousMediaItem()
