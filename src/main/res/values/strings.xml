@@ -8,7 +8,6 @@
 <resources>
     <string name="playlist_feature_text">Playlist</string>
     <string name="playlist_create_toolbar_text">Create</string>
-    <string name="playlist_create_text">Create a Playlist</string>
     <string name="playlist_play_later">Play Later</string>
     <string name="playlist_browse_and_add">Browse and add</string>
     <string name="playlist_browse_and_add_message">Add your favorite content. Look for the + button in the lower right part of your screen.</string>
@@ -22,7 +21,6 @@
     <string name="playlist_shuffle">Shuffle</string>
     <string name="playlist_recently_played">Recently played</string>
     <string name="playlist_next">Next</string>
-    <string name="playlist_tap_long_press_or_drag">Tap, long press, or drag</string>
     <string name="playlist_add_to_playlist">Add to Playlist</string>
     <string name="playlist_playlists_text">Playlists</string>
     <string name="playlist_add_media">Add media</string>
@@ -37,9 +35,7 @@
     <string name="playlist_try_it">Try it!</string>
     <string name="playlist_edit_text">Edit</string>
     <string name="playlist_rename_text">Rename</string>
-    <string name="playlist_remove_playlist_offline_data">Remove playlist offline data</string>
     <string name="playlist_remove_all_offline_data">Remove all offline data</string>
-    <string name="playlist_download_playlist_for_offline_use">Keep playlist for offline use</string>
     <string name="playlist_download_all_playlists_for_offline_use">Keep all playlists for offline use</string>
     <string name="playlist_delete_playlist">Delete playlist</string>
     <string name="playlist_number_of_items">%s items</string>
@@ -50,16 +46,13 @@
     <string name="playlist_open_in_new_tab">Open in new tab</string>
     <string name="playlist_open_in_private_tab">Open in private tab</string>
     <string name="playlist_delete_item">Delete</string>
-    <string name="playlist_percentage_text">%1$s %%</string>
     <string name="playlist_time_text">%1$s:</string>
     <string name="playlist_duration_text">%1$s%2$s%3$s</string>
     <string name="playlist_please_select_items">Please select items first</string>
     <string name="playlist_offline_message">Playlist item is not cached.\nPlease cache the item for offline mode.</string>
-    <string name="playlist_item_expired_message">Content expired. Try again in a few seconds.</string>
     <string name="playlist_empty_playlist_name">Please enter valid playlist name</string>
     <string name="playlist_share_with">"Share with : "</string>
-    <string name="playlist_hide_playlist_button">Hide Playlist button</string>
-    <string name="playlist_preparing_text">Preparing...</string>
+    <string name="playlist_preparing_text">Preparing…</string>
     <string name="playlist_up_next">Up next</string>
     <!--    Last Updated String-->
 </resources>
