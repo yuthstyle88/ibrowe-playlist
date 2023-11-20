@@ -123,7 +123,7 @@
             android:id="@+id/tvMediaDownloadProgress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
+            android:paddingHorizontal="16dp"
             android:textColor="@color/media_stats_color"
             android:visibility="gone" />
     </androidx.appcompat.widget.LinearLayoutCompat>

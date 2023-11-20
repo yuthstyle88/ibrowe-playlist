@@ -13,7 +13,6 @@ import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.os.*
 import android.provider.Settings
-import android.text.format.Formatter
 import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View

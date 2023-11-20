@@ -17,7 +17,6 @@ package com.brave.playlist.fragment
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.text.TextUtils
 import android.text.format.Formatter
@@ -36,7 +35,6 @@ import androidx.core.widget.ContentLoadingProgressBar
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.media3.common.MediaItem
-import androidx.media3.common.MediaMetadata
 import androidx.media3.session.MediaBrowser
 import androidx.media3.session.SessionToken
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -62,7 +60,6 @@ import com.brave.playlist.model.PlaylistOptionsModel
 import com.brave.playlist.playback_service.VideoPlaybackService
 import com.brave.playlist.util.ConstantUtils
 import com.brave.playlist.util.ConstantUtils.DEFAULT_PLAYLIST
-import com.brave.playlist.util.ConstantUtils.PLAYLIST_ID
 import com.brave.playlist.util.ConstantUtils.TAG
 import com.brave.playlist.util.MediaItemUtil
 import com.brave.playlist.util.MediaUtils
