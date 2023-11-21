@@ -11,10 +11,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.brave.playlist.model.CreatePlaylistModel
-import com.brave.playlist.model.DownloadProgressModel
+import com.brave.playlist.model.HlsContentProgressModel
 import com.brave.playlist.model.MoveOrCopyModel
-import com.brave.playlist.model.PlaylistEventModel
-import com.brave.playlist.model.PlaylistItemEventModel
 import com.brave.playlist.model.PlaylistItemModel
 import com.brave.playlist.model.PlaylistItemOptionModel
 import com.brave.playlist.model.PlaylistModel
@@ -28,13 +26,6 @@ class PlaylistViewModel : ViewModel() {
     fun setPlaylistData(playlistModel: PlaylistModel) {
         mutablePlaylistData.value = playlistModel
     }
-
-//    // Using Livedata for all Playlist Data
-//    private val mutableAllPlaylistData = MutableLiveData<String>()
-//    val allPlaylistData: LiveData<String> get() = mutableAllPlaylistData
-//    fun setAllPlaylistData(allPlaylistData: String) {
-//        mutableAllPlaylistData.value = allPlaylistData
-//    }
 
     // Using Livedata for all Playlist Data
     private val mutableAllPlaylistData = MutableLiveData<List<PlaylistModel>>()
@@ -98,22 +89,10 @@ class PlaylistViewModel : ViewModel() {
         mutableRenamePlaylistOption.value = renamePlaylistModel
     }
 
-    private val mutableDownloadProgress = MutableLiveData<DownloadProgressModel>()
-    val downloadProgress: LiveData<DownloadProgressModel> get() = mutableDownloadProgress
-    fun updateDownloadProgress(downloadProgressModel: DownloadProgressModel) {
-        mutableDownloadProgress.value = downloadProgressModel
-    }
-
-    private val mutablePlaylistEventUpdate = MutableLiveData<PlaylistEventModel>()
-    val playlistEventUpdate: LiveData<PlaylistEventModel> get() = mutablePlaylistEventUpdate
-    fun updatePlaylistEvent(playlistEventModel: PlaylistEventModel) {
-        mutablePlaylistEventUpdate.value = playlistEventModel
-    }
-
-    private val mutablePlaylistItemEventUpdate = MutableLiveData<PlaylistItemEventModel>()
-    val playlistItemEventUpdate: LiveData<PlaylistItemEventModel> get() = mutablePlaylistItemEventUpdate
-    fun updatePlaylistItemEvent(playlistItemEventModel: PlaylistItemEventModel) {
-        mutablePlaylistItemEventUpdate.value = playlistItemEventModel
+    private val mutableDownloadProgress = MutableLiveData<HlsContentProgressModel>()
+    val downloadProgress: LiveData<HlsContentProgressModel> get() = mutableDownloadProgress
+    fun updateDownloadProgress(hlsContentProgressModel: HlsContentProgressModel) {
+        mutableDownloadProgress.value = hlsContentProgressModel
     }
 
     private val mutablePlaylistItemUpdate = MutableLiveData<PlaylistItemModel>()

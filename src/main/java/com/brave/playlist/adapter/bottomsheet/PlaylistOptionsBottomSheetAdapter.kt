@@ -19,12 +19,9 @@ import com.brave.playlist.model.PlaylistOptionsModel
 
 class PlaylistOptionsBottomSheetAdapter(private val playlistOptionsListener: PlaylistOptionsListener) :
     AbstractRecyclerViewAdapter<PlaylistOptionsModel, PlaylistOptionsBottomSheetAdapter.PlaylistOptionsViewHolder>() {
-
     class PlaylistOptionsViewHolder(
-        view: View,
-        private val playlistOptionsListener: PlaylistOptionsListener
-    ) :
-        AbstractViewHolder<PlaylistOptionsModel>(view) {
+        view: View, private val playlistOptionsListener: PlaylistOptionsListener
+    ) : AbstractViewHolder<PlaylistOptionsModel>(view) {
         private val optionView: View
         private val ivOptionIcon: AppCompatImageView
         private val tvOptionTitle: AppCompatTextView

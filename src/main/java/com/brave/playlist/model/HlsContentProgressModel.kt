@@ -7,7 +7,7 @@
 
 package com.brave.playlist.model
 
-data class DownloadProgressModel(
+data class HlsContentProgressModel(
     val playlistItemId: String,
     val totalBytes: Long,
     val receivedBytes: Long,

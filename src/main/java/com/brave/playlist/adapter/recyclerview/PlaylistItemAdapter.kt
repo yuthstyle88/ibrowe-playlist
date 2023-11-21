@@ -20,7 +20,7 @@ import androidx.appcompat.widget.AppCompatTextView
 import com.brave.playlist.R
 import com.brave.playlist.listener.PlaylistItemClickListener
 import com.brave.playlist.listener.StartDragListener
-import com.brave.playlist.model.DownloadProgressModel
+import com.brave.playlist.model.HlsContentProgressModel
 import com.brave.playlist.model.PlaylistItemModel
 import com.brave.playlist.util.PlaylistUtils
 import com.bumptech.glide.Glide
@@ -33,74 +33,16 @@ class PlaylistItemAdapter(
 ) : AbstractRecyclerViewAdapter<PlaylistItemModel, PlaylistItemAdapter.MediaItemViewHolder>() {
     private var editMode = false
     private var isBottomLayout = false
+    private var allViewHolderViews = HashMap<String, View>()
 
     init {
         editMode = false
     }
 
-    private var allViewHolderViews = HashMap<String, View>()
-    fun updatePlaylistItemDownloadProgress(downloadProgressModel: DownloadProgressModel) {
-        val view = allViewHolderViews[downloadProgressModel.playlistItemId]
-        val tvMediaDownloadProgress: AppCompatTextView? =
-            view?.findViewById(R.id.tvMediaDownloadProgress)
-        val processingProgressBar: CircularProgressIndicator? =
-            view?.findViewById(R.id.processing_progress_bar)
-        if (downloadProgressModel.totalBytes != downloadProgressModel.receivedBytes) {
-            tvMediaDownloadProgress?.visibility = View.VISIBLE
-            processingProgressBar?.visibility = View.VISIBLE
-            processingProgressBar?.setProgressCompat(
-                downloadProgressModel.receivedBytes.toInt(), true
-            )
-            processingProgressBar?.max = downloadProgressModel.totalBytes.toInt()
-            tvMediaDownloadProgress?.text =
-                view?.resources?.getString(R.string.playlist_preparing_text)
-        } else {
-            tvMediaDownloadProgress?.visibility = View.GONE
-            processingProgressBar?.visibility = View.GONE
-        }
-    }
-
-    fun updatePlaylistItem(playlistItemModel: PlaylistItemModel) {
-        val currentPlaylistItems = ArrayList<PlaylistItemModel>()
-        Log.e("updated_item", playlistItemModel.toString())
-        currentList.forEach {
-            if (it.id == playlistItemModel.id) {
-                playlistItemModel.playlistId = it.playlistId
-                currentPlaylistItems.add(playlistItemModel)
-            } else {
-                currentPlaylistItems.add(it)
-            }
-        }
-        submitList(currentPlaylistItems)
-    }
-
-    fun updatePlayingStatus(playlistItemId: String) {
-        if (getEditMode()) {
-            return
-        }
-        val currentPlayingItemView = allViewHolderViews[playlistItemId]
-        val ivMediaPlayingStatusCurrent: AppCompatImageView? =
-            currentPlayingItemView?.findViewById(R.id.ivMediaPlayingStatus)
-        ivMediaPlayingStatusCurrent?.visibility = View.VISIBLE
-        val mediaTitleCurrent: AppCompatTextView? =
-            currentPlayingItemView?.findViewById(R.id.tvMediaTitle)
-        mediaTitleCurrent?.setTextColor(currentPlayingItemView.context.getColor(R.color.brave_theme_color))
-        val ivMediaThumbnailCurrent: AppCompatImageView? =
-            currentPlayingItemView?.findViewById(R.id.ivMediaThumbnail)
-        ivMediaThumbnailCurrent?.alpha = 0.4f
-        allViewHolderViews.keys.forEach {
-            if (it != playlistItemId) {
-                val view = allViewHolderViews[it]
-                val ivMediaPlayingStatus: AppCompatImageView? =
-                    view?.findViewById(R.id.ivMediaPlayingStatus)
-                ivMediaPlayingStatus?.visibility = View.GONE
-                val mediaTitle: AppCompatTextView? = view?.findViewById(R.id.tvMediaTitle)
-                mediaTitle?.setTextColor(view.context.getColor(R.color.playlist_text_color))
-                val ivMediaThumbnail: AppCompatImageView? =
-                    view?.findViewById(R.id.ivMediaThumbnail)
-                ivMediaThumbnail?.alpha = 1.0f
-            }
-        }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MediaItemViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.playlist_item_layout, parent, false)
+        return MediaItemViewHolder(view)
     }
 
     fun setEditMode(enable: Boolean) {
@@ -164,8 +106,10 @@ class PlaylistItemAdapter(
                 tvMediaFileSize.text = Formatter.formatShortFileSize(itemView.context, fileSize)
             }
 
-            tvMediaFileSize.visibility = if (PlaylistUtils.isPlaylistItemCached(model)) View.VISIBLE else View.GONE
-            tvMediaDuration.visibility = if (PlaylistUtils.isPlaylistItemCached(model)) View.VISIBLE else View.GONE
+            tvMediaFileSize.visibility =
+                if (PlaylistUtils.isPlaylistItemCached(model)) View.VISIBLE else View.GONE
+            tvMediaDuration.visibility =
+                if (PlaylistUtils.isPlaylistItemCached(model)) View.VISIBLE else View.GONE
 
             if (model.duration.isNotEmpty()) {
                 val duration = model.duration.toLongOrNull()
@@ -240,18 +184,10 @@ class PlaylistItemAdapter(
     private fun setAlphaForViews(parentLayout: ViewGroup, alphaValue: Float) {
         for (i in 0 until parentLayout.childCount) {
             val child: View = parentLayout.getChildAt(i)
-
-            // Check if the child is the layout you want to exclude
-            if (child.id != R.id.processing_progress_bar) { // Replace with your exclusion layout's ID
+            if (child.id != R.id.processing_progress_bar) {
                 child.alpha = alphaValue
             }
         }
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MediaItemViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.playlist_item_layout, parent, false)
-        return MediaItemViewHolder(view)
     }
 
     fun getSelectedItems(): ArrayList<PlaylistItemModel> {
@@ -262,5 +198,72 @@ class PlaylistItemAdapter(
             }
         }
         return selectedItems
+    }
+
+    fun updatePlaylistItemDownloadProgress(hlsContentProgressModel: HlsContentProgressModel) {
+        val view = allViewHolderViews[hlsContentProgressModel.playlistItemId]
+        val tvMediaDownloadProgress: AppCompatTextView? =
+            view?.findViewById(R.id.tvMediaDownloadProgress)
+        val processingProgressBar: CircularProgressIndicator? =
+            view?.findViewById(R.id.processing_progress_bar)
+        val tvMediaDuration: AppCompatTextView? =
+            view?.findViewById(R.id.tvMediaDuration)
+        if (hlsContentProgressModel.totalBytes != hlsContentProgressModel.receivedBytes) {
+            tvMediaDownloadProgress?.visibility = View.VISIBLE
+            processingProgressBar?.visibility = View.VISIBLE
+            processingProgressBar?.setProgressCompat(
+                hlsContentProgressModel.receivedBytes.toInt(), true
+            )
+            processingProgressBar?.max = hlsContentProgressModel.totalBytes.toInt()
+            tvMediaDownloadProgress?.text =
+                view?.resources?.getString(R.string.playlist_preparing_text)
+            tvMediaDuration?.visibility = View.GONE
+        } else {
+            tvMediaDownloadProgress?.visibility = View.GONE
+            processingProgressBar?.visibility = View.GONE
+        }
+    }
+
+    fun updatePlaylistItem(playlistItemModel: PlaylistItemModel) {
+        val currentPlaylistItems = ArrayList<PlaylistItemModel>()
+        Log.e("updated_item", playlistItemModel.toString())
+        currentList.forEach {
+            if (it.id == playlistItemModel.id) {
+                playlistItemModel.playlistId = it.playlistId
+                currentPlaylistItems.add(playlistItemModel)
+            } else {
+                currentPlaylistItems.add(it)
+            }
+        }
+        submitList(currentPlaylistItems)
+    }
+
+    fun updatePlayingStatus(playlistItemId: String) {
+        if (getEditMode()) {
+            return
+        }
+        val currentPlayingItemView = allViewHolderViews[playlistItemId]
+        val ivMediaPlayingStatusCurrent: AppCompatImageView? =
+            currentPlayingItemView?.findViewById(R.id.ivMediaPlayingStatus)
+        ivMediaPlayingStatusCurrent?.visibility = View.VISIBLE
+        val mediaTitleCurrent: AppCompatTextView? =
+            currentPlayingItemView?.findViewById(R.id.tvMediaTitle)
+        mediaTitleCurrent?.setTextColor(currentPlayingItemView.context.getColor(R.color.brave_theme_color))
+        val ivMediaThumbnailCurrent: AppCompatImageView? =
+            currentPlayingItemView?.findViewById(R.id.ivMediaThumbnail)
+        ivMediaThumbnailCurrent?.alpha = 0.4f
+        allViewHolderViews.keys.forEach {
+            if (it != playlistItemId) {
+                val view = allViewHolderViews[it]
+                val ivMediaPlayingStatus: AppCompatImageView? =
+                    view?.findViewById(R.id.ivMediaPlayingStatus)
+                ivMediaPlayingStatus?.visibility = View.GONE
+                val mediaTitle: AppCompatTextView? = view?.findViewById(R.id.tvMediaTitle)
+                mediaTitle?.setTextColor(view.context.getColor(R.color.playlist_text_color))
+                val ivMediaThumbnail: AppCompatImageView? =
+                    view?.findViewById(R.id.ivMediaThumbnail)
+                ivMediaThumbnail?.alpha = 1.0f
+            }
+        }
     }
 }

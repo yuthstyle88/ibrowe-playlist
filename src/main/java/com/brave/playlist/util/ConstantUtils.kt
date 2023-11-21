@@ -12,9 +12,7 @@ object ConstantUtils {
     const val PLAYLIST_ID = "playlist_id"
     const val NEW_PLAYLIST = "new_playlist"
     const val PLAYLIST_MODEL = "playlist_model"
-    const val PLAYLIST_NAME = "playlist_name"
     const val PLAYLIST_OPTION = "playlist_option"
-    const val PLAYER_ITEMS = "player_items"
     const val DEFAULT_PLAYLIST = "default"
     const val ALL_PLAYLIST = "all"
     const val SHOULD_MOVE_OR_COPY = "should_move_or_copy"
@@ -27,9 +25,7 @@ object ConstantUtils {
     const val CURRENT_PLAYLIST_ID = "current_playlist_id"
     const val PLAYLIST_FEATURE_YT_URL = "https://youtu.be/dL0Aw6QGTwY"
 
-    const val DOWNLOAD_CONTENT_DIRECTORY = "downloads"
     const val PLAYLIST_CHANNEL_ID = "playlist"
-    const val PLAYLIST_NOTIFICATION_ID = 1001
 
     const val HLS_FILE_EXTENSION = ".m3u8"
 

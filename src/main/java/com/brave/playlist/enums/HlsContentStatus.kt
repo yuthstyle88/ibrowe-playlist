@@ -5,11 +5,10 @@
  * You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package com.brave.playlist.model
+package com.brave.playlist.enums
 
-import com.brave.playlist.enums.PlaylistEventEnum
-
-data class PlaylistEventModel(
-    val playlistEventEnum: PlaylistEventEnum,
-    val playlistModel: PlaylistModel
-)
+enum class HlsContentStatus {
+    @Suppress("unused")
+    READY,
+    NOT_READY
+}

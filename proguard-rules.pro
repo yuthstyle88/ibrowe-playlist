@@ -19,8 +19,3 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
-
--dontnote com.google.android.exoplayer2.source.hls.HlsMediaSource$Factory
--keepclasseswithmembers class com.google.android.exoplayer2.source.hls.HlsMediaSource$Factory {
-  <init>(com.google.android.exoplayer2.upstream.DataSource$Factory);
-}

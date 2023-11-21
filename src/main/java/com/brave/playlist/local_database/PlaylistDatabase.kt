@@ -11,15 +11,14 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.brave.playlist.model.DownloadQueueModel
+import com.brave.playlist.model.HlsContentQueueModel
 import com.brave.playlist.model.LastPlayedPositionModel
 
 @Database(
-    entities = [LastPlayedPositionModel::class, DownloadQueueModel::class],
+    entities = [LastPlayedPositionModel::class, HlsContentQueueModel::class],
     version = 1,
     exportSchema = false
 )
-//@TypeConverters(PlaylistItemModelConverter::class)
 abstract class PlaylistDatabase : RoomDatabase() {
     abstract fun playlistItemModelDao(): PlaylistItemModelDao
 
@@ -36,10 +35,6 @@ abstract class PlaylistDatabase : RoomDatabase() {
                 }
             }
             return INSTANCE
-        }
-
-        fun destroyInstance() {
-            INSTANCE = null
         }
     }
 }

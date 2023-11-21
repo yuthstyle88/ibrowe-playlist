@@ -30,7 +30,7 @@ import com.brave.playlist.view.PlaylistOnboardingPanel
 import com.brave.playlist.view.bottomsheet.PlaylistOptionsBottomSheet
 import com.google.android.material.snackbar.Snackbar
 
-
+@Suppress("unused")
 object PlaylistViewUtils {
     @JvmStatic
     fun showPlaylistButton(
@@ -83,12 +83,7 @@ object PlaylistViewUtils {
                             activity.getString(R.string.playlist_open_playlist_settings),
                             R.drawable.ic_playlist_settings,
                             PlaylistOptionsEnum.PLAYLIST_SETTINGS
-                        ),
-//                        PlaylistOptionsModel(
-//                            activity.getString(R.string.playlist_hide_playlist_button),
-//                            R.drawable.ic_playlist_hide,
-//                            PlaylistOptionsEnum.PLAYLIST_HIDE
-//                        )
+                        )
                     ), playlistOptionsListener
                 ).show((activity as FragmentActivity).supportFragmentManager, null)
             }

@@ -146,10 +146,6 @@ class PlaylistToolbar(context: Context, attrs: AttributeSet?, defStyleAttr: Int,
         tvActionToolbarPlaylist.setOnClickListener(clickListener)
     }
 
-    fun setOptionsButtonClickListener(clickListener: OnClickListener) {
-        ivOptionsToolbarPlayList.setOnClickListener(clickListener)
-    }
-
     fun setExitEditModeClickListener(clickListener: OnClickListener) {
         ivExitEditMode.setOnClickListener(clickListener)
     }

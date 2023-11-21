@@ -17,6 +17,7 @@ import java.io.InputStream
 
 object MediaUtils {
     @JvmStatic
+    @Suppress("unused")
     fun getFileSizeFromUri(context: Context, uri: Uri): Long {
         var fileSize = 0L
         var inputStream: InputStream? = null
@@ -38,6 +39,7 @@ object MediaUtils {
     }
 
     @JvmStatic
+    @Suppress("unused")
     fun writeToFile(data: ByteArray?, filePath: String) {
         val file = File(filePath)
         data?.let { file.appendBytes(it) }

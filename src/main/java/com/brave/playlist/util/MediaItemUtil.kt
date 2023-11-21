@@ -43,7 +43,9 @@ object MediaItemUtil {
         return MediaItem.Builder()
             .setMediaId(playlistItemModel.id)
             .setMediaMetadata(metadata)
-            .setRequestMetadata(MediaItem.RequestMetadata.Builder().setMediaUri(Uri.parse(mediaPath)).build())
+            .setRequestMetadata(
+                MediaItem.RequestMetadata.Builder().setMediaUri(Uri.parse(mediaPath)).build()
+            )
             .setUri(Uri.parse(mediaPath))
             .build()
     }
