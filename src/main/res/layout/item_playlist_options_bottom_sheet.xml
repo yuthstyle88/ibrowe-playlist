@@ -17,8 +17,8 @@
         android:id="@+id/ivOptionIcon"
         android:layout_width="24dp"
         android:layout_height="24dp"
-        app:tint="@color/day_night_icon_color"
-        app:srcCompat="@drawable/ic_edit_playlist" />
+        app:srcCompat="@drawable/ic_edit_playlist"
+        app:tint="@color/day_night_icon_color" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tvOptionTitle"

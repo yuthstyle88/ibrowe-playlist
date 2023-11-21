@@ -8,14 +8,8 @@
 package com.brave.playlist.util
 
 import android.app.ActivityManager
-import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
-import android.net.Uri
-import android.os.Build
 import android.text.TextUtils
 import android.util.Log
 import android.util.TypedValue
@@ -24,42 +18,15 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.brave.playlist.R
 import com.brave.playlist.activity.PlaylistMenuOnboardingActivity
-import com.brave.playlist.local_database.PlaylistRepository
-import com.brave.playlist.model.DownloadProgressModel
-import com.brave.playlist.model.DownloadQueueModel
+import com.brave.playlist.model.HlsContentProgressModel
 import com.brave.playlist.model.MoveOrCopyModel
 import com.brave.playlist.model.PlaylistItemModel
 import com.brave.playlist.model.PlaylistOnboardingModel
-import com.brave.playlist.util.ConstantUtils.PLAYLIST_CHANNEL_ID
-import java.util.Date
 
 
 object PlaylistUtils {
     @JvmStatic
     lateinit var moveOrCopyModel: MoveOrCopyModel
-    fun createNotificationChannel(context: Context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val serviceChannel = NotificationChannel(
-                PLAYLIST_CHANNEL_ID,
-                context.resources.getString(R.string.playlist_feature_text),
-                NotificationManager.IMPORTANCE_HIGH
-            )
-            serviceChannel.lightColor = Color.BLUE
-            serviceChannel.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
-            val service =
-                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            service.createNotificationChannel(serviceChannel)
-        }
-    }
-
-    fun isMediaSourceExpired(mediaSrc: String): Boolean {
-        val uri: Uri = Uri.parse(mediaSrc)
-        if (!uri.getQueryParameter("expire").isNullOrEmpty()) {
-            val expireMillis: Long? = uri.getQueryParameter("expire")?.toLong()?.times(1000L)
-            return Date() > expireMillis?.let { Date(it) }
-        }
-        return false
-    }
 
     fun showSharingDialog(context: Context, text: String) {
         val intent = Intent()
@@ -71,24 +38,6 @@ object PlaylistUtils {
                 intent, context.resources.getString(R.string.playlist_share_with)
             )
         )
-    }
-
-    fun playlistNotificationIntent(
-        context: Context, playlistItemModelId: String, playlistId: String
-    ): Intent? {
-        return try {
-            val intent = Intent(
-                context, Class.forName("org.chromium.chrome.browser.playlist.PlaylistHostActivity")
-            )
-            intent.action = ConstantUtils.PLAYLIST_ACTION
-            intent.putExtra(ConstantUtils.CURRENT_PLAYING_ITEM_ID, playlistItemModelId)
-            intent.putExtra(ConstantUtils.CURRENT_PLAYLIST_ID, playlistId)
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        } catch (ex: ClassNotFoundException) {
-            Log.e(ConstantUtils.TAG, "playlistNotificationIntent" + ex.message)
-            null
-        }
     }
 
     fun playlistNotificationIntent(context: Context): Intent? {
@@ -123,6 +72,7 @@ object PlaylistUtils {
     }
 
     @JvmStatic
+    @Suppress("unused")
     fun openPlaylistMenuOnboardingActivity(context: Context) {
         val playlistActivityIntent = Intent(context, PlaylistMenuOnboardingActivity::class.java)
         playlistActivityIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
@@ -141,11 +91,6 @@ object PlaylistUtils {
         } catch (ex: ClassNotFoundException) {
             Log.e(ConstantUtils.TAG, "openBraveActivityWithUrl : " + ex.message)
         }
-    }
-
-    @JvmStatic
-    fun insertDownloadQueue(context: Context, downloadQueueModel: DownloadQueueModel?) {
-        downloadQueueModel?.let { PlaylistRepository(context).insertDownloadQueueModel(it) }
     }
 
     @JvmStatic
@@ -173,12 +118,13 @@ object PlaylistUtils {
         ) && !TextUtils.isEmpty(selectedPlaylistItemModel.hlsMediaPath)))
     }
 
-    private val mutableDownloadProgress = MutableLiveData<DownloadProgressModel>()
-    val downloadProgress: LiveData<DownloadProgressModel> get() = mutableDownloadProgress
+    private val mutableHlsContentProgress = MutableLiveData<HlsContentProgressModel>()
+    val hlsContentProgress: LiveData<HlsContentProgressModel> get() = mutableHlsContentProgress
 
     @JvmStatic
-    fun updateDownloadProgress(downloadProgressModel: DownloadProgressModel) {
-        mutableDownloadProgress.value = downloadProgressModel
+    @Suppress("unused")
+    fun updateHlsContentProgress(hlsContentProgressModel: HlsContentProgressModel) {
+        mutableHlsContentProgress.value = hlsContentProgressModel
     }
 
     fun dipToPixels(context: Context, dipValue: Float): Float {

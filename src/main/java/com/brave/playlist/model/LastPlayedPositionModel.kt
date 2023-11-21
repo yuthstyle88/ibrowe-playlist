@@ -21,6 +21,7 @@ data class LastPlayedPositionModel(
 ) : Parcelable {
     companion object {
         @JvmField
+        @Suppress("unused")
         val CREATOR = object : Parcelable.Creator<LastPlayedPositionModel> {
             override fun createFromParcel(parcel: Parcel) = LastPlayedPositionModel(parcel)
             override fun newArray(size: Int) = arrayOfNulls<LastPlayedPositionModel>(size)

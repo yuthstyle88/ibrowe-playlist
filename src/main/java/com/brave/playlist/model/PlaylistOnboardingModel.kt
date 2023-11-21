@@ -17,6 +17,7 @@ data class PlaylistOnboardingModel(
 ) : Parcelable {
     companion object {
         @JvmField
+        @Suppress("unused")
         val CREATOR = object : Parcelable.Creator<PlaylistOnboardingModel> {
             override fun createFromParcel(parcel: Parcel) = PlaylistOnboardingModel(parcel)
             override fun newArray(size: Int) = arrayOfNulls<PlaylistOnboardingModel>(size)

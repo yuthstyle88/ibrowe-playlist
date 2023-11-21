@@ -60,7 +60,7 @@ android {
 }
 
 ext {
-    exoplayerVersion = '1.0.2'
+    exoplayerVersion = '1.0.2' // using 1.0.2 version to align with chromium dependency
     room_version = "2.6.0"
 }
 
@@ -69,12 +69,16 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.10.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+
     //noinspection GradleDependency
     implementation "androidx.media3:media3-exoplayer:$exoplayerVersion"
     //noinspection GradleDependency
     implementation "androidx.media3:media3-ui:$exoplayerVersion"
-//    implementation "androidx.media3:media3-cast:$exoplayerVersion"
+    //noinspection GradleDependency
+    implementation "androidx.media3:media3-cast:$exoplayerVersion"
+    //noinspection GradleDependency
     implementation "androidx.media3:media3-session:$exoplayerVersion"
+    //noinspection GradleDependency
     implementation "androidx.media3:media3-exoplayer-hls:$exoplayerVersion"
 
     implementation "com.google.android.gms:play-services-cast-framework:21.3.0"

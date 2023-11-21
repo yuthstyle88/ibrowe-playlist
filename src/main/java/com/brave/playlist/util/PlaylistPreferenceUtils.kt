@@ -36,7 +36,7 @@ object PlaylistPreferenceUtils {
             }
         }
 
-    var SharedPreferences.addMediaCount
+    private var SharedPreferences.addMediaCount
         get() = getInt(ADD_MEDIA_COUNT, -1)
         set(value) {
             edit {
@@ -85,6 +85,7 @@ object PlaylistPreferenceUtils {
         }
 
     @JvmStatic
+    @Suppress("unused")
     fun resetPlaylistPrefs(context: Context) {
         defaultPrefs(context).apply {
             recentlyPlayedPlaylist = ""
@@ -93,8 +94,6 @@ object PlaylistPreferenceUtils {
             rememberFilePlaybackPosition = true
             rememberListPlaybackPosition = false
             continuousListening = true
-            // Need to reset all prefs
-//            PlaylistRepository(context).deleteAllPlaylistItemModel()
         }
     }
 }

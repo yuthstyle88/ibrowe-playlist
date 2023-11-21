@@ -20,6 +20,7 @@ class PlaylistOnboardingSingleFragment : Fragment(R.layout.fragment_single_playl
 
     private var mPlaylistOnboardingModel: PlaylistOnboardingModel? = null
 
+    @Suppress("deprecation")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {

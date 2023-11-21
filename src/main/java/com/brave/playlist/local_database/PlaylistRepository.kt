@@ -8,25 +8,13 @@
 package com.brave.playlist.local_database
 
 import android.content.Context
-import com.brave.playlist.model.DownloadQueueModel
+import com.brave.playlist.model.HlsContentQueueModel
 import com.brave.playlist.model.LastPlayedPositionModel
 
 class PlaylistRepository(context: Context) {
 
     private var mPlaylistItemModelDao: PlaylistItemModelDao? =
         PlaylistDatabase.getInstance(context)?.playlistItemModelDao()
-
-//    fun getPlaylistItemById(playlistItemId: String): PlaylistItemModel? {
-//        return playlistItemModelDao?.getPlaylistItemById(playlistItemId)
-//    }
-//
-//    fun insertPlaylistItemModel(playlistItemModel: PlaylistItemModel) {
-//        playlistItemModelDao?.insertPlaylistItemModel(playlistItemModel)
-//    }
-//
-//    fun deleteAllPlaylistItemModel() {
-//        playlistItemModelDao?.deleteAllPlaylistItemModel()
-//    }
 
     fun getLastPlayedPositionByPlaylistItemId(playlistItemId: String): LastPlayedPositionModel? {
         return mPlaylistItemModelDao?.getLastPlayedPositionByPlaylistItemId(playlistItemId)
@@ -36,36 +24,25 @@ class PlaylistRepository(context: Context) {
         mPlaylistItemModelDao?.insertLastPlayedPosition(lastPlayedPositionModel)
     }
 
-    fun getDownloadQueueModelById(playlistItemId: String): DownloadQueueModel? {
-        return mPlaylistItemModelDao?.getDownloadQueueModelById(playlistItemId)
+    fun isHlsContentQueueModelExists(playlistItemId: String): Boolean? {
+        return mPlaylistItemModelDao?.isHlsContentQueueModelExists(playlistItemId)
     }
 
-    fun isDownloadQueueModelExists(playlistItemId: String): Boolean? {
-        return mPlaylistItemModelDao?.isDownloadQueueModelExists(playlistItemId)
+    @Suppress("unused")
+    fun updateHlsContentQueueModel(hlsContentQueueModel: HlsContentQueueModel) {
+        mPlaylistItemModelDao?.updateHlsContentQueueModel(hlsContentQueueModel)
     }
 
-    fun updateDownloadQueueModel(downloadQueueModel: DownloadQueueModel) {
-        mPlaylistItemModelDao?.updateDownloadQueueModel(downloadQueueModel)
+    @Suppress("unused")
+    fun getFirstHlsContentQueueModel(): HlsContentQueueModel? {
+        return mPlaylistItemModelDao?.getFirstHlsContentQueueModel()
     }
 
-    fun getFirstDownloadQueueModel(): DownloadQueueModel? {
-        return mPlaylistItemModelDao?.getFirstDownloadQueueModel()
+    fun getAllHlsContentQueueModel(): List<HlsContentQueueModel>? {
+        return mPlaylistItemModelDao?.getAllHlsContentQueueModel()
     }
 
-    fun getAllDownloadQueueModel(): List<DownloadQueueModel>? {
-        return mPlaylistItemModelDao?.getAllDownloadQueueModel()
-    }
-
-    fun insertDownloadQueueModel(downloadQueueModel: DownloadQueueModel) {
-        mPlaylistItemModelDao?.insertDownloadQueueModel(downloadQueueModel)
-    }
-
-    fun deleteAllDownloadQueueModel() {
-        mPlaylistItemModelDao?.deleteAllDownloadQueueModel()
-    }
-
-    fun deleteDownloadQueueModel(downloadQueueModel: DownloadQueueModel) {
-        mPlaylistItemModelDao?.deleteDownloadQueueModel(downloadQueueModel)
-
+    fun insertHlsContentQueueModel(hlsContentQueueModel: HlsContentQueueModel) {
+        mPlaylistItemModelDao?.insertHlsContentQueueModel(hlsContentQueueModel)
     }
 }

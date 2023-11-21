@@ -15,7 +15,6 @@ import android.view.ViewConfiguration
 import android.view.ViewGroup
 import android.view.animation.Interpolator
 import android.widget.OverScroller
-import androidx.core.view.MotionEventCompat
 import androidx.core.view.VelocityTrackerCompat
 import java.util.Arrays
 import kotlin.math.abs
@@ -156,10 +155,10 @@ class ViewDragHelper private constructor(
          * [.STATE_IDLE].
          *
          * @param releasedChild The captured child view now being released
-         * @param xvel X velocity of the pointer as it left the screen in pixels per second.
-         * @param yvel Y velocity of the pointer as it left the screen in pixels per second.
+         * @param xVel X velocity of the pointer as it left the screen in pixels per second.
+         * @param yVel Y velocity of the pointer as it left the screen in pixels per second.
          */
-        open fun onViewReleased(releasedChild: View?, xvel: Float, yvel: Float) {}
+        open fun onViewReleased(releasedChild: View?, xVel: Float, yVel: Float) {}
 
         /**
          * Called to determine the Z-order of child views.
@@ -321,6 +320,7 @@ class ViewDragHelper private constructor(
      * @param finalTop Settled top edge position for the captured view
      * @return true if animation should continue through [.continueSettling] calls
      */
+    @Suppress("DEPRECATION")
     fun settleCapturedViewAt(finalLeft: Int, finalTop: Int): Boolean {
         if (!mReleaseInProgress) {
             throw IllegalStateException(
@@ -341,15 +341,15 @@ class ViewDragHelper private constructor(
      *
      * @param finalLeft Target left position for the captured view
      * @param finalTop Target top position for the captured view
-     * @param xvel Horizontal velocity
-     * @param yvel Vertical velocity
+     * @param xVelocity Horizontal velocity
+     * @param yVelocity Vertical velocity
      * @return true if animation should continue through [.continueSettling] calls
      */
     private fun forceSettleCapturedViewAt(
         finalLeft: Int,
         finalTop: Int,
-        xvel: Int,
-        yvel: Int
+        xVelocity: Int,
+        yVelocity: Int
     ): Boolean {
         val startLeft = capturedView?.left
         val startTop = capturedView?.top
@@ -361,30 +361,36 @@ class ViewDragHelper private constructor(
             setDragState(STATE_IDLE)
             return false
         }
-        val duration = computeSettleDuration(capturedView, dx, dy, xvel, yvel)
+        val duration = computeSettleDuration(capturedView, dx, dy, xVelocity, yVelocity)
         mScroller.startScroll((startLeft ?: 0), (startTop ?: 0), dx, dy, duration)
         setDragState(STATE_SETTLING)
         return true
     }
 
-    private fun computeSettleDuration(child: View?, dx: Int, dy: Int, xvel: Int, yvel: Int): Int {
-        var xvel = xvel
-        var yvel = yvel
-        xvel = clampMag(xvel, minVelocity.toInt(), mMaxVelocity.toInt())
-        yvel = clampMag(yvel, minVelocity.toInt(), mMaxVelocity.toInt())
+    private fun computeSettleDuration(
+        child: View?,
+        dx: Int,
+        dy: Int,
+        xVelocity: Int,
+        yVelocity: Int
+    ): Int {
+        var xVel = xVelocity
+        var yVel = yVelocity
+        xVel = clampMag(xVel, minVelocity.toInt(), mMaxVelocity.toInt())
+        yVel = clampMag(yVel, minVelocity.toInt(), mMaxVelocity.toInt())
         val absDx = abs(dx)
         val absDy = abs(dy)
-        val absXVel = abs(xvel)
-        val absYVel = abs(yvel)
+        val absXVel = abs(xVel)
+        val absYVel = abs(yVel)
         val addedVel = absXVel + absYVel
         val addedDistance = absDx + absDy
-        val xweight =
-            if (xvel != 0) absXVel.toFloat() / addedVel else absDx.toFloat() / addedDistance
-        val yweight =
-            if (yvel != 0) absYVel.toFloat() / addedVel else absDy.toFloat() / addedDistance
-        val xduration = computeAxisDuration(dx, xvel, 0)
-        val yduration = computeAxisDuration(dy, yvel, mCallback.getViewVerticalDragRange(child))
-        return (xduration * xweight + yduration * yweight).toInt()
+        val xWeight =
+            if (xVel != 0) absXVel.toFloat() / addedVel else absDx.toFloat() / addedDistance
+        val yWeight =
+            if (yVel != 0) absYVel.toFloat() / addedVel else absDy.toFloat() / addedDistance
+        val xDuration = computeAxisDuration(dx, xVel, 0)
+        val yDuration = computeAxisDuration(dy, yVel, mCallback.getViewVerticalDragRange(child))
+        return (xDuration * xWeight + yDuration * yWeight).toInt()
     }
 
     private fun computeAxisDuration(delta: Int, velocity: Int, motionRange: Int): Int {
@@ -439,11 +445,11 @@ class ViewDragHelper private constructor(
         return if (absValue > absMax) if (value > 0) absMax else -absMax else value
     }
 
-    private fun distanceInfluenceForSnapDuration(f: Float): Float {
-        var f = f
-        f -= 0.5f // center the values about 0.
-        f *= (0.3f * Math.PI / 2.0f).toFloat()
-        return sin(f.toDouble()).toFloat()
+    private fun distanceInfluenceForSnapDuration(distanceRatio: Float): Float {
+        var ratio = distanceRatio
+        ratio -= 0.5f // center the values about 0.
+        ratio *= (0.3f * Math.PI / 2.0f).toFloat()
+        return sin(ratio.toDouble()).toFloat()
     }
 
     /**
@@ -507,9 +513,9 @@ class ViewDragHelper private constructor(
      * is the only time it is valid to call [.settleCapturedViewAt]
      * or [.flingCapturedView].
      */
-    private fun dispatchViewReleased(xvel: Float, yvel: Float) {
+    private fun dispatchViewReleased(xVel: Float, yVel: Float) {
         mReleaseInProgress = true
-        mCallback.onViewReleased(capturedView, xvel, yvel)
+        mCallback.onViewReleased(capturedView, xVel, yVel)
         mReleaseInProgress = false
         if (viewDragState == STATE_DRAGGING) {
             // onViewReleased didn't call a method that would have changed this. Go idle.
@@ -529,20 +535,6 @@ class ViewDragHelper private constructor(
         Arrays.fill(mEdgeDragsInProgress, 0)
         Arrays.fill(mEdgeDragsLocked, 0)
         mPointersDown = 0
-    }
-
-    private fun clearMotionHistory(pointerId: Int) {
-        if (mInitialMotionX == null || (mInitialMotionX?.size ?: 0) <= pointerId) {
-            return
-        }
-        mInitialMotionX?.let { it[pointerId] = 0f }
-        mInitialMotionY?.let { it[pointerId] = 0f }
-        mLastMotionX?.let { it[pointerId] = 0f }
-        mLastMotionY?.let { it[pointerId] = 0f }
-        mInitialEdgesTouched[pointerId] = 0
-        mEdgeDragsInProgress[pointerId] = 0
-        mEdgeDragsLocked[pointerId] = 0
-        mPointersDown = mPointersDown and (1 shl pointerId).inv()
     }
 
     private fun ensureMotionHistorySizeForId(pointerId: Int) {
@@ -640,7 +632,6 @@ class ViewDragHelper private constructor(
      */
     fun shouldInterceptTouchEvent(ev: MotionEvent): Boolean {
         val action = ev.actionMasked
-        val actionIndex = ev.actionIndex
         if (action == MotionEvent.ACTION_DOWN) {
             // Reset things for a new event stream, just in case we didn't get
             // the whole previous stream.
@@ -661,22 +652,6 @@ class ViewDragHelper private constructor(
                 // Catch a settling view if possible.
                 if (toCapture === capturedView && viewDragState == STATE_SETTLING) {
                     tryCaptureViewForDrag(toCapture, pointerId)
-                }
-            }
-
-            MotionEventCompat.ACTION_POINTER_DOWN -> {
-                val pointerId = ev.getPointerId(actionIndex)
-                val x = ev.getX(actionIndex)
-                val y = ev.getY(actionIndex)
-                saveInitialMotion(x, y, pointerId)
-
-                // A ViewDragHelper can only manipulate one view at a time.
-                if (viewDragState == STATE_SETTLING) {
-                    // Catch a settling view if possible.
-                    val toCapture = findTopChildUnder(x.toInt(), y.toInt())
-                    if (toCapture === capturedView) {
-                        tryCaptureViewForDrag(toCapture, pointerId)
-                    }
                 }
             }
 
@@ -714,11 +689,6 @@ class ViewDragHelper private constructor(
                 saveLastMotion(ev)
             }
 
-            MotionEventCompat.ACTION_POINTER_UP -> {
-                val pointerId = ev.getPointerId(actionIndex)
-                clearMotionHistory(pointerId)
-            }
-
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                 cancel()
             }
@@ -734,7 +704,6 @@ class ViewDragHelper private constructor(
      */
     fun processTouchEvent(ev: MotionEvent) {
         val action = ev.actionMasked
-        val actionIndex = ev.actionIndex
         if (action == MotionEvent.ACTION_DOWN) {
             // Reset things for a new event stream, just in case we didn't get
             // the whole previous stream.
@@ -757,26 +726,6 @@ class ViewDragHelper private constructor(
                 // Start immediately if possible.
                 tryCaptureViewForDrag(toCapture, pointerId)
                 mInitialEdgesTouched[pointerId]
-            }
-
-            MotionEventCompat.ACTION_POINTER_DOWN -> {
-                val pointerId = ev.getPointerId(actionIndex)
-                val x = ev.getX(actionIndex)
-                val y = ev.getY(actionIndex)
-                saveInitialMotion(x, y, pointerId)
-
-                // A ViewDragHelper can only manipulate one view at a time.
-                if (viewDragState == STATE_IDLE) {
-                    // If we're idle we can do anything! Treat it like a normal down event.
-                    val toCapture = findTopChildUnder(x.toInt(), y.toInt())
-                    tryCaptureViewForDrag(toCapture, pointerId)
-                    mInitialEdgesTouched[pointerId]
-                } else if (isCapturedViewUnder(x.toInt(), y.toInt())) {
-                    // We're still tracking a captured view. If the same view is under this
-                    // point, we'll swap to controlling it with this pointer instead.
-                    // (This will still work if we're "catching" a settling view.)
-                    tryCaptureViewForDrag(capturedView, pointerId)
-                }
             }
 
             MotionEvent.ACTION_MOVE -> {
@@ -820,38 +769,6 @@ class ViewDragHelper private constructor(
                     }
                     saveLastMotion(ev)
                 }
-            }
-
-            MotionEventCompat.ACTION_POINTER_UP -> {
-                val pointerId = ev.getPointerId(actionIndex)
-                if (viewDragState == STATE_DRAGGING && pointerId == activePointerId) {
-                    // Try to find another pointer that's still holding on to the captured view.
-                    var newActivePointer = INVALID_POINTER
-                    val pointerCount = ev.pointerCount
-                    var i = 0
-                    while (i < pointerCount) {
-                        val id = ev.getPointerId(i)
-                        if (id == activePointerId) {
-                            // This one's going away, skip.
-                            i++
-                            continue
-                        }
-                        val x = ev.getX(i)
-                        val y = ev.getY(i)
-                        if (findTopChildUnder(x.toInt(), y.toInt()) === capturedView &&
-                            tryCaptureViewForDrag(capturedView, id)
-                        ) {
-                            newActivePointer = activePointerId
-                            break
-                        }
-                        i++
-                    }
-                    if (newActivePointer == INVALID_POINTER) {
-                        // We didn't find another pointer still touching the view, release it.
-                        releaseViewForPointerUp()
-                    }
-                }
-                clearMotionHistory(pointerId)
             }
 
             MotionEvent.ACTION_UP -> {
@@ -925,17 +842,18 @@ class ViewDragHelper private constructor(
     val isDragging: Boolean
         get() = viewDragState == STATE_DRAGGING
 
+    @Suppress("DEPRECATION")
     private fun releaseViewForPointerUp() {
         mVelocityTracker?.computeCurrentVelocity(1000, mMaxVelocity)
-        val xvel = clampMag(
+        val xVel = clampMag(
             VelocityTrackerCompat.getXVelocity(mVelocityTracker, activePointerId),
             minVelocity, mMaxVelocity
         )
-        val yvel = clampMag(
+        val yVel = clampMag(
             VelocityTrackerCompat.getYVelocity(mVelocityTracker, activePointerId),
             minVelocity, mMaxVelocity
         )
-        dispatchViewReleased(xvel, yvel)
+        dispatchViewReleased(xVel, yVel)
     }
 
     private fun dragTo(left: Int, top: Int, dx: Int, dy: Int) {
@@ -960,37 +878,6 @@ class ViewDragHelper private constructor(
                 )
             }
         }
-    }
-
-    /**
-     * Determine if the currently captured view is under the given point in the
-     * parent view's coordinate system. If there is no captured view this method
-     * will return false.
-     *
-     * @param x X position to test in the parent's coordinate system
-     * @param y Y position to test in the parent's coordinate system
-     * @return true if the captured view is under the given point, false otherwise
-     */
-    private fun isCapturedViewUnder(x: Int, y: Int): Boolean {
-        return isViewUnder(capturedView, x, y)
-    }
-
-    /**
-     * Determine if the supplied view is under the given point in the
-     * parent view's coordinate system.
-     *
-     * @param view Child view of the parent to hit test
-     * @param x X position to test in the parent's coordinate system
-     * @param y Y position to test in the parent's coordinate system
-     * @return true if the supplied view is under the given point, false otherwise
-     */
-    private fun isViewUnder(view: View?, x: Int, y: Int): Boolean {
-        return if (view == null) {
-            false
-        } else (x >= view.left) && (
-                x < view.right) && (
-                y >= view.top) && (
-                y < view.bottom)
     }
 
     /**
@@ -1066,16 +953,6 @@ class ViewDragHelper private constructor(
          */
         const val EDGE_BOTTOM = 1 shl 3
 
-        /**
-         * Indicates that a check should occur along the horizontal axis
-         */
-        const val DIRECTION_HORIZONTAL = 1 shl 0
-
-        /**
-         * Indicates that a check should occur along the vertical axis
-         */
-        const val DIRECTION_VERTICAL = 1 shl 1
-
         private const val EDGE_SIZE = 20 // dp
         private const val BASE_SETTLE_DURATION = 256 // ms
         private const val MAX_SETTLE_DURATION = 600 // ms
@@ -1084,8 +961,8 @@ class ViewDragHelper private constructor(
          * Interpolator defining the animation curve for mScroller
          */
         private val sInterpolator: Interpolator =
-            Interpolator { t ->
-                var t = t
+            Interpolator { time ->
+                var t = time
                 t -= 1.0f
                 t * t * t * t * t + 1.0f
             }

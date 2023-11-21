@@ -20,12 +20,14 @@ data class PlaylistModel(
     Parcelable {
     companion object {
         @JvmField
+        @Suppress("unused")
         val CREATOR = object : Parcelable.Creator<PlaylistModel> {
             override fun createFromParcel(parcel: Parcel) = PlaylistModel(parcel)
             override fun newArray(size: Int) = arrayOfNulls<PlaylistModel>(size)
         }
     }
 
+    @Suppress("deprecation")
     private constructor(parcel: Parcel) : this(
         id = parcel.readString().toString(),
         name = parcel.readString().toString(),

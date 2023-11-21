@@ -19,6 +19,7 @@ import java.util.LinkedList
 import java.util.Queue
 
 @SuppressLint("UnsafeOptInUsageError")
+@Suppress("unused")
 object HLSParsingUtil {
     @JvmStatic
     fun getContentManifestUrl(

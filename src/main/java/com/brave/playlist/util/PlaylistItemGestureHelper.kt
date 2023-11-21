@@ -139,10 +139,7 @@ class PlaylistItemGestureHelper<VH : AbstractRecyclerViewAdapter.AbstractViewHol
         val shareIconRight = shareIconLeft + shareIcon.intrinsicWidth
 
         if (rightBound >= shareIconRight) shareIcon.setBounds(
-            shareIconLeft,
-            shareIconTop,
-            shareIconRight,
-            shareIconBottom
+            shareIconLeft, shareIconTop, shareIconRight, shareIconBottom
         )
         else shareIcon.setBounds(0, 0, 0, 0)
 

@@ -7,6 +7,7 @@
 
 package com.brave.playlist.slidingpanel
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
@@ -501,6 +502,7 @@ class BottomPanelLayout @JvmOverloads constructor(
         return mDragHelper?.shouldInterceptTouchEvent(ev) == true
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(ev: MotionEvent): Boolean {
         return if (!isEnabled || !isTouchEnabled) {
             super.onTouchEvent(ev)
@@ -775,6 +777,7 @@ class BottomPanelLayout @JvmOverloads constructor(
         return bundle
     }
 
+    @Suppress("DEPRECATION")
     public override fun onRestoreInstanceState(state: Parcelable) {
         var newState: Parcelable? = state
         if (newState is Bundle) {
@@ -827,21 +830,15 @@ class BottomPanelLayout @JvmOverloads constructor(
             invalidate()
         }
 
-        override fun onViewReleased(releasedChild: View?, xvel: Float, yvel: Float) {
+        override fun onViewReleased(releasedChild: View?, xVel: Float, yVel: Float) {
             // direction is always positive if we are sliding in the expanded direction
-            val direction = if (mIsSlidingUp) -yvel else yvel
+            val direction = if (mIsSlidingUp) -yVel else yVel
             val target = if (direction > 0 && mSlideOffset <= mAnchorPoint) {
                 // swipe up -> expand and stop at anchor point
                 computePanelTopPosition(mAnchorPoint)
-            } else if (direction > 0 && mSlideOffset > mAnchorPoint) {
-                // swipe up past anchor -> expand
-                computePanelTopPosition(1.0f)
             } else if (direction < 0 && mSlideOffset >= mAnchorPoint) {
                 // swipe down -> collapse and stop at anchor point
                 computePanelTopPosition(mAnchorPoint)
-            } else if (direction < 0 && mSlideOffset < mAnchorPoint) {
-                // swipe down past anchor -> collapse
-                computePanelTopPosition(0.0f)
             } else if (mSlideOffset >= (1f + mAnchorPoint) / 2) {
                 // zero velocity, and far enough from anchor point => expand to the top
                 computePanelTopPosition(1.0f)
@@ -945,6 +942,8 @@ class BottomPanelLayout @JvmOverloads constructor(
          * Default parallax length of the main view
          */
         private const val DEFAULT_PARALLAX_OFFSET = 0
+
+        @Suppress("DEPRECATION")
         private fun hasOpaqueBackground(v: View): Boolean {
             val bg = v.background
             return bg != null && bg.opacity == PixelFormat.OPAQUE

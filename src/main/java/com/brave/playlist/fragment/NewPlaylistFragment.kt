@@ -33,6 +33,7 @@ class NewPlaylistFragment : Fragment(R.layout.fragment_new_playlist) {
     private var mPlaylistOptionsEnum: PlaylistOptionsEnum = PlaylistOptionsEnum.NEW_PLAYLIST
     private var mShouldMoveOrCopy: Boolean = false
 
+    @Suppress("deprecation")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -60,7 +61,7 @@ class NewPlaylistFragment : Fragment(R.layout.fragment_new_playlist) {
             ) else getString(R.string.playlist_rename_text)
         )
 
-        mPlaylistToolbar.setActionButtonClickListener(clickListener = View.OnClickListener {
+        mPlaylistToolbar.setActionButtonClickListener(clickListener = {
             if (mPlaylistOptionsEnum == PlaylistOptionsEnum.NEW_PLAYLIST) {
                 if (!mEtPlaylistName.text.isNullOrEmpty()) {
                     mPlaylistViewModel.setCreatePlaylistOption(

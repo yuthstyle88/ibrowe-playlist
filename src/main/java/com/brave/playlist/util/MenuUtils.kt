@@ -28,8 +28,7 @@ object MenuUtils {
         fragmentManager: FragmentManager,
         playlistItemModel: PlaylistItemModel,
         playlistId: String?,
-        playlistItemOptionsListener: PlaylistItemOptionsListener,
-        shouldHideDeleteOption: Boolean = false
+        playlistItemOptionsListener: PlaylistItemOptionsListener
     ) {
         val optionsList: MutableList<PlaylistItemOptionModel> = mutableListOf()
         optionsList.add(
@@ -50,17 +49,6 @@ object MenuUtils {
                 playlistId = playlistId
             )
         )
-//        if (!shouldHideDeleteOption) {
-//            optionsList.add(
-//                PlaylistItemOptionModel(
-//                    context.resources.getString(R.string.playlist_delete_item_offline_data),
-//                    R.drawable.ic_remove_offline_data_playlist,
-//                    PlaylistOptionsEnum.DELETE_ITEMS_OFFLINE_DATA,
-//                    playlistItemModel = playlistItemModel,
-//                    playlistId = playlistId
-//                )
-//            )
-//        }
         optionsList.add(
             PlaylistItemOptionModel(
                 context.resources.getString(R.string.playlist_share_item),
@@ -99,31 +87,6 @@ object MenuUtils {
         )
         PlaylistItemOptionsBottomSheet(
             optionsList, playlistItemOptionsListener
-        ).show(fragmentManager, null)
-    }
-
-    @JvmStatic
-    fun showAllPlaylistsMenu(
-        context: Context,
-        fragmentManager: FragmentManager,
-        allPlaylistList: MutableList<PlaylistModel>,
-        playlistOptionsListener: PlaylistOptionsListener
-    ) {
-        PlaylistOptionsBottomSheet(
-            mutableListOf(
-                PlaylistOptionsModel(
-                    context.resources.getString(R.string.playlist_remove_all_offline_data),
-                    R.drawable.ic_remove_offline_data_playlist,
-                    PlaylistOptionsEnum.REMOVE_ALL_OFFLINE_DATA,
-                    allPlaylistList
-                ),
-                PlaylistOptionsModel(
-                    context.resources.getString(R.string.playlist_download_all_playlists_for_offline_use),
-                    R.drawable.ic_cloud_download,
-                    PlaylistOptionsEnum.DOWNLOAD_ALL_PLAYLISTS_FOR_OFFLINE_USE,
-                    allPlaylistList
-                )
-            ), playlistOptionsListener
         ).show(fragmentManager, null)
     }
 
@@ -179,22 +142,6 @@ object MenuUtils {
                 )
             )
         }
-//        optionsList.add(
-//            PlaylistOptionsModel(
-//                context.resources.getString(R.string.playlist_remove_playlist_offline_data),
-//                R.drawable.ic_remove_offline_data_playlist,
-//                PlaylistOptionsEnum.REMOVE_PLAYLIST_OFFLINE_DATA,
-//                playlistModel = playlistModel
-//            )
-//        )
-//        optionsList.add(
-//            PlaylistOptionsModel(
-//                context.resources.getString(R.string.playlist_download_playlist_for_offline_use),
-//                R.drawable.ic_cloud_download,
-//                PlaylistOptionsEnum.DOWNLOAD_PLAYLIST_FOR_OFFLINE_USE,
-//                playlistModel = playlistModel
-//            )
-//        )
         if (!isDefaultPlaylist) {
             optionsList.add(
                 PlaylistOptionsModel(

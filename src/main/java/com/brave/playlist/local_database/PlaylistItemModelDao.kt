@@ -13,63 +13,41 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.brave.playlist.model.DownloadQueueModel
+import com.brave.playlist.model.HlsContentQueueModel
 import com.brave.playlist.model.LastPlayedPositionModel
 
 @Dao
 interface PlaylistItemModelDao {
-//    @Query("SELECT * FROM PlaylistItemModel")
-//    fun getAll(): List<PlaylistItemModel>
-//
-//    @Query("SELECT * FROM PlaylistItemModel WHERE id = :playlistItemId LIMIT 1")
-//    fun getPlaylistItemById(playlistItemId: String): PlaylistItemModel
-//
-//    @Insert(onConflict = OnConflictStrategy.REPLACE)
-//    fun insertPlaylistItemModel(vararg playlistItemModel: PlaylistItemModel)
-
-//    @Query("SELECT * FROM PlaylistItemModel")
-//    fun getAll(): List<PlaylistItemModel>
-
     @Query("SELECT * FROM LastPlayedPositionModel WHERE playlist_item_id = :playlistItemId LIMIT 1")
     fun getLastPlayedPositionByPlaylistItemId(playlistItemId: String): LastPlayedPositionModel
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertLastPlayedPosition(vararg lastPlayedPositionModel: LastPlayedPositionModel)
 
-//    @Update
-//    fun updatePlaylistItemModel(vararg playlistItemModel: PlaylistItemModel)
-//
-//    @Delete
-//    fun deletePlaylistItemModel(vararg playlistItemModel: PlaylistItemModel)
-//
-//    @Query("DELETE FROM PlaylistItemModel")
-//    fun deleteAllPlaylistItemModel()
 
+    // HlsContent queue models
+    @Query("SELECT * FROM HlsContentQueueModel")
+    fun getAllHlsContentQueueModel(): List<HlsContentQueueModel>
 
-    // Download queue models
+    @Query("SELECT * FROM HlsContentQueueModel WHERE hls_content_status = 'NOT_READY' LIMIT 1")
+    fun getFirstHlsContentQueueModel(): HlsContentQueueModel
 
-    @Query("SELECT * FROM DownloadQueueModel")
-    fun getAllDownloadQueueModel(): List<DownloadQueueModel>
+    @Query("SELECT * FROM HlsContentQueueModel WHERE playlist_item_id = :playlistItemId LIMIT 1")
+    fun getHlsContentQueueModelById(playlistItemId: String): HlsContentQueueModel
 
-    @Query("SELECT * FROM DownloadQueueModel WHERE download_status = 'PENDING' LIMIT 1")
-    fun getFirstDownloadQueueModel(): DownloadQueueModel
-
-    @Query("SELECT * FROM DownloadQueueModel WHERE playlist_item_id = :playlistItemId LIMIT 1")
-    fun getDownloadQueueModelById(playlistItemId: String): DownloadQueueModel
-
-    @Query("SELECT EXISTS (SELECT 1 FROM DownloadQueueModel WHERE playlist_item_id = :playlistItemId)")
-    fun isDownloadQueueModelExists(playlistItemId: String): Boolean
+    @Query("SELECT EXISTS (SELECT 1 FROM HlsContentQueueModel WHERE playlist_item_id = :playlistItemId)")
+    fun isHlsContentQueueModelExists(playlistItemId: String): Boolean
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertDownloadQueueModel(vararg downloadQueueModel: DownloadQueueModel)
+    fun insertHlsContentQueueModel(vararg hlsContentQueueModel: HlsContentQueueModel)
 
     @Update
-    fun updateDownloadQueueModel(vararg downloadQueueModel: DownloadQueueModel)
+    fun updateHlsContentQueueModel(vararg hlsContentQueueModel: HlsContentQueueModel)
 
     @Delete
-    fun deleteDownloadQueueModel(vararg downloadQueueModel: DownloadQueueModel)
+    fun deleteHlsContentQueueModel(vararg hlsContentQueueModel: HlsContentQueueModel)
 
-    @Query("DELETE FROM DownloadQueueModel")
-    fun deleteAllDownloadQueueModel()
+    @Query("DELETE FROM HlsContentQueueModel")
+    fun deleteAllHlsContentQueueModel()
 
 }
