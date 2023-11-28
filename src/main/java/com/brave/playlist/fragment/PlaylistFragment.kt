@@ -590,7 +590,6 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist), ItemInteractionLi
     private fun stopVideoPlayerOnDelete(selectedPlaylistItem: PlaylistItemModel) {
         mMediaBrowser?.currentMediaItem?.mediaId?.let {
             if (it == selectedPlaylistItem.id) {
-//                activity?.stopService(Intent(requireContext(), VideoPlaybackService::class.java))
                 mMediaBrowser?.stop()
             }
         }

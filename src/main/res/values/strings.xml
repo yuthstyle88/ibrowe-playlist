@@ -35,8 +35,6 @@
     <string name="playlist_try_it">Try it!</string>
     <string name="playlist_edit_text">Edit</string>
     <string name="playlist_rename_text">Rename</string>
-    <string name="playlist_remove_all_offline_data">Remove all offline data</string>
-    <string name="playlist_download_all_playlists_for_offline_use">Keep all playlists for offline use</string>
     <string name="playlist_delete_playlist">Delete playlist</string>
     <string name="playlist_number_of_items">%s items</string>
     <string name="playlist_move_item">Move</string>
@@ -49,7 +47,6 @@
     <string name="playlist_time_text">%1$s:</string>
     <string name="playlist_duration_text">%1$s%2$s%3$s</string>
     <string name="playlist_please_select_items">Please select items first</string>
-    <string name="playlist_offline_message">Playlist item is not cached.\nPlease cache the item for offline mode.</string>
     <string name="playlist_empty_playlist_name">Please enter valid playlist name</string>
     <string name="playlist_share_with">"Share with : "</string>
     <string name="playlist_preparing_text">Preparing…</string>

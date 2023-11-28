@@ -71,7 +71,7 @@ object PlaylistViewUtils {
                     mutableListOf(
                         PlaylistOptionsModel(
                             activity.getString(R.string.playlist_add_media),
-                            R.drawable.ic_add_media_to_playlist,
+                            R.drawable.ic_add_to_media,
                             PlaylistOptionsEnum.ADD_MEDIA
                         ),
                         PlaylistOptionsModel(

@@ -34,15 +34,6 @@
 
     </androidx.cardview.widget.CardView>
 
-    <!--    <androidx.appcompat.widget.AppCompatImageView-->
-    <!--        android:id="@+id/ivMediaStatus"-->
-    <!--        android:layout_width="wrap_content"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:layout_margin="8dp"-->
-    <!--        app:layout_constraintStart_toStartOf="parent"-->
-    <!--        app:layout_constraintTop_toTopOf="@id/thumbnailView"-->
-    <!--        app:srcCompat="@drawable/ic_downloaded" />-->
-
     <com.google.android.material.progressindicator.CircularProgressIndicator
         android:id="@+id/processing_progress_bar"
         android:layout_width="32dp"
@@ -123,7 +114,6 @@
             android:id="@+id/tvMediaDownloadProgress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingHorizontal="16dp"
             android:textColor="@color/media_stats_color"
             android:visibility="gone" />
     </androidx.appcompat.widget.LinearLayoutCompat>

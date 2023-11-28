@@ -143,6 +143,17 @@ class PlaylistPlayerFragment : Fragment(R.layout.fragment_playlist_player), Play
             layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
             mAspectRatioFrameLayout.layoutParams = layoutParams
             mAspectRatioFrameLayout.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
+
+            if (!mIsCastInProgress) {
+                mPlayerView.useController = false
+                mLayoutVideoControls.visibility = View.VISIBLE
+            }
+
+            mMainLayout.mSlideState = BottomPanelLayout.PanelState.COLLAPSED
+            mLayoutVideoControls.afterMeasured {
+                val availableHeight = Integer.min(mMainLayout.measuredHeight.minus(mLayoutPlayer.bottom), 190.dpToPx.toInt())
+                mMainLayout.panelHeight = availableHeight
+            }
         }
 
         val hoverLayoutParams: FrameLayout.LayoutParams =
@@ -150,13 +161,6 @@ class PlaylistPlayerFragment : Fragment(R.layout.fragment_playlist_player), Play
         layoutParams.width = FrameLayout.LayoutParams.WRAP_CONTENT
         mHoverControlsLayout.layoutParams = hoverLayoutParams
 
-        mMainLayout.mSlideState = BottomPanelLayout.PanelState.COLLAPSED
-        mMainLayout.panelHeight =
-            if (context?.resources?.getBoolean(R.bool.isTablet) == true) 150.dpToPx.toInt() else 70.dpToPx.toInt()
-        if (!mIsCastInProgress) {
-            mPlayerView.useController = false
-            mLayoutVideoControls.visibility = View.VISIBLE
-        }
         mPlaylistToolbar.visibility = View.VISIBLE
         val windowInsetsController = WindowCompat.getInsetsController(
             requireActivity().window, requireActivity().window.decorView
@@ -230,6 +234,12 @@ class PlaylistPlayerFragment : Fragment(R.layout.fragment_playlist_player), Play
         if (controller == null) {
             return
         }
+        updatePlayerView()
+
+        initializePlayer()
+    }
+
+    private fun updatePlayerView() {
         setNextMedia()
         setPrevMedia()
         setSeekForward()
@@ -238,8 +248,6 @@ class PlaylistPlayerFragment : Fragment(R.layout.fragment_playlist_player), Play
         setPlaylistShuffle()
         setPlaylistRepeatMode()
         setPlaybackSpeed()
-
-        initializePlayer()
     }
 
     @Suppress("DEPRECATION")
@@ -384,10 +392,6 @@ class PlaylistPlayerFragment : Fragment(R.layout.fragment_playlist_player), Play
             mPlaylistItemAdapter?.updatePlaylistItemDownloadProgress(it)
         }
 
-        VideoPlaybackService.newPlaylistItemModel.observe(viewLifecycleOwner) {
-            mPlaylistItemAdapter?.updatePlaylistItem(it)
-        }
-
         mPlaylistViewModel.playlistData.observe(viewLifecycleOwner) { playlistData ->
             mPlaylistItems = mutableListOf()
             playlistData.items.forEach {
@@ -424,8 +428,7 @@ class PlaylistPlayerFragment : Fragment(R.layout.fragment_playlist_player), Play
         }
 
         if (activity is AppCompatActivity) {
-            (activity as AppCompatActivity).onBackPressedDispatcher.addCallback(
-                requireActivity(),
+            (activity as AppCompatActivity).onBackPressedDispatcher.addCallback(requireActivity(),
                 object : OnBackPressedCallback(true) {
                     override fun handleOnBackPressed() {
                         this.remove()
@@ -542,19 +545,6 @@ class PlaylistPlayerFragment : Fragment(R.layout.fragment_playlist_player), Play
         mPlayerView.player?.let { currentPlayer ->
             currentPlayer.addListener(this)
             currentPlayer.shuffleModeEnabled = mIsShuffleOn
-//            val currentPlaylistItemId = mPlaylistItems[currentPlayer.currentMediaItemIndex].id
-//            mScope.launch {
-//                mPlaylistRepository.getLastPlayedPositionByPlaylistItemId(currentPlaylistItemId)?.lastPlayedPosition?.let { lastPosition ->
-//                    val handler = Handler(currentPlayer.applicationLooper)
-//                    val runnableCode = Runnable {
-//                        currentPlayer.seekTo(
-//                            mCurrentMediaIndex,
-//                            if (PlaylistPreferenceUtils.defaultPrefs(requireContext()).rememberFilePlaybackPosition) lastPosition else 0
-//                        )
-//                    }
-//                    handler.post(runnableCode)
-//                }
-//            }
             currentPlayer.repeatMode = mRepeatMode
             currentPlayer.setPlaybackSpeed(mPlaybackSpeed)
         }
@@ -582,10 +572,8 @@ class PlaylistPlayerFragment : Fragment(R.layout.fragment_playlist_player), Play
         mIvNextVideo.setOnClickListener {
             mPlayerView.player?.let {
                 if (it.hasNextMediaItem()) {
-//                    if (PlaylistUtils.isPlaylistItemCached(mPlaylistItems[it.nextMediaItemIndex])) {
                     it.seekToNextMediaItem()
                     disableNextPreviousControls()
-//                    }
                 }
             }
         }
@@ -595,10 +583,8 @@ class PlaylistPlayerFragment : Fragment(R.layout.fragment_playlist_player), Play
         mIvPrevVideo.setOnClickListener {
             mPlayerView.player?.let {
                 if (it.hasPreviousMediaItem()) {
-//                    if (PlaylistUtils.isPlaylistItemCached(mPlaylistItems[it.previousMediaItemIndex])) {
                     it.seekToPreviousMediaItem()
                     disableNextPreviousControls()
-//                    }
                 }
             }
         }

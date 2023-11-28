@@ -63,12 +63,8 @@ class VideoPlaybackService : MediaLibraryService(),
             mutableCurrentPlayingItem.value = currentPlayingItemId
         }
 
-        private val mutableNewPlaylistItemModel = MutableLiveData<PlaylistItemModel>()
-        val newPlaylistItemModel: LiveData<PlaylistItemModel> get() = mutableNewPlaylistItemModel
-
         @Suppress("unused")
         fun addNewPlaylistItemModel(newPlaylistItemModel: PlaylistItemModel) {
-            mutableNewPlaylistItemModel.value = newPlaylistItemModel
             if (newPlaylistItemModel.playlistId == currentPlaylistId) {
                 val mediaItem = MediaItemUtil.buildMediaItem(
                     newPlaylistItemModel,
@@ -89,14 +85,15 @@ class VideoPlaybackService : MediaLibraryService(),
     private fun initializeSessionAndPlayer() {
         val dataSourceFactory = DataSource.Factory { FileDataSource.Factory().createDataSource() }
         val mediaSourceFactory = ProgressiveMediaSource.Factory(dataSourceFactory)
-        mPlayer = ExoPlayer.Builder(this).setMediaSourceFactory(
-            mediaSourceFactory
-        ).setHandleAudioBecomingNoisy(true).setWakeMode(C.WAKE_MODE_LOCAL)
+        mPlayer = ExoPlayer.Builder(this)
+            .setMediaSourceFactory(mediaSourceFactory)
+            .setHandleAudioBecomingNoisy(true).setWakeMode(C.WAKE_MODE_LOCAL)
             .setAudioAttributes(AudioAttributes.DEFAULT, true).build()
         mPlayer.addListener(this)
 
         mMediaLibrarySession = MediaLibrarySession.Builder(this, mPlayer, this)
-            .setSessionActivity(buildPendingIntent()).build()
+            .setSessionActivity(buildPendingIntent())
+            .build()
     }
 
     private fun buildPendingIntent(): PendingIntent {
