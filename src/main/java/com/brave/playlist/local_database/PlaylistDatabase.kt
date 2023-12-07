@@ -17,7 +17,11 @@ import com.brave.playlist.model.LastPlayedPositionModel
 @Database(
     entities = [LastPlayedPositionModel::class, HlsContentQueueModel::class],
     version = 1,
-    exportSchema = false
+    exportSchema = true,
+    // For future migrations
+//    autoMigrations = [
+//        AutoMigration (from = 1, to = 2)
+//    ]
 )
 abstract class PlaylistDatabase : RoomDatabase() {
     abstract fun playlistItemModelDao(): PlaylistItemModelDao
@@ -29,9 +33,8 @@ abstract class PlaylistDatabase : RoomDatabase() {
             if (INSTANCE == null) {
                 synchronized(PlaylistDatabase::class) {
                     INSTANCE = Room.databaseBuilder(
-                        context.applicationContext,
-                        PlaylistDatabase::class.java, "playlist.db"
-                    ).build()
+                        context.applicationContext, PlaylistDatabase::class.java, "playlist.db"
+                    ).fallbackToDestructiveMigration().build()
                 }
             }
             return INSTANCE

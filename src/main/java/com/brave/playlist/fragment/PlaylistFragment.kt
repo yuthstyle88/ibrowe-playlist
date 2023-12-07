@@ -555,7 +555,6 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist), ItemInteractionLi
             }
 
             PlaylistOptionsEnum.DELETE_PLAYLIST -> {
-//                activity?.stopService(Intent(requireContext(), VideoPlaybackService::class.java))
                 mMediaBrowser?.stop()
                 if (activity is AppCompatActivity) (activity as AppCompatActivity).onBackPressedDispatcher.onBackPressed()
             }

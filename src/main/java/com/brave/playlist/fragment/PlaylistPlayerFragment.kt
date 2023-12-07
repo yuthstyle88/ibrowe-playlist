@@ -143,24 +143,24 @@ class PlaylistPlayerFragment : Fragment(R.layout.fragment_playlist_player), Play
             layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
             mAspectRatioFrameLayout.layoutParams = layoutParams
             mAspectRatioFrameLayout.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
-
-            if (!mIsCastInProgress) {
-                mPlayerView.useController = false
-                mLayoutVideoControls.visibility = View.VISIBLE
-            }
-
-            mMainLayout.mSlideState = BottomPanelLayout.PanelState.COLLAPSED
-            mLayoutVideoControls.afterMeasured {
-                val availableHeight = Integer.min(mMainLayout.measuredHeight.minus(mLayoutPlayer.bottom), 190.dpToPx.toInt())
-                mMainLayout.panelHeight = availableHeight
-            }
         }
 
         val hoverLayoutParams: FrameLayout.LayoutParams =
             mHoverControlsLayout.layoutParams as FrameLayout.LayoutParams
         layoutParams.width = FrameLayout.LayoutParams.WRAP_CONTENT
         mHoverControlsLayout.layoutParams = hoverLayoutParams
+        mHoverControlsLayout.setBackgroundResource(R.drawable.rounded_bg_16)
 
+        mMainLayout.mSlideState = BottomPanelLayout.PanelState.COLLAPSED
+        mTvVideoTitle.afterMeasured {
+            val availableHeight = Integer.min(mMainLayout.measuredHeight.minus(mLayoutPlayer.bottom), 190.dpToPx.toInt())
+            mMainLayout.panelHeight = availableHeight
+        }
+
+        if (!mIsCastInProgress) {
+            mPlayerView.useController = false
+            mLayoutVideoControls.visibility = View.VISIBLE
+        }
         mPlaylistToolbar.visibility = View.VISIBLE
         val windowInsetsController = WindowCompat.getInsetsController(
             requireActivity().window, requireActivity().window.decorView
@@ -188,6 +188,7 @@ class PlaylistPlayerFragment : Fragment(R.layout.fragment_playlist_player), Play
             mHoverControlsLayout.layoutParams as FrameLayout.LayoutParams
         layoutParams.width = FrameLayout.LayoutParams.MATCH_PARENT
         mHoverControlsLayout.layoutParams = hoverLayoutParams
+        mHoverControlsLayout.setBackgroundResource(R.color.player_control_bg)
 
         mMainLayout.mSlideState = BottomPanelLayout.PanelState.HIDDEN
         mPlayerView.useController = true
