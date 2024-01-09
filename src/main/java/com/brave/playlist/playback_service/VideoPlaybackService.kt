@@ -63,6 +63,8 @@ class VideoPlaybackService : MediaLibraryService(),
             mutableCurrentPlayingItem.value = currentPlayingItemId
         }
 
+        private var mediaItemsInPlayer: ArrayList<MediaItem> = ArrayList()
+
         @Suppress("unused")
         fun addNewPlaylistItemModel(newPlaylistItemModel: PlaylistItemModel) {
             if (newPlaylistItemModel.playlistId == currentPlaylistId) {
@@ -71,8 +73,31 @@ class VideoPlaybackService : MediaLibraryService(),
                     newPlaylistItemModel.playlistId,
                     newPlaylistItemModel.name, // TODO update playlist name here
                 )
+                mediaItemsInPlayer.add(mediaItem)
                 mPlayer.addMediaItem(mediaItem)
             }
+        }
+
+        @Suppress("unused")
+        fun removePlaylistItemModel(playlistItemModelId: String) {
+            mediaItemsInPlayer.forEachIndexed { index, mediaItem ->
+                if (mediaItem.mediaId == playlistItemModelId) {
+                    mPlayer.removeMediaItem(index)
+                    mediaItemsInPlayer.removeAt(index)
+                }
+            }
+        }
+
+        @Suppress("unused")
+        fun reorderPlaylistItemModel(playlistItemModelList : List<PlaylistItemModel>) {
+            mediaItemsInPlayer.forEachIndexed { oldIndex, mediaItem ->
+               val newIndex = playlistItemModelList.indexOfFirst{ it.id == mediaItem.mediaId }
+                mPlayer.moveMediaItem(oldIndex, newIndex)
+            }
+        }
+
+        fun getMediaItemIndex(playlistItemId : String) : Int {
+            return mediaItemsInPlayer.indexOfFirst{ it.mediaId == playlistItemId }
         }
     }
 
@@ -137,6 +162,8 @@ class VideoPlaybackService : MediaLibraryService(),
                 .setMediaMetadata(mediaItem.mediaMetadata)
                 .setUri(mediaItem.requestMetadata.mediaUri).build()
         }
+        mediaItemsInPlayer.clear()
+        mediaItemsInPlayer.addAll(updatedMediaItems)
         return Futures.immediateFuture(updatedMediaItems)
     }
 

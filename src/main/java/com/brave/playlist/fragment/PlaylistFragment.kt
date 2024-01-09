@@ -157,7 +157,10 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist), ItemInteractionLi
             mIvPlaylistOptions.visibility = View.VISIBLE
             //Reorder list
             mPlaylistItemAdapter?.currentList
-                ?.let { playlistItems -> mPlaylistViewModel.reorderPlaylistItems(playlistItems) }
+                ?.let { playlistItems ->
+                    mPlaylistViewModel.reorderPlaylistItems(playlistItems)
+                    VideoPlaybackService.reorderPlaylistItemModel(playlistItems)
+                }
         }
         mPlaylistToolbar.setMoveClickListener { actionView ->
             mPlaylistItemAdapter?.getSelectedItems()?.let {
@@ -218,6 +221,7 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist), ItemInteractionLi
 
         mPlaylistViewModel.playlistData.observe(viewLifecycleOwner) { playlistData ->
             var totalFileSize = 0L
+            Log.e(TAG, playlistData.toString())
             mPlaylistModel = playlistData
             mIvPlaylistOptions.setImageResource(if (mPlaylistModel.id == DEFAULT_PLAYLIST) R.drawable.ic_edit_playlist else R.drawable.ic_options_toolbar_playlist)
 
@@ -271,7 +275,10 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist), ItemInteractionLi
                                     mIvPlaylistOptions.visibility = View.VISIBLE
                                     //Reorder list
                                     mPlaylistItemAdapter?.currentList
-                                        ?.let { mPlaylistViewModel.reorderPlaylistItems(it) }
+                                        ?.let {
+                                            mPlaylistViewModel.reorderPlaylistItems(it)
+                                            VideoPlaybackService.reorderPlaylistItemModel(it)
+                                        }
                                 } else {
                                     this.remove()
                                     (activity as AppCompatActivity).onBackPressedDispatcher.onBackPressed()
