@@ -143,6 +143,9 @@ class PlaylistItemAdapter(
             }
             ivDragMedia.visibility = if (editMode) View.VISIBLE else View.GONE
             itemView.setOnClickListener {
+                if (!PlaylistUtils.isPlaylistItemCached(model)) {
+                    return@setOnClickListener
+                }
                 if (editMode) {
                     model.isSelected = !model.isSelected
                     setViewOnSelected(model.isSelected)
@@ -154,11 +157,7 @@ class PlaylistItemAdapter(
                     }
                     playlistItemClickListener?.onPlaylistItemClickInEditMode(count)
                 } else {
-                    if (!PlaylistUtils.isPlaylistItemCached(model)) {
-                        return@setOnClickListener
-                    }
                     playlistItemClickListener?.onPlaylistItemClick(position)
-
                 }
             }
             ivDragMedia.setOnTouchListener { _, event ->
@@ -167,7 +166,6 @@ class PlaylistItemAdapter(
                 )
                 false
             }
-
             allViewHolderViews[model.id] = itemView
         }
 

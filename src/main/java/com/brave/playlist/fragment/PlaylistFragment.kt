@@ -7,20 +7,11 @@
 
 package com.brave.playlist.fragment
 
-/*
- * Copyright (c) 2023 The Brave Authors. All rights reserved.
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this file,
- * You can obtain one at https://mozilla.org/MPL/2.0/.
- */
-
 import android.content.ComponentName
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.text.TextUtils
 import android.text.format.Formatter
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
@@ -61,7 +52,6 @@ import com.brave.playlist.model.PlaylistOptionsModel
 import com.brave.playlist.playback_service.VideoPlaybackService
 import com.brave.playlist.util.ConstantUtils
 import com.brave.playlist.util.ConstantUtils.DEFAULT_PLAYLIST
-import com.brave.playlist.util.ConstantUtils.TAG
 import com.brave.playlist.util.MediaItemUtil
 import com.brave.playlist.util.MediaUtils
 import com.brave.playlist.util.MenuUtils
@@ -221,7 +211,6 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist), ItemInteractionLi
 
         mPlaylistViewModel.playlistData.observe(viewLifecycleOwner) { playlistData ->
             var totalFileSize = 0L
-            Log.e(TAG, playlistData.toString())
             mPlaylistModel = playlistData
             mIvPlaylistOptions.setImageResource(if (mPlaylistModel.id == DEFAULT_PLAYLIST) R.drawable.ic_edit_playlist else R.drawable.ic_options_toolbar_playlist)
 
@@ -293,36 +282,21 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist), ItemInteractionLi
                             totalFileSize += it.mediaFileBytes
                         }
                     }
-
                     mPlaylistModel.items.forEach { playlistItemModel ->
-                        val isDownloadQueueModelExists =
-                            mPlaylistRepository.isHlsContentQueueModelExists(playlistItemModel.id)
-                                ?: false
-                        if (playlistItemModel.isCached && MediaUtils.isHlsFile(playlistItemModel.mediaPath) && !isDownloadQueueModelExists) {
-                            mPlaylistRepository.insertHlsContentQueueModel(
-                                HlsContentQueueModel(
-                                    playlistItemModel.id, HlsContentStatus.NOT_READY.name
+                        if (!PlaylistUtils.isPlaylistItemCached(playlistItemModel)) {
+                            val isDownloadQueueModelExists =
+                                mPlaylistRepository.isHlsContentQueueModelExists(playlistItemModel.id)
+                                    ?: false
+                            if (playlistItemModel.isCached && MediaUtils.isHlsFile(playlistItemModel.mediaPath) && !isDownloadQueueModelExists) {
+                                mPlaylistRepository.insertHlsContentQueueModel(
+                                    HlsContentQueueModel(
+                                        playlistItemModel.id, HlsContentStatus.NOT_READY.name
+                                    )
                                 )
-                            )
+                            }
                         }
                     }
-                    try {
-                        val hlsServiceClass =
-                            Class.forName("org.chromium.chrome.browser.playlist.hls_content.HlsService")
-                        if (mPlaylistRepository.getAllHlsContentQueueModel()
-                                ?.isNotEmpty() == true && !PlaylistUtils.isServiceRunning(
-                                requireContext(), hlsServiceClass
-                            )
-                        ) {
-                            requireContext().startService(
-                                Intent(
-                                    requireContext(), hlsServiceClass
-                                )
-                            )
-                        }
-                    } catch (ex: ClassNotFoundException) {
-                        Log.e(TAG, "hlsServiceClass" + ex.message)
-                    }
+                    PlaylistUtils.checkAndStartHlsDownload(requireContext())
 
                     activity?.runOnUiThread {
                         if (totalFileSize > 0) {
@@ -385,7 +359,6 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist), ItemInteractionLi
                                 val currentPlaylistItemId = mMediaBrowser?.currentMediaItem?.mediaId
                                 mPlaylistModel.items.forEachIndexed { index, item ->
                                     if (item.id == currentPlaylistItemId) {
-                                        Log.e(TAG, item.id + " : " + item.name)
                                         openPlaylistPlayer(false, index)
                                         arguments?.putBoolean(
                                             ConstantUtils.SHOULD_OPEN_PLAYER,

@@ -25,7 +25,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.brave.playlist.R
 import com.brave.playlist.adapter.recyclerview.AbstractRecyclerViewAdapter
 import com.brave.playlist.listener.ItemInteractionListener
-import com.brave.playlist.model.PlaylistItemModel
 import kotlin.math.min
 
 
@@ -203,13 +202,13 @@ class PlaylistItemGestureHelper<VH : AbstractRecyclerViewAdapter.AbstractViewHol
     ): Int {
         val selectedPlaylistItem = adapter.currentList[viewHolder.bindingAdapterPosition]
         var swipeFlags = START or END
-        if (selectedPlaylistItem is PlaylistItemModel) {
-            swipeFlags = if (!PlaylistUtils.isPlaylistItemCached(selectedPlaylistItem)) {
-                0
-            } else {
-                START or END
-            }
-        }
+//        if (selectedPlaylistItem is PlaylistItemModel) {
+//            swipeFlags = if (!PlaylistUtils.isPlaylistItemCached(selectedPlaylistItem)) {
+//                0
+//            } else {
+//                START or END
+//            }
+//        }
         return makeMovementFlags(UP or DOWN, swipeFlags)
     }
 

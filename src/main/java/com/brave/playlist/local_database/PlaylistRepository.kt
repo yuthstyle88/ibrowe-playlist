@@ -24,6 +24,10 @@ class PlaylistRepository(context: Context) {
         mPlaylistItemModelDao?.insertLastPlayedPosition(lastPlayedPositionModel)
     }
 
+    fun deleteAllLastPlayedPosition() {
+        mPlaylistItemModelDao?.deleteAllLastPlayedPosition()
+    }
+
     fun isHlsContentQueueModelExists(playlistItemId: String): Boolean? {
         return mPlaylistItemModelDao?.isHlsContentQueueModelExists(playlistItemId)
     }
@@ -44,5 +48,13 @@ class PlaylistRepository(context: Context) {
 
     fun insertHlsContentQueueModel(hlsContentQueueModel: HlsContentQueueModel) {
         mPlaylistItemModelDao?.insertHlsContentQueueModel(hlsContentQueueModel)
+    }
+
+    fun deleteHlsContentQueueModel(playlistItemId: String) {
+        mPlaylistItemModelDao?.deleteHlsContentQueueModel(playlistItemId)
+    }
+
+    fun deleteAllHlsContentQueueModel() {
+        mPlaylistItemModelDao?.deleteAllHlsContentQueueModel()
     }
 }

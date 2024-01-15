@@ -10,9 +10,11 @@ package com.brave.playlist.util
 import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.media3.exoplayer.hls.playlist.HlsMediaPlaylist
 import androidx.media3.exoplayer.hls.playlist.HlsMultivariantPlaylist
 import androidx.media3.exoplayer.hls.playlist.HlsPlaylistParser
+import com.brave.playlist.util.ConstantUtils.TAG
 import java.io.File
 import java.io.FileInputStream
 import java.util.LinkedList
@@ -28,16 +30,21 @@ object HLSParsingUtil {
         localManifestFilePath: String
     ): String {
         var contentManifestUrl = ""
-        val hlsParser =
-            context.contentResolver?.openInputStream(Uri.parse(localManifestFilePath))
-                ?.let {
-                    HlsPlaylistParser().parse(
-                        Uri.parse(baseUrl),
-                        it
-                    )
-                }
-        if (hlsParser != null && hlsParser is HlsMultivariantPlaylist) {
-            contentManifestUrl = hlsParser.variants[0].url.toString()
+        val newBaseUrl = Uri.parse(baseUrl).buildUpon().clearQuery().build().toString()
+        try {
+            val hlsParser =
+                context.contentResolver?.openInputStream(Uri.parse(localManifestFilePath))
+                    ?.let {
+                        HlsPlaylistParser().parse(
+                            Uri.parse(newBaseUrl),
+                            it
+                        )
+                    }
+            if (hlsParser != null && hlsParser is HlsMultivariantPlaylist) {
+                contentManifestUrl = hlsParser.variants[0].url.toString()
+            }
+        } catch(ex:Exception) {
+            Log.e(TAG, ex.message.toString())
         }
         return contentManifestUrl
     }

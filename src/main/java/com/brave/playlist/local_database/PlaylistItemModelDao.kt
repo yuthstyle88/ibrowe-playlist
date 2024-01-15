@@ -24,6 +24,8 @@ interface PlaylistItemModelDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertLastPlayedPosition(vararg lastPlayedPositionModel: LastPlayedPositionModel)
 
+    @Query("DELETE FROM LastPlayedPositionModel")
+    fun deleteAllLastPlayedPosition()
 
     // HlsContent queue models
     @Query("SELECT * FROM HlsContentQueueModel")
@@ -46,6 +48,9 @@ interface PlaylistItemModelDao {
 
     @Delete
     fun deleteHlsContentQueueModel(vararg hlsContentQueueModel: HlsContentQueueModel)
+
+    @Query("DELETE FROM HlsContentQueueModel WHERE playlist_item_id = :playlistItemId")
+    fun deleteHlsContentQueueModel(playlistItemId: String)
 
     @Query("DELETE FROM HlsContentQueueModel")
     fun deleteAllHlsContentQueueModel()
