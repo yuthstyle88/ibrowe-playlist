@@ -81,7 +81,7 @@ class VideoPlaybackService : MediaLibraryService(),
         @Suppress("unused")
         fun removePlaylistItemModel(playlistItemModelId: String) {
             mediaItemsInPlayer.forEachIndexed { index, mediaItem ->
-                if (mediaItem.mediaId == playlistItemModelId) {
+                if (mediaItem.mediaId == playlistItemModelId && mediaItem.mediaId != currentPlaylistId) {
                     mPlayer.removeMediaItem(index)
                     mediaItemsInPlayer.removeAt(index)
                 }

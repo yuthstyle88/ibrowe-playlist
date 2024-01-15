@@ -28,18 +28,22 @@ object MenuUtils {
         fragmentManager: FragmentManager,
         playlistItemModel: PlaylistItemModel,
         playlistId: String?,
-        playlistItemOptionsListener: PlaylistItemOptionsListener
+        playlistItemOptionsListener: PlaylistItemOptionsListener,
+        shouldShowMove: Boolean = true,
     ) {
         val optionsList: MutableList<PlaylistItemOptionModel> = mutableListOf()
-        optionsList.add(
-            PlaylistItemOptionModel(
-                context.resources.getString(R.string.playlist_move_item),
-                R.drawable.ic_move_media,
-                PlaylistOptionsEnum.MOVE_PLAYLIST_ITEM,
-                playlistItemModel = playlistItemModel,
-                playlistId = playlistId
+
+        if (shouldShowMove) {
+            optionsList.add(
+                PlaylistItemOptionModel(
+                    context.resources.getString(R.string.playlist_move_item),
+                    R.drawable.ic_move_media,
+                    PlaylistOptionsEnum.MOVE_PLAYLIST_ITEM,
+                    playlistItemModel = playlistItemModel,
+                    playlistId = playlistId
+                )
             )
-        )
+        }
         optionsList.add(
             PlaylistItemOptionModel(
                 context.resources.getString(R.string.playlist_copy_item),

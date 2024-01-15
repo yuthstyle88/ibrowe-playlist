@@ -361,7 +361,8 @@ class PlaylistPlayerFragment : Fragment(R.layout.fragment_playlist_player), Play
                     parentFragmentManager,
                     currentPlaylistItem,
                     playlistId = model.id,
-                    playlistItemOptionsListener = this
+                    playlistItemOptionsListener = this,
+                    shouldShowMove = false
                 )
             }
         }
@@ -705,7 +706,8 @@ class PlaylistPlayerFragment : Fragment(R.layout.fragment_playlist_player), Play
             parentFragmentManager,
             playlistItemModel = playlistItemModel,
             playlistId = playlistItemModel.playlistId,
-            playlistItemOptionsListener = this
+            playlistItemOptionsListener = this,
+            shouldShowMove = false
         )
     }
 

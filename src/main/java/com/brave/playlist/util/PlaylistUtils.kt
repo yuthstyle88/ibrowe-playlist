@@ -18,6 +18,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.brave.playlist.R
 import com.brave.playlist.activity.PlaylistMenuOnboardingActivity
+import com.brave.playlist.local_database.PlaylistRepository
 import com.brave.playlist.model.HlsContentProgressModel
 import com.brave.playlist.model.MoveOrCopyModel
 import com.brave.playlist.model.PlaylistItemModel
@@ -130,5 +131,25 @@ object PlaylistUtils {
     fun dipToPixels(context: Context, dipValue: Float): Float {
         val metrics = context.resources.displayMetrics
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dipValue, metrics)
+    }
+
+    @JvmStatic
+    fun checkAndStartHlsDownload(context: Context) {
+        try {
+            val playlistRepository = PlaylistRepository(context)
+            val hlsServiceClass =
+                Class.forName("org.chromium.chrome.browser.playlist.hls_content.HlsService")
+            if (playlistRepository.getAllHlsContentQueueModel()
+                    ?.isNotEmpty() == true && !isServiceRunning(
+                    context, hlsServiceClass
+                )
+            ) {
+                    context.startService(
+                        Intent(context, hlsServiceClass)
+                    )
+            }
+        } catch (ex: ClassNotFoundException) {
+            Log.e(ConstantUtils.TAG, "hlsServiceClass" + ex.message)
+        }
     }
 }
