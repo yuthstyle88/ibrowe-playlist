@@ -1,0 +1,66 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "97917132ab7ccac87386de3a7faebfce",
+    "entities": [
+      {
+        "tableName": "LastPlayedPositionModel",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`playlist_item_id` TEXT NOT NULL, `last_played_position` INTEGER NOT NULL, PRIMARY KEY(`playlist_item_id`))",
+        "fields": [
+          {
+            "fieldPath": "playlistItemId",
+            "columnName": "playlist_item_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastPlayedPosition",
+            "columnName": "last_played_position",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "playlist_item_id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "HlsContentQueueModel",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`playlist_item_id` TEXT NOT NULL, `hls_content_status` TEXT NOT NULL, PRIMARY KEY(`playlist_item_id`))",
+        "fields": [
+          {
+            "fieldPath": "playlistItemId",
+            "columnName": "playlist_item_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hlsContentStatus",
+            "columnName": "hls_content_status",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "playlist_item_id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '97917132ab7ccac87386de3a7faebfce')"
+    ]
+  }
+}
