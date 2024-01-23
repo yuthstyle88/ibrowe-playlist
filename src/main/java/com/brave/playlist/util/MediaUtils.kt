@@ -12,10 +12,12 @@ import android.net.Uri
 import android.util.Log
 import com.brave.playlist.util.ConstantUtils.HLS_FILE_EXTENSION
 import java.io.File
+import java.io.IOException
 import java.io.InputStream
 
 
 object MediaUtils {
+    private val TAG: String = "Playlist/"+this::class.java.simpleName
     @JvmStatic
     @Suppress("unused")
     fun getFileSizeFromUri(context: Context, uri: Uri): Long {
@@ -31,9 +33,15 @@ object MediaUtils {
                 }
             }
         } catch (ex: Exception) {
-            Log.e(ConstantUtils.TAG, ex.message.toString())
+            Log.e(TAG, ::getFileSizeFromUri.name + " : "+  ex.message.toString())
         } finally {
-            inputStream?.close()
+            if (inputStream != null) {
+                try {
+                    inputStream.close()
+                } catch (ex: IOException) {
+                    Log.e(TAG, ::getFileSizeFromUri.name + " : "+  ex.message.toString())
+                }
+            }
         }
         return fileSize
     }
@@ -41,8 +49,24 @@ object MediaUtils {
     @JvmStatic
     @Suppress("unused")
     fun writeToFile(data: ByteArray?, filePath: String) {
-        val file = File(filePath)
-        data?.let { file.appendBytes(it) }
+        try {
+            val file = File(filePath)
+            data?.let { file.appendBytes(it) }
+        } catch (ex:Exception) {
+            Log.e(TAG, ::writeToFile.name + " : "+  ex.message.toString())
+        }
+    }
+
+    @JvmStatic
+    @Suppress("unused")
+    fun isFileExist(filePath: String) : Boolean {
+        return try {
+            val file = File(filePath)
+            file.exists()
+        } catch (ex:Exception) {
+            Log.e(TAG, ::writeToFile.name + " : "+  ex.message.toString())
+            false
+        }
     }
 
     @JvmStatic

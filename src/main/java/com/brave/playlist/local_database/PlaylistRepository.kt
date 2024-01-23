@@ -12,6 +12,9 @@ import com.brave.playlist.model.HlsContentQueueModel
 import com.brave.playlist.model.LastPlayedPositionModel
 
 class PlaylistRepository(context: Context) {
+    companion object {
+        val TAG: String = "Playlist/"+this::class.java.simpleName
+    }
 
     private var mPlaylistItemModelDao: PlaylistItemModelDao? =
         PlaylistDatabase.getInstance(context)?.playlistItemModelDao()

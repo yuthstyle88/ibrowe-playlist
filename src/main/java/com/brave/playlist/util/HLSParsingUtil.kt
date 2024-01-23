@@ -14,7 +14,6 @@ import android.util.Log
 import androidx.media3.exoplayer.hls.playlist.HlsMediaPlaylist
 import androidx.media3.exoplayer.hls.playlist.HlsMultivariantPlaylist
 import androidx.media3.exoplayer.hls.playlist.HlsPlaylistParser
-import com.brave.playlist.util.ConstantUtils.TAG
 import java.io.File
 import java.io.FileInputStream
 import java.util.LinkedList
@@ -23,6 +22,7 @@ import java.util.Queue
 @SuppressLint("UnsafeOptInUsageError")
 @Suppress("unused")
 object HLSParsingUtil {
+    private val TAG: String = "Playlist/"+this::class.java.simpleName
     @JvmStatic
     fun getContentManifestUrl(
         context: Context,
