@@ -36,7 +36,6 @@
     <string name="playlist_edit_text">Edit</string>
     <string name="playlist_rename_text">Rename</string>
     <string name="playlist_delete_playlist">Delete playlist</string>
-    <string name="playlist_number_of_items">%s items</string>
     <string name="playlist_move_item">Move</string>
     <string name="playlist_copy_item">Copy</string>
     <string name="playlist_delete_item_offline_data">Delete item\'s offline data</string>

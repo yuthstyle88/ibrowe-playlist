@@ -27,7 +27,6 @@ import com.brave.playlist.model.PlaylistModel
 import com.brave.playlist.model.PlaylistOptionsModel
 import com.brave.playlist.util.ConstantUtils
 import com.brave.playlist.util.ConstantUtils.DEFAULT_PLAYLIST
-import com.brave.playlist.util.ConstantUtils.TAG
 import com.brave.playlist.util.PlaylistPreferenceUtils
 import com.brave.playlist.util.PlaylistPreferenceUtils.recentlyPlayedPlaylist
 import com.brave.playlist.view.PlaylistToolbar
@@ -37,6 +36,9 @@ import java.util.LinkedList
 
 class AllPlaylistFragment : Fragment(R.layout.fragment_all_playlist), PlaylistOptionsListener,
     PlaylistClickListener {
+    companion object {
+        val TAG: String = "Playlist/"+this::class.java.simpleName
+    }
     private lateinit var mPlaylistViewModel: PlaylistViewModel
 
     private lateinit var mPlaylistToolbar: PlaylistToolbar
