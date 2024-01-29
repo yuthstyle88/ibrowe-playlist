@@ -44,7 +44,6 @@
     <string name="playlist_open_in_private_tab">Open in private tab</string>
     <string name="playlist_delete_item">Delete</string>
     <string name="playlist_time_text">%1$s:</string>
-    <string name="playlist_duration_text">%1$s%2$s%3$s</string>
     <string name="playlist_please_select_items">Please select items first</string>
     <string name="playlist_empty_playlist_name">Please enter valid playlist name</string>
     <string name="playlist_share_with">"Share with : "</string>

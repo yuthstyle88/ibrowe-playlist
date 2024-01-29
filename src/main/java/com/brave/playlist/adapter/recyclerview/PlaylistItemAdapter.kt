@@ -119,17 +119,14 @@ class PlaylistItemAdapter(
                     val minutes = (((duration / 1000) - milliseconds) / 1000 - seconds) / 60 % 60
                     val hours =
                         ((((duration / 1000) - milliseconds) / 1000 - seconds) / 60 - minutes) / 60
-
-                    val hourTime: String = if (hours > 0) itemView.context.resources.getString(
-                        R.string.playlist_time_text, hours.toString()
-                    ) else ""
-                    val minuteTime: String = if (minutes > 0) itemView.context.resources.getString(
-                        R.string.playlist_time_text, minutes.toString()
-                    ) else ""
+                    var durationText = ""
+                    if (hours > 0) {
+                        durationText = durationText.plus(String.format("%02d:", hours))
+                    }
+                    durationText = durationText.plus(String.format("%02d:", minutes))
+                    durationText = durationText.plus(String.format("%02d", seconds))
                     tvMediaDuration.visibility = View.VISIBLE
-                    tvMediaDuration.text = itemView.context.resources.getString(
-                        R.string.playlist_duration_text, hourTime, minuteTime, seconds.toString()
-                    )
+                    tvMediaDuration.text = durationText
                 }
             }
             ivMediaOptions.visibility = if (!editMode) View.VISIBLE else View.GONE
