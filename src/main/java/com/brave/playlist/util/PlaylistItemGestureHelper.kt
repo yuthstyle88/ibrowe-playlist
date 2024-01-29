@@ -200,16 +200,7 @@ class PlaylistItemGestureHelper<VH : AbstractRecyclerViewAdapter.AbstractViewHol
         recyclerView: RecyclerView,
         viewHolder: RecyclerView.ViewHolder
     ): Int {
-        val selectedPlaylistItem = adapter.currentList[viewHolder.bindingAdapterPosition]
-        var swipeFlags = START or END
-//        if (selectedPlaylistItem is PlaylistItemModel) {
-//            swipeFlags = if (!PlaylistUtils.isPlaylistItemCached(selectedPlaylistItem)) {
-//                0
-//            } else {
-//                START or END
-//            }
-//        }
-        return makeMovementFlags(UP or DOWN, swipeFlags)
+        return makeMovementFlags(UP or DOWN, START or END)
     }
 
     override fun isLongPressDragEnabled(): Boolean = false
