@@ -24,8 +24,9 @@ import com.brave.playlist.model.MoveOrCopyModel
 import com.brave.playlist.model.PlaylistItemModel
 import com.brave.playlist.model.PlaylistOnboardingModel
 
-
 object PlaylistUtils {
+    private val TAG: String = "Playlist/"+this::class.java.simpleName
+
     @JvmStatic
     lateinit var moveOrCopyModel: MoveOrCopyModel
 
@@ -49,7 +50,7 @@ object PlaylistUtils {
             intent.action = ConstantUtils.PLAYLIST_ACTION
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         } catch (ex: ClassNotFoundException) {
-            Log.e(ConstantUtils.TAG, "playlistNotificationIntent" + ex.message)
+            Log.e(TAG, "playlistNotificationIntent" + ex.message)
             null
         }
     }
@@ -90,7 +91,7 @@ object PlaylistUtils {
             activity.finish()
             activity.startActivity(intent)
         } catch (ex: ClassNotFoundException) {
-            Log.e(ConstantUtils.TAG, "openBraveActivityWithUrl : " + ex.message)
+            Log.e(TAG, "openBraveActivityWithUrl : " + ex.message)
         }
     }
 
@@ -148,8 +149,8 @@ object PlaylistUtils {
                         Intent(context, hlsServiceClass)
                     )
             }
-        } catch (ex: ClassNotFoundException) {
-            Log.e(ConstantUtils.TAG, "hlsServiceClass" + ex.message)
+        } catch (ex: Exception) {
+            Log.e(TAG, "hlsServiceClass" + ex.message)
         }
     }
 }

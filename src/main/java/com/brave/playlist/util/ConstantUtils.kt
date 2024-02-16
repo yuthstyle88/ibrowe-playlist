@@ -8,7 +8,6 @@
 package com.brave.playlist.util
 
 object ConstantUtils {
-    const val TAG = "BravePlaylist"
     const val PLAYLIST_ID = "playlist_id"
     const val NEW_PLAYLIST = "new_playlist"
     const val PLAYLIST_MODEL = "playlist_model"

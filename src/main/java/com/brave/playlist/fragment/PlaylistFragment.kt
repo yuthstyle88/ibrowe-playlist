@@ -100,6 +100,7 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist), ItemInteractionLi
 
     private lateinit var mEmptyView: View
     private lateinit var mPlaylistView: View
+    private var isFirstRun:Boolean = true
 
     private val mPlaylistRepository: PlaylistRepository by lazy {
         PlaylistRepository(requireContext())
@@ -247,7 +248,7 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist), ItemInteractionLi
                 }
 
                 mTvTotalMediaCount.text = getString(
-                    R.string.playlist_number_of_items, mPlaylistModel.items.size.toString()
+                    R.string.playlist_number_items, mPlaylistModel.items.size
                 )
 
                 mTvPlaylistName.text =
@@ -296,7 +297,10 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist), ItemInteractionLi
                             }
                         }
                     }
-                    PlaylistUtils.checkAndStartHlsDownload(requireContext())
+                    if (isFirstRun) {
+                        PlaylistUtils.checkAndStartHlsDownload(requireContext())
+                        isFirstRun = false
+                    }
 
                     activity?.runOnUiThread {
                         if (totalFileSize > 0) {
