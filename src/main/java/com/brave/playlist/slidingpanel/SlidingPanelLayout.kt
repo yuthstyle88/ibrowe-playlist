@@ -26,7 +26,6 @@ import android.view.ViewGroup
 import android.view.accessibility.AccessibilityEvent
 import android.view.animation.Interpolator
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.view.ViewCompat
 import com.brave.playlist.R
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.math.abs
@@ -167,7 +166,6 @@ class BottomPanelLayout @JvmOverloads constructor(
                 )
             } == true) {
             setAllChildrenVisible()
-            ViewCompat.postInvalidateOnAnimation(this)
         }
     }
 
@@ -724,7 +722,6 @@ class BottomPanelLayout @JvmOverloads constructor(
                 mDragHelper?.abort()
                 return
             }
-            ViewCompat.postInvalidateOnAnimation(this)
         }
     }
 
