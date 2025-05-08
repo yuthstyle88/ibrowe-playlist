@@ -41,9 +41,9 @@ sh sdkmanager "build-tools;30.0.3"
 cd ../../../../..
 
 # Clone and build app
-sudo rm -rf playlist-kotlin/
-git clone https://github.com/brave-experiments/playlist-kotlin.git
-cd playlist-kotlin
+#sudo rm -rf playlist-kotlin/
+#git clone https://github.com/brave-experiments/playlist-kotlin.git
+#cd playlist-kotlin
 echo "sdk.dir=$ANDROID_SDK_HOME" > local.properties
 
 sudo chmod +x ./gradlew
